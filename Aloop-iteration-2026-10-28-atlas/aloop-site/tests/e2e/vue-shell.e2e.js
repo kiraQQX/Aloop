@@ -2,6 +2,9 @@ import { expect, test } from '@playwright/test';
 
 test('the About page route resolves in the Vite development server', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
+  const legacy = page.frameLocator('iframe.legacy-runtime');
+  await expect(legacy.locator('#home')).toHaveCount(1);
+  await expect(legacy.locator('vite-error-overlay')).toHaveCount(0);
 
   const aboutResponsePromise = page.waitForResponse((response) => {
     try {
