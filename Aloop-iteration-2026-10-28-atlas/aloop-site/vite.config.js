@@ -35,7 +35,7 @@ const serveLegacyRuntime = {
   apply: 'serve',
   configureServer(server) {
     server.middlewares.use(async (request, response, next) => {
-      const [pathname, query] = (request.url || '').split('?');
+      const [pathname] = (request.url || '').split('?');
       let decodedPath = pathname;
       try {
         decodedPath = decodeURIComponent(pathname);
@@ -43,18 +43,17 @@ const serveLegacyRuntime = {
         // Leave malformed URLs to Vite's normal request handling.
       }
 
-      if (decodedPath === '/说明.html') {
-        request.url = `/璇存槑.html${query ? `?${query}` : ''}`;
+      // The iframe runtime must remain a classic static H5 site in dev: Vite's
+      // HTML transform crawls module scripts and cannot resolve the legacy import map.
+      const sourcePath = decodedPath === '/说明.html' ? '/璇存槑.html' : decodedPath;
+      const isLegacyDocument = decodedPath === '/legacy.html' || decodedPath === '/说明.html';
+      const isLegacyAsset = decodedPath.startsWith('/assets/') || decodedPath.startsWith('/experiments/');
+      if (!isLegacyDocument && !isLegacyAsset) {
         next();
         return;
       }
 
-      if (!decodedPath.startsWith('/assets/') && !decodedPath.startsWith('/experiments/')) {
-        next();
-        return;
-      }
-
-      const filePath = resolve(projectRoot, `.${decodedPath}`);
+      const filePath = resolve(projectRoot, `.${sourcePath}`);
       if (!filePath.startsWith(`${projectRoot}${sep}`)) {
         response.statusCode = 403;
         response.end('Forbidden');
