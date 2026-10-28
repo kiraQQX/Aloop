@@ -39,6 +39,6 @@ const copyLegacyRuntime = {
 };
 
 export default defineConfig({
-  plugins: [vue(), copyLegacyRuntime],
+  plugins: [vue(), serveAboutPageAlias, copyLegacyRuntime],
   test: { environment: 'jsdom', restoreMocks: true, clearMocks: true },
 });
