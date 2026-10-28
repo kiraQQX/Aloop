@@ -11,6 +11,8 @@ button { font: inherit; }
 .vue-nav button, .vue-language button { min-height: 36px; border: 1px solid transparent; border-radius: 8px; padding: 0 12px; background: transparent; color: #52677d; font-size: 14px; cursor: pointer; transition: color .15s ease, background .15s ease, border-color .15s ease; }
 .vue-nav button:hover, .vue-language button:hover { color: #23466d; background: #f2f6fa; }
 .vue-nav button[aria-current="page"] { border-color: #d7e3ef; background: #edf3f9; color: #23466d; font-weight: 650; }
+.vue-experiment-menu { position: absolute; top: calc(100% - 4px); left: clamp(140px, 18vw, 240px); z-index: 40; min-width: 180px; padding: 8px; border: 1px solid #dce5ef; border-radius: 12px; background: rgba(255,255,255,.98); box-shadow: 0 14px 36px rgba(23,54,84,.12); }
+.vue-experiment-menu button { width: 100%; text-align: left; }
 .vue-language { display: flex; flex: 0 0 auto; gap: 2px; padding: 3px; border: 1px solid #e0e7ef; border-radius: 10px; background: #f8fafc; }
 .vue-language button { min-width: 34px; min-height: 30px; padding: 0 7px; }
 .vue-language button[aria-pressed="true"] { background: #23466d; color: #fff; }
