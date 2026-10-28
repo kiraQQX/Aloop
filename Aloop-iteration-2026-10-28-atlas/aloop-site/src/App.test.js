@@ -78,3 +78,32 @@ describe('Vue-owned navigation and language controls', () => {
     expect(root.querySelector('[data-shell-language="zh"]').getAttribute('aria-pressed')).toBe('false');
   });
 });
+
+
+describe('Vue experiment menu compatibility', () => {
+  let app;
+  let host;
+  afterEach(() => {
+    app?.unmount();
+    document.body.innerHTML = '';
+    window.location.hash = '';
+    app = undefined;
+    host = undefined;
+  });
+
+  it('keeps the beLieve experiment reachable from the Vue-owned experiments menu', async () => {
+    host = document.createElement('div');
+    document.body.appendChild(host);
+    app = createApp(App);
+    app.mount(host);
+    await nextTick();
+    host.querySelector('[data-shell-route="experiments"]').click();
+    await nextTick();
+    const item = host.querySelector('[data-shell-experiment="believe"]');
+    expect(item).not.toBeNull();
+    item.click();
+    await nextTick();
+    expect(host.querySelector('iframe').getAttribute('src')).toContain('#/e/believe');
+    expect(window.location.hash).toBe('#/e/believe');
+  });
+});
