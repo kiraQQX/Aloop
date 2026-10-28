@@ -10,8 +10,15 @@ const copyLegacyRuntime = {
   apply: 'build',
   configureServer(server) {
     server.middlewares.use((request, _response, next) => {
-      if (request.url?.split('?')[0] === '/说明.html') {
-        request.url = request.url.replace('/说明.html', '/璇存槑.html');
+      const [pathname, query] = (request.url || '').split('?');
+      let decodedPath = pathname;
+      try {
+        decodedPath = decodeURIComponent(pathname);
+      } catch {
+        // Leave malformed URLs to Vite's normal request handling.
+      }
+      if (decodedPath === '/说明.html') {
+        request.url = `/璇存槑.html${query ? `?${query}` : ''}`;
       }
       next();
     });
