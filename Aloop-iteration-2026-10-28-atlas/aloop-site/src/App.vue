@@ -5,6 +5,7 @@ const frame = ref(null);
 const status = ref('正在加载原有实验环境…');
 const language = ref('zh');
 const route = ref('home');
+const experimentsMenuOpen = ref(false);
 
 const copy = computed(() => language.value === 'zh'
   ? { home: '首页', experiments: '实验', easysci: 'EasySci', brain: 'Smart Brain', about: '说明', loading: '正在加载原有实验环境…', language: '语言切换' }
@@ -33,21 +34,27 @@ function onFrameLoad() {
 
 const shellHashes = {
   home: '#/',
-  experiments: '#/experiments',
+  experiments: '#/e/believe',
   easysci: '#/easysci',
   'smart-brain': '#/smart-brain',
   about: '#/about',
 };
 const legacyHashes = {
   home: '#/',
-  experiments: '#/',
+  experiments: '#/e/believe',
   easysci: '#/easysci',
   'smart-brain': '#/smart-brain',
 };
 
 function targetFromHash(hash) {
-  const key = (hash || '#/').replace(/^#\/?/, '').split('/').filter(Boolean)[0] || 'home';
+  const parts = (hash || '#/').replace(/^#\/?/, '').split('/').filter(Boolean);
+  if (parts[0] === 'e') return 'experiments';
+  const key = parts[0] || 'home';
   return Object.hasOwn(shellHashes, key) ? key : 'home';
+}
+
+function toggleExperimentsMenu() {
+  experimentsMenuOpen.value = !experimentsMenuOpen.value;
 }
 
 function updateFrame(target) {
@@ -78,7 +85,9 @@ function onLegacyHashChange() {
     if (!frame.value?.contentWindow?.location.pathname.endsWith('/legacy.html')) return;
     const target = targetFromHash(frame.value.contentWindow.location.hash);
     route.value = target;
-    if (window.location.hash !== shellHashes[target]) window.location.hash = shellHashes[target];
+    const legacyHash = frame.value.contentWindow.location.hash;
+    const nextHash = legacyHash.startsWith('#/e/') ? legacyHash : shellHashes[target];
+    if (window.location.hash !== nextHash) window.location.hash = nextHash;
   } catch {
     // The shell remains usable if the embedded document is unavailable.
   }
@@ -112,7 +121,10 @@ onBeforeUnmount(() => {
       </button>
       <nav class="vue-nav" aria-label="Primary navigation" data-testid="vue-shell-nav">
         <button type="button" data-shell-route="home" :aria-current="route === 'home' ? 'page' : undefined" @click="navigate('home')">{{ copy.home }}</button>
-        <button type="button" data-shell-route="experiments" :aria-current="route === 'experiments' ? 'page' : undefined" @click="navigate('experiments')">{{ copy.experiments }}</button>
+        <button type="button" data-shell-route="experiments" :aria-current="route === 'experiments' ? 'page' : undefined" :aria-expanded="experimentsMenuOpen" aria-haspopup="menu" @click="toggleExperimentsMenu">{{ copy.experiments }}</button>
+        <div v-if="experimentsMenuOpen" class="vue-experiment-menu" role="menu" aria-label="Experiments">
+          <button type="button" data-shell-experiment="believe" role="menuitem" @click="experimentsMenuOpen = false; navigate('experiments')">beLieve</button>
+        </div>
         <button type="button" data-shell-route="easysci" :aria-current="route === 'easysci' ? 'page' : undefined" @click="navigate('easysci')">{{ copy.easysci }}</button>
         <button type="button" data-shell-route="smart-brain" :aria-current="route === 'smart-brain' ? 'page' : undefined" @click="navigate('smart-brain')">{{ copy.brain }}</button>
         <button type="button" data-shell-route="about" :aria-current="route === 'about' ? 'page' : undefined" @click="navigate('about')">{{ copy.about }}</button>
