@@ -5,9 +5,9 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
-const copyLegacyRuntime = {
-  name: 'copy-legacy-runtime',
-  apply: 'build',
+const serveAboutPageAlias = {
+  name: 'serve-about-page-alias',
+  apply: 'serve',
   configureServer(server) {
     server.middlewares.use((request, _response, next) => {
       const [pathname, query] = (request.url || '').split('?');
@@ -23,6 +23,11 @@ const copyLegacyRuntime = {
       next();
     });
   },
+};
+
+const copyLegacyRuntime = {
+  name: 'copy-legacy-runtime',
+  apply: 'build',
   async closeBundle() {
     const output = resolve(projectRoot, 'dist');
     await mkdir(output, { recursive: true });
