@@ -147,3 +147,13 @@ describe('Vue shell routing regression cases', () => {
     expect(root.querySelector('iframe').getAttribute('src')).toContain('#/smart-brain/atlas');
   });
 });
+
+
+  it('preserves direct EasySci category deep links in the Vue shell and iframe', async () => {
+    window.location.hash = '#/easysci/analysis';
+    const root = await mount();
+    await nextTick();
+    expect(root.querySelector('[data-shell-route="easysci"]').getAttribute('aria-current')).toBe('page');
+    expect(window.location.hash).toBe('#/easysci/analysis');
+    expect(root.querySelector('iframe').getAttribute('src')).toContain('#/easysci/analysis');
+  });
