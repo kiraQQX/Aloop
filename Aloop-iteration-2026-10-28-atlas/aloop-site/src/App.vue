@@ -17,24 +17,71 @@ function syncLegacyLanguage() {
   button?.click();
 }
 
+let legacyWindow = null;
+
 function onFrameLoad() {
   status.value = '';
+  if (legacyWindow) legacyWindow.removeEventListener('hashchange', onLegacyHashChange);
+  try {
+    legacyWindow = frame.value?.contentWindow || null;
+    legacyWindow?.addEventListener('hashchange', onLegacyHashChange);
+  } catch {
+    legacyWindow = null;
+  }
   syncLegacyLanguage();
 }
 
-function navigate(target) {
-  route.value = target;
+const shellHashes = {
+  home: '#/',
+  experiments: '#/experiments',
+  easysci: '#/easysci',
+  'smart-brain': '#/smart-brain',
+  about: '#/about',
+};
+const legacyHashes = {
+  home: '#/',
+  experiments: '#/',
+  easysci: '#/easysci',
+  'smart-brain': '#/smart-brain',
+};
+
+function targetFromHash(hash) {
+  const key = (hash || '#/').replace(/^#\/?/, '').split('/').filter(Boolean)[0] || 'home';
+  return Object.hasOwn(shellHashes, key) ? key : 'home';
+}
+
+function updateFrame(target) {
+  if (!frame.value) return;
   if (target === 'about') {
-    frame.value.src = './说明.html';
+    if (!frame.value.getAttribute('src')?.endsWith('./说明.html')) frame.value.src = './说明.html';
     return;
   }
-  const hashes = {
-    home: '#/',
-    experiments: '#/',
-    easysci: '#/easysci',
-    'smart-brain': '#/smart-brain',
-  };
-  frame.value.src = `./legacy.html?embed=1${hashes[target] || '#/'}`;
+  const src = `./legacy.html?embed=1${legacyHashes[target] || '#/'}`;
+  if (frame.value.getAttribute('src') !== src) frame.value.src = src;
+}
+
+function navigate(target) {
+  if (!Object.hasOwn(shellHashes, target)) return;
+  route.value = target;
+  updateFrame(target);
+  if (window.location.hash !== shellHashes[target]) window.location.hash = shellHashes[target];
+}
+
+function onShellHashChange() {
+  const target = targetFromHash(window.location.hash);
+  route.value = target;
+  updateFrame(target);
+}
+
+function onLegacyHashChange() {
+  try {
+    if (!frame.value?.contentWindow?.location.pathname.endsWith('/legacy.html')) return;
+    const target = targetFromHash(frame.value.contentWindow.location.hash);
+    route.value = target;
+    if (window.location.hash !== shellHashes[target]) window.location.hash = shellHashes[target];
+  } catch {
+    // The shell remains usable if the embedded document is unavailable.
+  }
 }
 
 function setLanguage(value) {
@@ -44,9 +91,15 @@ function setLanguage(value) {
 
 onMounted(() => {
   frame.value?.addEventListener('load', onFrameLoad);
+  window.addEventListener('hashchange', onShellHashChange);
+  const initialRoute = targetFromHash(window.location.hash);
+  route.value = initialRoute;
+  updateFrame(initialRoute);
 });
 onBeforeUnmount(() => {
   frame.value?.removeEventListener('load', onFrameLoad);
+  window.removeEventListener('hashchange', onShellHashChange);
+  legacyWindow?.removeEventListener('hashchange', onLegacyHashChange);
 });
 </script>
 
