@@ -1,0 +1,49 @@
+/* Aloop brand system — university-inspired research blue */
+:root {
+  --pt-deep: #1B3A66; --pt-primary: #315E91; --pt-mid: #477EAE; --pt-cyan: #3A9FA8; --pt-signal: #F2CC4D;
+  --bg-contour-top: #FFFFFF; --bg-contour-bottom: #EEF4FB;
+  color-scheme: light;
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --surface-raised: rgba(255,255,255,.96);
+  --c-primary: #315E91;
+  --c-deep: #23466D;
+  --c-blue: #477EAE;
+  --c-secondary: #F2CC4D;
+  --accent-yellow: #FFD84D;
+  --c-tertiary: #5AB7BD;
+  --c-action-hover: #F2CC4D;\n  --c-action-pressed: #D9B333;\n  --c-focus-ring: #23466D;\n  --c-disabled: #AAB6C5;
+  --text: #253449;
+  --text-2: #5E6D82;
+  --text-3: #5E6D82;
+  --border: #DCE4ED;
+  --border-strong: #BAC8D9;
+  --ok: #237A57;
+  --error: #B42332;
+  --radius-pill: 30px;
+  --radius-card: 16px;
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 40px;
+  --space-5: 50px;
+  --space-6: 80px;
+  --font-latin: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --ease-expressive: cubic-bezier(.19,1,.22,1);
+  --ease-standard: cubic-bezier(.215,.61,.355,1);
+  --fs-hero: clamp(56px,9vw,96px);
+  --fs-h1: clamp(40px,6vw,64px);
+  --fs-h2: clamp(28px,3.4vw,40px);
+  --fs-card: clamp(19px,1.6vw,24px);
+  --fs-lede: clamp(17px,1.5vw,20px);
+  --bar-height: 64px;
+  --page-pad: clamp(20px,3.5vw,50px);
+  --focus: 0 0 0 2px #FFFFFF, 0 0 0 4px var(--c-focus-ring);
+}
+
+/* Interaction-state contract: blue action baseline, yellow active emphasis, semantic states preserved. */
+:where(button,.button,.btn,[role="button"],input,select,textarea,a):focus-visible{outline:0;box-shadow:var(--focus);}
+:where(button,.button,.btn,[role="button"]):not(:disabled):not([aria-disabled="true"]):not(.nav-trigger):not(.lang-trigger):hover{border-color:var(--c-action-hover);}
+:where(button,.button,.btn,[role="button"]):not(:disabled):not([aria-disabled="true"]):not(.nav-trigger):not(.lang-trigger):active{border-color:var(--c-action-pressed);}
+:where(button,.button,.btn,[role="button"]):disabled,[aria-disabled="true"]{cursor:not-allowed;opacity:.58;}

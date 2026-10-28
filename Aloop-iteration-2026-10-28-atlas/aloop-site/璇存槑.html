@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aloop · 说明</title>
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/topbar.css">
+<link rel="stylesheet" href="assets/css/theme-blue.css">
+<style>
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-cjk);line-height:1.75}
+.about-wrap{max-width:980px;margin:0 auto;padding:calc(var(--bar-height) + 48px) 24px 80px}
+.about-top{position:fixed;z-index:10;inset:0 0 auto;min-height:var(--bar-height);display:flex;align-items:center;justify-content:space-between;padding:0 var(--page-pad);border-bottom:1px solid var(--border);background:rgba(245,247,250,.92);backdrop-filter:blur(12px)}
+.about-top a{color:var(--c-primary);text-decoration:none;font-weight:650}
+.eyebrow{color:var(--c-primary);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+h1{font-size:clamp(36px,6vw,60px);line-height:1.1;letter-spacing:-.04em;margin:12px 0 20px}
+h2{font-size:22px;margin:38px 0 8px}.panel{padding:22px 24px;border:1px solid var(--border);border-radius:16px;background:var(--surface);margin:16px 0}
+a{color:var(--c-primary);overflow-wrap:anywhere}.muted{color:var(--text-2);font-size:14px}
+</style></head>
+<body>
+<header class="about-top"><a href="./#/ ">Aloop</a><a href="./#/">返回首页 ↗</a></header>
+<main class="about-wrap">
+<div class="eyebrow">ALOOP / INFORMATION</div><h1>说明</h1>
+<p>本页集中说明 Aloop 的使用方式、第三方资源来源、许可信息与技术边界。许可状态仅按当前代码中能够识别的来源记录；发布前仍应逐项核对依赖版本、资源文件及上游许可文件。</p>
+<section class="panel"><h2>网站使用</h2><p>通过顶部「实验」进入实验模块，通过「产品」访问 EasySci 与 Smart Brain。首页大脑为品牌展示交互，支持指针旋转与点击粒子扩散；Smart Brain 属于独立产品模块，其模型加载与交互状态应与首页隔离。部分功能依赖浏览器 WebGL、外部 CDN 或模型托管服务。</p><p class="muted">心理学实验与学习内容仅供研究/教学用途，不构成临床诊断或治疗建议。请在开展研究前完成适当的伦理审查、知情同意与数据保护安排。</p></section>
+<section class="panel"><h2>首页大脑模型</h2><p>模型加载地址：<a href="https://raw.githubusercontent.com/itayinbarr/brainproject/main/brain-atlas/models/brain.glb" target="_blank" rel="noopener noreferrer">brain.glb（上游原始模型）</a>；上游项目：<a href="https://github.com/itayinbarr/brainproject" target="_blank" rel="noopener noreferrer">itayinbarr/brainproject</a>。</p><p>项目现有源码注释将解剖几何资源归因于 Z-Anatomy / BodyParts3D / DBCLS，并标注 CC BY-SA 4.0；该标注应与实际下载版本中的元数据和上游许可文件再次核验。首页使用独立场景采样模型表面粒子，隐藏的是首页场景内的实体网格，不应修改 Smart Brain 场景的材质或可见性。</p></section>
+<section class="panel"><h2>开源组件与依赖</h2><p>当前首页粒子渲染代码通过模块导入使用 Three.js，并尝试使用 GLTF/DRACO 相关加载能力。应以项目部署时实际解析到的 Three.js 版本及其随附 LICENSE 文件为准。当前压缩包没有包含可供独立审计的第三方模型二进制文件或完整依赖锁定清单，因此本页不宣称已经完成全部依赖许可证审计。</p><p>项目自有 HTML、CSS 与 JavaScript 文件的许可范围应以仓库根目录中实际存在的 LICENSE 文件或发布声明为准；若仓库未提供，不能据此推定为开源或授予特定使用权。</p></section>
+<section class="panel"><h2>版权与可追溯性</h2><p>第三方模型、代码库和外部服务仍归各自权利人所有。使用者应遵循对应许可中的署名、相同方式共享、再分发及其他适用条件。来源地址、版本号和许可文本应随正式发布版本归档。</p><p class="muted">核验状态：来源链接已从当前代码识别；完整许可证文本、部署依赖版本及最终分发义务尚需发布前审计。此状态不等同于法律意见。</p></section>
+</main></body></html>

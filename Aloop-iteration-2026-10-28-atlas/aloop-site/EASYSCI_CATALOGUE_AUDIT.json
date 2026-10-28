@@ -1,0 +1,35 @@
+{
+  "auditDate": "2026-10-22",
+  "sourceRecordCount": 148,
+  "finalRecordCount": 432,
+  "newRecords": 284,
+  "categoryCounts": {
+    "assets": 68,
+    "coding": 50,
+    "creative": 50,
+    "data": 50,
+    "design": 55,
+    "experiment": 57,
+    "image": 50,
+    "research": 52
+  },
+  "accessModelMembershipCounts": {
+    "Free": 234,
+    "Freemium": 160,
+    "Open Source": 161,
+    "Paid": 38
+  },
+  "sourceImportCounts": {
+    "assets": 53,
+    "design": 42,
+    "experiment": 52
+  },
+  "uniqueIds": 432,
+  "uniqueCanonicalUrls": 432,
+  "pendingManualVerification": 432,
+  "notes": [
+    "Official homepage URLs are used as destinations; a syntactic HTTPS check is not a live HTTP-status check.",
+    "New imports and additions keep lastVerifiedAt=null until a person has checked the current destination, plan, and licence.",
+    "Access labels are directory-level guidance, not a guarantee that all functionality is free."
+  ]
+}

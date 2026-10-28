@@ -1,0 +1,42 @@
+penpot|Penpot|design|ui-design|FO|https://penpot.app/|https://github.com/penpot/penpot|开源的设计与原型协作工具，可自托管。|Open-source design and prototyping tool for teams, self-hostable.
+sketch|Sketch|design|ui-design|P|https://www.sketch.com/|null|macOS 原生矢量 UI 设计工具，另提供网页协作。|Native macOS vector UI design tool with web-based collaboration.
+framer|Framer|design|website-builder|M|https://www.framer.com/|null|设计到发布一体的网站构建器，支持动效。|Design-to-publish website builder with built-in motion.
+webflow|Webflow|design|website-builder|M|https://webflow.com/|null|可视化网站开发平台，导出整洁语义代码。|Visual web development platform that outputs clean semantic markup.
+inkscape|Inkscape|design|vector-editor|FO|https://inkscape.org/|https://gitlab.com/inkscape/inkscape|开源矢量图形编辑器，适合论文图与图标。|Open-source vector graphics editor suited to figures and icons.
+adobe-illustrator|Adobe Illustrator|design|vector-editor|P|https://www.adobe.com/products/illustrator.html|null|行业标准矢量绘图软件。|Industry-standard vector illustration software.
+adobe-indesign|Adobe InDesign|design|layout|P|https://www.adobe.com/products/indesign.html|null|专业排版软件，适合论文集、海报与小册子。|Professional layout software for books, posters, and brochures.
+scribus|Scribus|design|layout|FO|https://www.scribus.net/|https://github.com/scribusproject/scribus|开源桌面排版软件，支持 CMYK 与 PDF 输出。|Open-source desktop publishing with CMYK and PDF output.
+lunacy|Lunacy|design|ui-design|F|https://icons8.com/lunacy|null|免费的 Sketch 文件兼容设计工具。|Free design tool that opens Sketch files.
+whimsical|Whimsical|design|diagramming|M|https://whimsical.com/|null|快速绘制流程图、线框图与思维导图。|Fast flowcharts, wireframes, and mind maps.
+miro|Miro|design|whiteboard|M|https://miro.com/|null|在线协作白板，适合研究团队头脑风暴。|Online collaborative whiteboard for team brainstorming.
+figjam|FigJam|design|whiteboard|M|https://www.figma.com/figjam/|null|Figma 的协作白板与流程图工具。|Figma's collaborative whiteboard and diagramming tool.
+lucidchart|Lucidchart|design|diagramming|M|https://www.lucidchart.com/|null|在线流程图与系统图工具。|Online flowchart and system diagram tool.
+diagrams-net|diagrams.net (draw.io)|design|diagramming|FO|https://www.diagrams.net/|https://github.com/jgraph/drawio|免费开源流程图工具，文件可存本地。|Free open-source diagramming tool that can keep files local.
+tldraw|tldraw|design|whiteboard|FM|https://tldraw.com/|https://github.com/tldraw/tldraw|无限画布白板，同时提供 SDK。|Infinite-canvas whiteboard that also ships as an SDK.
+mermaid|Mermaid|design|diagram-as-code|FO|https://mermaid.js.org/|https://github.com/mermaid-js/mermaid|用文本生成流程图、时序图与甘特图。|Generate flowcharts, sequence diagrams, and Gantt charts from text.
+plantuml|PlantUML|design|diagram-as-code|FO|https://plantuml.com/|https://github.com/plantuml/plantuml|用文本描述生成 UML 与多种结构图。|Text-based generation of UML and other structural diagrams.
+graphviz|Graphviz|design|diagram-as-code|FO|https://graphviz.org/|https://gitlab.com/graphviz/graphviz|经典的图结构自动布局与绘制工具。|Classic tool for automatic graph layout and rendering.
+d2|D2|design|diagram-as-code|FO|https://d2lang.com/|https://github.com/terrastruct/d2|现代的图表脚本语言，输出美观的 SVG。|Modern diagram scripting language that renders clean SVG.
+coolors|Coolors|design|color-tools|M|https://coolors.co/|null|快速生成并导出配色方案。|Quickly generate and export colour palettes.
+adobe-color|Adobe Color|design|color-tools|F|https://color.adobe.com/|null|依据色彩理论创建配色并检查无障碍。|Build colour themes from colour theory and check accessibility.
+colorbrewer|ColorBrewer|design|color-tools|F|https://colorbrewer2.org/|https://github.com/axismaps/colorbrewer|为地图与图表设计的色盲友好配色。|Colour schemes for maps and charts, including colour-blind-safe options.
+realtime-colors|Realtime Colors|design|color-tools|FO|https://www.realtimecolors.com/|https://github.com/juxtopposed/realtimecolors|在真实页面上实时预览配色与字体。|Preview colours and fonts on a live page mockup.
+webaim-contrast|WebAIM Contrast Checker|design|accessibility|F|https://webaim.org/resources/contrastchecker/|null|检查文字与背景对比度是否符合 WCAG。|Checks text and background contrast against WCAG thresholds.
+material-design-3|Material Design 3|design|design-system|F|https://m3.material.io/|null|Google 的设计系统与组件规范。|Google's design system and component guidance.
+shadcn-ui|shadcn/ui|design|component-library|FO|https://ui.shadcn.com/|https://github.com/shadcn-ui/ui|可复制进项目的 React 组件集合，基于 Tailwind 与 Radix。|Copy-into-your-project React components built on Tailwind and Radix.
+tailwindcss|Tailwind CSS|design|css-framework|FO|https://tailwindcss.com/|https://github.com/tailwindlabs/tailwindcss|原子化 CSS 框架，便于快速构建界面。|Utility-first CSS framework for building interfaces quickly.
+storybook|Storybook|design|component-workbench|FO|https://storybook.js.org/|https://github.com/storybookjs/storybook|独立开发、测试与文档化 UI 组件的工作台。|Workbench for building, testing, and documenting UI components in isolation.
+spline|Spline|design|3d-design|M|https://spline.design/|null|浏览器内的 3D 设计与交互工具，可嵌入网页。|Browser-based 3D design and interaction tool that embeds into web pages.
+rive|Rive|design|interactive-animation|M|https://rive.app/|https://github.com/rive-app|交互式矢量动画与状态机设计工具。|Interactive vector animation and state-machine design tool.
+uizard|Uizard|design|ai-design|M|https://uizard.io/|null|从文本或草图生成界面原型的 AI 工具。|AI tool that generates UI prototypes from text or sketches.
+visily|Visily|design|ai-design|M|https://www.visily.ai/|null|AI 辅助的线框与原型设计工具。|AI-assisted wireframe and prototype tool.
+google-stitch|Google Stitch|design|ai-design|F|https://stitch.withgoogle.com/|null|Google 实验的 AI 界面设计工具，可导出到 Figma。|Google's experimental AI UI design tool with Figma export.
+v0|v0|design|ai-design|M|https://v0.app/|null|Vercel 的 AI 界面与前端代码生成工具。|Vercel's AI generator for interfaces and frontend code.
+relume|Relume|design|ai-design|M|https://www.relume.io/|null|AI 站点地图与线框生成及组件库。|AI sitemap and wireframe generation with a component library.
+lovable|Lovable|design|ai-app-builder|M|https://lovable.dev/|null|用对话生成并部署全栈网页应用。|Generate and deploy full-stack web apps through conversation.
+pitch|Pitch|design|presentation|M|https://pitch.com/|null|协作式演示文稿工具，模板精美。|Collaborative presentation tool with polished templates.
+gamma|Gamma|design|presentation|M|https://gamma.app/|null|AI 生成演示文稿、文档与网页。|AI generator for presentations, documents, and web pages.
+beautiful-ai|Beautiful.ai|design|presentation|P|https://www.beautiful.ai/|null|带自动排版的演示文稿工具。|Presentation tool with automatic layout.
+marp|Marp|design|presentation|FO|https://marp.app/|https://github.com/marp-team/marp|用 Markdown 编写幻灯片并导出 PDF 或 PPTX。|Write slides in Markdown and export to PDF or PPTX.
+revealjs|reveal.js|design|presentation|FO|https://revealjs.com/|https://github.com/hakimel/reveal.js|基于 HTML 的开源演示框架。|Open-source HTML presentation framework.
+slidev|Slidev|design|presentation|FO|https://sli.dev/|https://github.com/slidevjs/slidev|面向开发者的 Markdown 幻灯片工具，支持代码高亮。|Markdown slides for developers with code highlighting.

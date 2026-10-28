@@ -1,0 +1,53 @@
+noun-project|The Noun Project|assets|icon-library|M|https://thenounproject.com/|null|海量图标与图形库，按条目标注授权与署名要求。|Large icon and graphic library with per-item licensing and attribution requirements.
+iconify|Iconify|assets|icon-library|FO|https://iconify.design/|https://github.com/iconify/iconify|聚合数十个开源图标集的统一检索与调用框架。|Unified search and delivery framework aggregating many open-source icon sets.
+lucide|Lucide|assets|icon-library|FO|https://lucide.dev/|https://github.com/lucide-icons/lucide|简洁一致的开源线性图标集，支持多种前端框架。|Clean, consistent open-source line icons with bindings for many frameworks.
+feather-icons|Feather|assets|icon-library|FO|https://feathericons.com/|https://github.com/feathericons/feather|轻量的开源简约图标集。|Lightweight open-source minimalist icon set.
+heroicons|Heroicons|assets|icon-library|FO|https://heroicons.com/|https://github.com/tailwindlabs/heroicons|Tailwind 团队制作的手工 SVG 图标。|Hand-crafted SVG icons from the Tailwind team.
+phosphor-icons|Phosphor Icons|assets|icon-library|FO|https://phosphoricons.com/|https://github.com/phosphor-icons/core|多字重、风格灵活的开源图标族。|Flexible open-source icon family available in several weights.
+tabler-icons|Tabler Icons|assets|icon-library|FO|https://tabler.io/icons|https://github.com/tabler/tabler-icons|数千枚免费开源 SVG 图标。|Thousands of free open-source SVG icons.
+bootstrap-icons|Bootstrap Icons|assets|icon-library|FO|https://icons.getbootstrap.com/|https://github.com/twbs/icons|Bootstrap 官方开源图标库。|Official open-source icon library for Bootstrap.
+material-symbols|Material Symbols|assets|icon-library|FO|https://fonts.google.com/icons|https://github.com/google/material-design-icons|Google 的可变字体图标集，适合界面设计。|Google's variable-font icon set for interface design.
+remix-icon|Remix Icon|assets|icon-library|FO|https://remixicon.com/|https://github.com/Remix-Design/RemixIcon|中性风格的开源系统图标。|Neutral-style open-source system icons.
+iconoir|Iconoir|assets|icon-library|FO|https://iconoir.com/|https://github.com/iconoir-icons/iconoir|免费开源的 SVG 图标库。|Free open-source SVG icon library.
+iconscout|IconScout|assets|icon-library|M|https://iconscout.com/|null|图标、插画与 Lottie 动效的综合素材市场。|Marketplace for icons, illustrations, and Lottie animations.
+streamline|Streamline|assets|icon-library|M|https://www.streamlinehq.com/|null|多风格图标与插画库，含免费图标集。|Multi-style icon and illustration library with free sets.
+open-peeps|Open Peeps|assets|illustration|F|https://www.openpeeps.com/|null|手绘人物插画素材，可自由组合表情与姿态。|Hand-drawn people illustrations that can be mixed by pose and expression.
+humaaans|Humaaans|assets|illustration|F|https://www.humaaans.com/|null|可混搭的扁平人物插画素材。|Mix-and-match flat illustrations of people.
+drawkit|DrawKit|assets|illustration|M|https://www.drawkit.com/|null|矢量插画与图标素材，含免费包。|Vector illustrations and icons with free packs.
+blush|Blush|assets|illustration|M|https://blush.design/|null|与多位插画师合作的可定制插画库。|Customizable illustration library built with many artists.
+manypixels|ManyPixels|assets|illustration|M|https://www.manypixels.co/gallery|null|免费与付费矢量插画图库。|Free and premium vector illustration gallery.
+burst|Burst by Shopify|assets|stock-photo|F|https://www.shopify.com/stock-photos|null|免版税商业图库，由 Shopify 提供。|Royalty-free stock photos provided by Shopify.
+kaboompics|Kaboompics|assets|stock-photo|F|https://kaboompics.com/|null|免费生活方式图库，附配色提取。|Free lifestyle stock photos with extracted colour palettes.
+stocksnap|StockSnap.io|assets|stock-photo|F|https://stocksnap.io/|null|免费高清图库，采用 CC0 风格授权。|Free high-resolution photos under CC0-style licensing.
+openverse|Openverse|assets|open-license-search|F|https://openverse.org/|https://github.com/WordPress/openverse|检索数亿开放授权图片与音频的搜索引擎，使用前需核对来源授权。|Search engine for open-licensed images and audio; verify each item's licence at its source.
+wikimedia-commons|Wikimedia Commons|assets|open-license-search|F|https://commons.wikimedia.org/|null|开放授权媒体库，每个文件列明许可证与署名要求。|Open-licensed media repository where each file lists its licence and attribution.
+smithsonian-open-access|Smithsonian Open Access|assets|public-domain|F|https://www.si.edu/openaccess|null|史密森尼数百万 CC0 数字藏品。|Millions of CC0 digital items from the Smithsonian collections.
+met-open-access|The Met Open Access|assets|public-domain|F|https://www.metmuseum.org/about-the-met/policies-and-documents/open-access|null|大都会博物馆公共领域藏品图像，可自由使用。|Public-domain images from the Metropolitan Museum of Art collection.
+rijksstudio|Rijksstudio|assets|public-domain|F|https://www.rijksmuseum.nl/en/rijksstudio|null|荷兰国立博物馆高分辨率公共领域艺术品。|High-resolution public-domain artworks from the Rijksmuseum.
+loc-free-to-use|Library of Congress Free to Use|assets|public-domain|F|https://www.loc.gov/free-to-use/|null|美国国会图书馆精选无已知版权限制的集合。|Curated Library of Congress sets with no known copyright restrictions.
+nasa-images|NASA Image and Video Library|assets|public-domain|F|https://images.nasa.gov/|null|NASA 图像、视频与音频，多数可免费使用，仍需注意标识限制。|NASA images, video, and audio, mostly free to use; check insignia and rights notes.
+europeana|Europeana|assets|public-domain|F|https://www.europeana.eu/|null|欧洲文化遗产数字藏品门户，按条目标注授权。|Portal to European cultural heritage with per-item rights statements.
+fontsource|Fontsource|assets|font-library|FO|https://fontsource.org/|https://github.com/fontsource/fontsource|将开源字体打包为可自托管的 npm 包。|Packages open-source fonts as self-hostable npm modules.
+font-squirrel|Font Squirrel|assets|font-library|F|https://www.fontsquirrel.com/|null|精选可商用免费字体并提供网页字体生成器。|Hand-picked commercial-use free fonts with a webfont generator.
+fontshare|Fontshare|assets|font-library|F|https://www.fontshare.com/|null|Indian Type Foundry 提供的免费专业字体。|Free professional fonts from the Indian Type Foundry.
+adobe-fonts|Adobe Fonts|assets|font-library|P|https://fonts.adobe.com/|null|随 Creative Cloud 订阅提供的字体库。|Font library included with Creative Cloud subscriptions.
+open-foundry|Open Foundry|assets|font-library|F|https://open-foundry.com/|null|汇集开源与独立字体的精选目录。|Curated directory of open-source and independent typefaces.
+league-of-moveable-type|The League of Moveable Type|assets|font-library|FO|https://www.theleagueofmoveabletype.com/|null|开源字体设计团体，提供高品质免费字体。|Open-source type foundry offering well-crafted free fonts.
+velvetyne|Velvetyne Type Foundry|assets|font-library|FO|https://velvetyne.fr/|null|以开源许可发布实验性字体的字体工坊。|Foundry releasing experimental typefaces under open licences.
+freesound|Freesound|assets|audio-library|F|https://freesound.org/|null|协作式音效库，各文件采用不同 CC 授权。|Collaborative sound-effect database with per-file Creative Commons licences.
+free-music-archive|Free Music Archive|assets|audio-library|F|https://freemusicarchive.org/|null|按授权类型筛选的免费音乐库。|Music library filterable by licence type.
+mixkit|Mixkit|assets|audio-library|F|https://mixkit.co/|null|免费视频素材、音乐与音效。|Free video clips, music, and sound effects.
+incompetech|Incompetech|assets|audio-library|F|https://incompetech.com/|null|Kevin MacLeod 的署名授权音乐库。|Kevin MacLeod's music library under attribution licensing.
+coverr|Coverr|assets|stock-video|F|https://coverr.co/|null|免费商用背景视频素材。|Free stock background video clips.
+poly-haven|Poly Haven|assets|3d-assets|F|https://polyhaven.com/|https://github.com/Poly-Haven|CC0 的 HDRI、纹理与 3D 模型。|CC0 HDRIs, textures, and 3D models.
+ambientcg|ambientCG|assets|3d-assets|F|https://ambientcg.com/|null|CC0 的 PBR 材质、HDRI 与模型。|CC0 PBR materials, HDRIs, and models.
+kenney|Kenney|assets|3d-assets|F|https://kenney.nl/assets|null|CC0 游戏与界面素材包。|CC0 game and interface asset packs.
+sketchfab|Sketchfab|assets|3d-assets|M|https://sketchfab.com/|null|3D 模型分享平台，含可下载的 CC 授权模型。|3D model sharing platform with downloadable Creative Commons models.
+nih-3d|NIH 3D|assets|science-assets|F|https://3d.nih.gov/|null|NIH 的生物医学 3D 模型库，含解剖与分子模型。|NIH's repository of biomedical 3D models including anatomy and molecules.
+biorender|BioRender|assets|science-illustration|M|https://www.biorender.com/|null|科研示意图制作平台，含大量生命科学图标。|Platform for scientific figures with a large library of life-science icons.
+servier-medical-art|Servier Medical Art|assets|science-illustration|F|https://smart.servier.com/|null|CC BY 授权的医学示意图元素库。|Library of medical illustration elements under CC BY.
+bioicons|Bioicons|assets|science-illustration|F|https://bioicons.com/|https://github.com/duerrsimon/bioicons|开源生物与实验图标集，各图标授权不同。|Open biology and lab icons; licences vary per icon.
+phylopic|PhyloPic|assets|science-illustration|F|https://www.phylopic.org/|null|生物剪影图库，标注各自的授权。|Silhouette images of organisms with per-image licences.
+openclipart|Openclipart|assets|illustration|F|https://openclipart.org/|null|公共领域矢量剪贴画库。|Public-domain vector clip art library.
+hero-patterns|Hero Patterns|assets|pattern-library|F|https://heropatterns.com/|null|可调色的 SVG 背景图案。|Customizable SVG background patterns.
+haikei|Haikei|assets|pattern-library|M|https://haikei.app/|null|生成 SVG 波浪、渐变与形状背景。|Generator for SVG waves, gradients, and shape backgrounds.

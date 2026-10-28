@@ -1,0 +1,139 @@
+/* Aloop blue research theme: visual layer only; existing routes and interaction hooks stay intact. */
+html, body { background: var(--bg); color: var(--text); color-scheme: light; }
+body { background: var(--bg); color: var(--text); }
+::selection { color: var(--text); background: rgba(242,204,77,.78); }
+:focus-visible { outline: 2px solid var(--c-deep); outline-offset: 3px; }
+.skip-link { color: var(--text); background: var(--c-secondary); }
+.eb, .panel-kicker { color: var(--c-deep); }
+.primary-pill { color: #fff; background: var(--c-primary); box-shadow: 0 8px 22px rgba(35,70,109,.12); }
+.primary-pill::before { background: var(--c-action-hover); }
+.text-link, .experiment-root .text-link, .experiment-root .lk { color: var(--c-primary); }
+.glass-panel { color: var(--text); border-color: var(--border); background: rgba(255,255,255,.96); -webkit-backdrop-filter: blur(18px) saturate(1.08); backdrop-filter: blur(18px) saturate(1.08); box-shadow: 0 18px 50px rgba(35,70,109,.12); }
+.storage-warning:empty { display:none; }
+.storage-warning { padding: 8px 12px; border: 1px solid #F0C8CC; border-radius: 10px; color: var(--error); background: #FFF5F5; }
+
+/* Fixed navigation stays legible over both the blue hero and white research pages. */
+.topbar { border-bottom-color: rgba(255,255,255,.14); background: rgba(35,70,109,.93); -webkit-backdrop-filter: blur(18px) saturate(1.15); backdrop-filter: blur(18px) saturate(1.15); }
+.topbar::after { background: linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent); }
+.brand { color: #fff; }
+.brand-mark path:last-child, .hero-mark path:last-child { stroke: var(--c-secondary); }
+.nav-trigger, .auth-trigger { color: rgba(255,255,255,.78); }
+.nav-trigger:hover, .nav-trigger[aria-expanded="true"], .auth-trigger:hover, .lang-trigger:hover { color: #fff; }
+.lang-trigger { color: #fff; }
+.topbar-divider { background: rgba(255,255,255,.3); }
+.quick-menu { border-radius: 18px; }
+.quick-menu .panel-kicker { color: var(--c-deep); }
+.quick-menu-item { color: var(--text); }
+.quick-menu-item:hover, .quick-menu-item[aria-current="true"] { background: #EAF1F8; }
+.quick-menu-item[aria-current="true"] .menu-name { color: var(--c-deep); font-weight: 700; }
+.quick-menu-item .menu-thumb { border-color: var(--border); background: #F5F7FA; }
+.menu-arrow { color: var(--c-primary); }
+.menu-soon { border-top-color: var(--border); color: var(--text-2); }
+.soon-dot { background: var(--c-tertiary); }
+.auth-backdrop { background: rgba(20,38,61,.58); -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px); }
+.auth-modal { color: var(--text); border-radius: 20px; }
+.auth-modal h2 { color: var(--text); }
+.icon-button { color: var(--text-2); }
+.icon-button:hover { color: var(--c-deep); background: #EDF3F9; }
+.auth-tabs { border-color: var(--border); background: #F2F5F9; }
+.auth-tab { color: var(--text-2); }
+.auth-tab.is-active { color: var(--c-deep); background: #E4EDF7; box-shadow: inset 0 0 0 1px rgba(49,94,145,.26); }
+.field-label { color: var(--text-2); }
+.text-field { border-color: var(--border-strong); color: var(--text); background: #fff; }
+.text-field::placeholder { color: #64748B; opacity: 1; }
+.text-field:focus { border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(49,94,145,.16); }
+.auth-debug-hint { color: var(--c-deep); }
+.auth-message { color: var(--text-2); }
+
+/* Hero: deep research blue, organic topographic linework, and the interactive brain as the visual anchor. */
+.hero-section { overflow: hidden; color: #fff; border-bottom-color: rgba(255,255,255,.14); background: linear-gradient(118deg,#142F50 0%,#23466D 46%,#315E91 100%); }
+.hero-section::before { background: radial-gradient(ellipse at 76% 34%,rgba(90,183,189,.23),transparent 31%), radial-gradient(ellipse at 22% 76%,rgba(71,126,174,.31),transparent 40%), radial-gradient(ellipse at 88% 80%,rgba(242,204,77,.13),transparent 33%), linear-gradient(145deg,rgba(14,34,58,.42),transparent 58%); }
+.hero-inner, .hero-bottomline { position:relative; z-index:1; }
+.hero-wordmark { color: #fff; text-shadow: 0 10px 35px rgba(8,25,45,.18); }
+.hero-mark { color: #fff; }
+.brain-orbit { border-color: rgba(90,183,189,.35); }
+.orbit-two { border-color: rgba(242,204,77,.33); }
+.brain-stage::after { border-color: rgba(242,204,77,0); opacity: 0; }
+.hero-bottomline, .scroll-cue { color: rgba(255,255,255,.76); }
+.hero-index { color: rgba(255,255,255,.58); }
+.scroll-cue i { background: rgba(255,255,255,.28); }
+.scroll-cue i::after { background: var(--c-secondary); }
+.sound-toggle { color: rgba(255,255,255,.8); border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.07); }
+.sound-toggle:hover { color: #fff; border-color: rgba(255,255,255,.6); background: rgba(255,255,255,.12); }
+
+/* Full-screen experiment showcases retain their immersive data-sea/particle visuals. */
+.experiment-section { color:#fff; border-bottom-color:rgba(255,255,255,.12); background:linear-gradient(135deg,#142F50 0%,#23466D 48%,#193958 100%); }
+.experiment-section::before { background:radial-gradient(ellipse at 70% 65%,rgba(90,183,189,.18),transparent 38%),radial-gradient(ellipse at 50% 88%,rgba(242,204,77,.12),transparent 44%),linear-gradient(135deg,rgba(20,47,80,.2),rgba(14,36,60,.28)); }
+.experiment-tile { color:#fff; }
+.experiment-name { color:#fff; text-shadow:0 8px 28px rgba(8,25,45,.2); }
+.experiment-enter { box-shadow:none; }
+.experiment-enter:hover, .experiment-enter:focus-visible { color:#fff; }
+.data-sea-stage { opacity:1; }
+.site-footer { color:var(--text-2); border-top-color:var(--border); background:var(--bg); }
+.footer-mark { color:var(--c-primary); }
+.footer-note { color:var(--text-2); }
+
+/* Research and experiment runtime pages use bright, low-saturation surfaces. */
+.easysci-view, .experiment-shell { color:var(--text); background:var(--bg); }
+.experiment-subbar { border-bottom-color:var(--border); background:rgba(245,247,250,.94); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
+.experiment-exit { color:var(--text-2); }
+.experiment-exit:hover { color:var(--c-deep); }
+.progress-meta { color:var(--text-2); }
+.progress-count { color:var(--text-3); }
+.progress-track { background:#DCE4ED; }
+.progress-track span { background:var(--c-primary); }
+.experiment-root { color:var(--text); }
+.experiment-root .card { color:var(--text); border-color:var(--border); border-radius:16px; background:#fff; box-shadow:0 8px 26px rgba(35,70,109,.055); }
+.experiment-root .card h2, .experiment-root .gate-card h1, .experiment-root > h1 { color:var(--text); }
+.experiment-root .mut, .experiment-root .sn, .experiment-root .row, .experiment-root th, .experiment-root summary { color:var(--text-2); }
+.experiment-root .row b { color:var(--text); }
+.experiment-root .eb { color:var(--c-deep); }
+.experiment-root .ok { color:var(--ok); }
+.experiment-root .no { color:var(--error); }
+.experiment-root .btn { color:#fff; background:var(--c-primary); box-shadow:0 7px 18px rgba(35,70,109,.12); }
+.experiment-root .btn::before { background:var(--c-action-hover); }
+.experiment-root .btn.secondary { color:var(--c-deep); border-color:var(--border-strong); background:#fff; }
+.experiment-root .btn.secondary:hover { border-color:var(--c-primary); background:#F1F6FB; }
+.experiment-root .gate-actions .btn.secondary { background:#fff; }
+.experiment-root .resume-card { border-color:rgba(49,94,145,.36); }
+.experiment-root .sb { color:var(--text); border-color:var(--border); background:#fff; }
+.experiment-root .sb:hover { border-color:var(--c-blue); background:#F3F7FB; }
+.experiment-root .sb.on { color:var(--c-deep); border-color:var(--c-primary); background:#EAF1F8; box-shadow:inset 0 0 0 1px rgba(49,94,145,.1); }
+.experiment-root input[type=range], .experiment-root input[type=checkbox], .experiment-root input[type=radio] { accent-color:var(--c-primary); }
+.experiment-root textarea { color:var(--text); border-color:var(--border-strong); background:#fff; }
+.experiment-root td, .experiment-root th { border-bottom-color:var(--border); }
+.experiment-root details { border-top-color:var(--border); }
+.experiment-root .gate-copy { color:var(--text-2); }
+.experiment-root .gate-note, .experiment-root small { color:var(--text-2); }
+.runtime-loading { color:var(--text-2); }
+.loading-orbit { border-color:rgba(49,94,145,.24); border-top-color:var(--c-primary); }
+
+/* EasySci catalogue: blue taxonomy, white content cards, yellow used only as a selective signal. */
+.es-h1 { color:var(--text); }
+.es-lede { color:var(--text-2); }
+.es-chip { color:var(--c-deep); border-color:var(--border-strong); background:#fff; }
+.es-chip:hover { border-color:var(--c-primary); background:#F1F6FB; }
+.es-chip[aria-pressed=true] { color:#fff; border-color:var(--c-primary); background:var(--c-primary); }
+.es-card { color:var(--text); border-color:var(--border); border-radius:16px; background:#fff; box-shadow:0 4px 16px rgba(35,70,109,.035); }
+.es-card:hover { border-color:var(--c-blue); box-shadow:0 12px 28px rgba(35,70,109,.09); }
+.es-card h3 { color:var(--text); }
+.es-card p { color:var(--text-2); }
+.es-cat { color:var(--c-deep); }
+.es-meta b { color:var(--c-deep); background:#FFF4C6; border-radius:5px; padding:2px 5px; }
+.es-warn { color:var(--text); border-left-color:var(--c-secondary); background:#FFF9DF; }
+.es-dl dt { color:var(--text-2); }
+.primary-pill.secondary { color:var(--c-deep); border-color:var(--border-strong); background:#fff; }
+.primary-pill.secondary:hover { border-color:var(--c-primary); background:#F2F6FB; }
+.es-empty, .es-foot, .es-meta i { color:var(--text-2); }
+
+/* Browser-native surfaces are part of the palette too. */
+input, select, textarea { color:var(--text); }
+::placeholder { color:#64748B; opacity:1; }
+:where(input,select,textarea):focus-visible { outline:2px solid var(--c-primary); outline-offset:2px; }
+:where(button,a):focus-visible { outline-color:var(--c-primary); }
+.hero-section :where(button,a):focus-visible, .experiment-section :where(button,a):focus-visible { outline-color:var(--c-secondary); }
+::-webkit-scrollbar { width:10px; height:10px; }
+::-webkit-scrollbar-track { background:#EAF0F6; }
+::-webkit-scrollbar-thumb { background:#AFC0D4; border:2px solid #EAF0F6; border-radius:10px; }
+::-webkit-scrollbar-thumb:hover { background:var(--c-blue); }
+@media (prefers-reduced-motion: reduce) { .hero-section::after { opacity:.14; } }

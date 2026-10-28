@@ -1,0 +1,74 @@
+/* beLieve controls inherit Aloop tokens; cards deliberately avoid backdrop blur. */
+.experiment-root .card { position: relative; margin: 0 0 18px; padding: clamp(22px, 4vw, 42px); border: 1px solid var(--border); border-radius: var(--radius-card); background: linear-gradient(145deg, rgba(19,17,27,.94), rgba(8,8,11,.93)); }
+.experiment-root .card h2 { margin: 0 0 20px; font-size: clamp(28px, 4vw, 44px); font-weight: 400; letter-spacing: -.04em; line-height: 1.1; }
+.experiment-root p { margin-top: 0; }
+.experiment-root .eb { margin: 0 0 22px; }
+.experiment-root > h1 { margin-bottom: 30px; }
+.experiment-root > .consent-title { margin-bottom: 30px; font-size: clamp(46px,6.3vw,86px); font-weight: 400; line-height: 1.02; letter-spacing: -.045em; }
+.experiment-root > .consent-title span { display: block; }
+html[data-lang="zh"] .experiment-root > .consent-title { font-size: clamp(42px,5.7vw,76px); line-height: 1.16; letter-spacing: 0; }
+.experiment-root .claim { margin: 0 0 24px; font-size: clamp(22px, 2.4vw, 34px); font-weight: 400; letter-spacing: -.025em; line-height: 1.32; }
+html[data-lang="zh"] .experiment-root .claim { letter-spacing: 0; line-height: 1.55; }
+.experiment-root .mut { color: var(--text-2); }
+.experiment-root .ok { color: var(--ok); }
+.experiment-root .no { color: var(--error); }
+.experiment-root .lede { max-width: 56ch; }
+.experiment-root .btn { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; margin-top: 20px; padding: 15px 22px; overflow: hidden; border: 0; border-radius: var(--radius-pill); color: #fff; background: var(--c-primary); font-size: 13px; font-weight: 600; letter-spacing: .08em; text-align: center; text-transform: uppercase; cursor: pointer; transition: transform 80ms ease, filter 80ms ease; }
+.experiment-root .btn::before { position: absolute; z-index: -1; inset: 0; content: ""; background: var(--c-tertiary); clip-path: ellipse(110% 200% at 50% 310%); transition: clip-path 550ms var(--ease-expressive); }
+.experiment-root .btn:hover::before, .experiment-root .btn:focus-visible::before { clip-path: ellipse(110% 200% at 50% 58%); }
+.experiment-root .btn:focus-visible { outline: 0; box-shadow: var(--focus); }
+.experiment-root .btn span { position: relative; }
+.experiment-root .btn.secondary { color: var(--text); border: 1px solid var(--border-strong); background: transparent; }
+.experiment-root .btn.secondary::before { display: none; }
+.experiment-root .btn.secondary:hover { border-color: var(--c-primary); }
+.experiment-root .text-link, .experiment-root .lk { display: inline-block; padding: 0 0 3px; border: 0; color: var(--c-secondary); background: linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat; font: inherit; cursor: pointer; transition: background-size 460ms var(--ease-expressive); }
+.experiment-root .text-link:hover, .experiment-root .lk:hover { background-size: 100% 1px; }
+.experiment-root .resume-card { border-color: rgba(49,94,145,.42); }
+.experiment-root .gate-card { max-width: 740px; margin: clamp(22px,7vh,74px) auto 70px; padding: clamp(26px,5vw,54px); }
+.experiment-root .gate-card h1 { max-width: 15ch; margin: 0 0 18px; font-size: clamp(36px,6vw,60px); letter-spacing: -.05em; line-height: 1.05; }
+.experiment-root .gate-copy { max-width: 58ch; margin: 0 0 16px; color: var(--text-2); font-size: 17px; line-height: 1.65; }
+.experiment-root .gate-note { font-size: 12px; }
+.experiment-root .gate-actions, .experiment-root .export-actions, .experiment-root .resume-actions { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.experiment-root .gate-actions .btn { display: inline-flex; flex: 1 1 240px; align-items: center; justify-content: center; min-height: 52px; margin: 0; text-align: center; }
+.experiment-root .gate-actions .btn.secondary { background: rgba(255,255,255,.025); }
+.experiment-root .sb { display: block; width: 100%; min-height: 52px; margin-top: 8px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; color: var(--text); background: rgba(255,255,255,.025); font-size: 15px; line-height: 1.45; text-align: left; cursor: pointer; transition: background 180ms ease, border-color 180ms ease; }
+.experiment-root .sb:hover, .experiment-root .sb.on { border-color: rgba(49,94,145,.75); background: rgba(49,94,145,.12); }
+.experiment-root .sn { margin: 12px 8px 18px; color: var(--text-2); font-size: 15px; line-height: 1.6; }
+.experiment-root input[type="range"] { width: 100%; height: 30px; margin: 13px 0 4px; accent-color: var(--c-primary); cursor: pointer; }
+.experiment-root input[type="checkbox"], .experiment-root input[type="radio"] { width: 20px; height: 20px; margin: 0 10px 0 0; vertical-align: -4px; accent-color: var(--c-primary); }
+.experiment-root label { display: block; margin-top: 14px; font-size: 15px; line-height: 1.55; }
+.experiment-root .row { display: flex; justify-content: space-between; gap: 12px; color: var(--text-2); font-size: 13px; }
+.experiment-root .row b { color: var(--text); font-variant-numeric: tabular-nums; }
+.experiment-root .grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: clamp(8px,1.3vw,14px); max-width: 620px; }
+.experiment-root .tile { min-width: 0; aspect-ratio: 1; border: 1px solid rgba(255,255,255,.12); border-radius: 50%; cursor: pointer; transition: transform 120ms ease, border-color 120ms ease; }
+.experiment-root .tile:hover { transform: scale(1.035); border-color: rgba(255,255,255,.7); }
+.experiment-root table { width: 100%; margin: 12px 0 22px; border-collapse: collapse; font-size: 14px; }
+.experiment-root td, .experiment-root th { padding: 13px 12px 13px 0; border-bottom: 1px solid var(--border); font-weight: 400; text-align: left; }
+.experiment-root th { color: var(--text-2); }
+.experiment-root textarea { display: block; width: 100%; min-height: 170px; padding: 13px; border: 1px solid var(--border-strong); border-radius: 12px; color: var(--text); background: rgba(0,0,0,.5); font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.experiment-root details { padding-top: 16px; border-top: 1px solid var(--border); }
+.experiment-root summary { color: var(--text-2); font-size: 14px; cursor: pointer; }
+.experiment-root small { display: block; color: var(--text-2); font-size: 12px; line-height: 1.6; }
+.experiment-root .export-actions { margin-top: 20px; }
+.experiment-root .export-actions .btn { margin-top: 0; }
+.experiment-root #exportMessage, .experiment-root #msg { min-height: 1.4em; margin-top: 12px; font-size: 13px; }
+.experiment-root .resume-actions .lk { font-size: 14px; }
+.auth-debug-hint { margin: 14px 0 0; color: var(--c-secondary); font-size: 12px; line-height: 1.6; }
+.runtime-loading { display: flex; align-items: center; justify-content: center; gap: 14px; min-height: 42svh; color: var(--text-2); font-size: 13px; }
+.loading-orbit { width: 22px; height: 22px; border: 1px solid rgba(49,94,145,.3); border-top-color: var(--c-primary); border-radius: 50%; animation: loading-spin .9s linear infinite; }
+@keyframes loading-spin { to { rotate: 360deg; } }
+@media (max-width: 700px) {
+  .experiment-root .card { padding: 22px 18px; border-radius: 23px; }
+  .experiment-root .btn { width: 100%; min-height: 52px; }
+  .experiment-root .gate-actions { align-items: stretch; flex-direction: column; }
+  .experiment-root .gate-actions .btn { flex: 1 1 auto; width: 100%; min-height: 52px; }
+  .experiment-root .export-actions { align-items: stretch; flex-direction: column; }
+  .experiment-root .export-actions .btn { margin-top: 0; }
+  .experiment-root .claim { font-size: 23px; }
+  .experiment-root > .consent-title { font-size: clamp(42px,10vw,60px); margin-bottom: 24px; }
+  html[data-lang="zh"] .experiment-root > .consent-title { font-size: clamp(38px,9.5vw,52px); }
+  .experiment-root .grid { gap: 8px; }
+  .experiment-root table { font-size: 13px; }
+  .experiment-root td, .experiment-root th { padding: 10px 8px 10px 0; }
+  .runtime-loading { min-height: 35svh; }
+}

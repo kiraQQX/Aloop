@@ -1,0 +1,83 @@
+/* Revision 3: contour-map background (CHG-5), light hero, language switch, Smart Brain, particle stage. */
+html { background: linear-gradient(180deg, var(--bg-contour-top), var(--bg-contour-bottom)) fixed; }
+body { background: transparent; }
+body::before { position: fixed; z-index: -1; inset: 0; content: ""; pointer-events: none; background: url("../img/contours.svg") center / cover no-repeat; }
+@media (forced-colors: active), print { body::before { display: none; } }
+
+/* Hero on the light contour map: remove dark gradients, use dark text. */
+.hero-section { color: var(--text); border-bottom-color: var(--border); background: radial-gradient(ellipse at 22% 52%, rgba(255,255,255,.92), rgba(255,255,255,0) 62%); }
+.hero-section::before { display: none; }
+.hero-wordmark, .hero-mark { color: var(--c-deep); text-shadow: none; }
+.hero-bottomline, .scroll-cue { color: var(--text-2); }
+.hero-index { color: var(--text-3); }
+.scroll-cue i { background: rgba(35,70,109,.25); }
+.sound-toggle { color: var(--c-deep); border-color: var(--border-strong); background: rgba(255,255,255,.7); }
+.sound-toggle:hover { color: var(--c-deep); border-color: var(--c-primary); background: #fff; }
+.brain-orbit { border-color: rgba(49,94,145,.18); }
+.orbit-two { border-color: rgba(58,159,168,.22); }
+
+/* Particle cortex stage */
+.particle-cortex-stage { cursor: crosshair; }
+.particle-cortex-stage:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 8px; border-radius: 12px; }
+.particle-cortex-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 460ms ease; touch-action: pan-y; }
+.particle-cortex-stage.is-ready .particle-cortex-canvas { opacity: 1; }
+.particle-poster { position: absolute; inset: 6%; width: 88%; height: 88%; transition: opacity 320ms ease; }
+.particle-cortex-stage.is-ready .particle-poster { opacity: 0; }
+.particle-cortex-stage::after { border-color: rgba(242,204,77,.95); }
+.cortex-status { position: absolute; z-index: 3; left: 0; bottom: 0; margin: 0; max-width: 70%; font-size: 12px; color: var(--text-2); }
+.cortex-hint { position: absolute; z-index: 3; right: 0; bottom: 0; margin: 0; font-size: 11px; letter-spacing: .06em; color: var(--text-3); }
+.brain-model-credit { right: auto; width: auto; justify-content: flex-start; position: absolute; z-index: 3; left: 0; bottom: 22px; font-size: 11px; color: var(--text-3); display: flex; gap: 10px; }
+.brain-model-credit a { color: var(--c-primary); text-decoration: underline; }
+
+/* Language segmented control */
+.lang-switch { display: inline-flex; border: 1px solid rgba(255,255,255,.4); border-radius: 999px; padding: 2px; gap: 2px; }
+.lang-switch button { min-width: 44px; min-height: 32px; padding: 0 10px; border: 0; border-radius: 999px; color: rgba(255,255,255,.85); background: transparent; font-size: 12px; font-weight: 600; cursor: pointer; }
+.lang-switch button[aria-pressed="true"] { color: var(--c-deep); background: #fff; }
+.lang-switch button:focus-visible { outline: 2px solid var(--c-secondary); outline-offset: 2px; }
+
+/* Smart Brain */
+.sb-view { position: relative; min-height: 100svh; padding: calc(var(--bar-height) + 40px) var(--page-pad) 80px; color: var(--text); }
+.sb-wrap { width: min(100%, 1180px); margin: 0 auto; }
+.sb-view h1 { margin: 6px 0 14px; font-size: clamp(40px, 6vw, 76px); letter-spacing: -.04em; line-height: 1.05; color: var(--c-deep); }
+.sb-tabs { display: flex; gap: 8px; margin: 24px 0; }
+.sb-tab { min-height: 44px; padding: 0 20px; border: 1px solid var(--border-strong); border-radius: 999px; background: rgba(255,255,255,.85); color: var(--text); font-weight: 600; cursor: pointer; }
+.sb-tab[aria-current="page"] { color: #fff; background: var(--c-primary); border-color: var(--c-primary); }
+.sb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.sb-card { padding: 22px; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); box-shadow: 0 10px 30px rgba(35,70,109,.07); }
+.sb-card h2, .sb-card h3 { margin: 0 0 8px; color: var(--c-deep); }
+.sb-learn { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.sb-lessons { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.sb-lessons button { width: 100%; min-height: 48px; padding: 10px 14px; text-align: left; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); cursor: pointer; }
+.sb-lessons button[aria-current="true"] { background: #EAF1F8; border-color: var(--c-primary); box-shadow: inset 4px 0 0 var(--c-primary); }
+.sb-lesson { padding: 26px; border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); }
+.sb-lesson p.sb-para { margin: 0 0 14px; padding: 8px 12px; border-left: 4px solid transparent; border-radius: 6px; font-size: 17px; line-height: 1.75; }
+.sb-lesson p.sb-para.is-speaking { background: #EAF1F8; border-left-color: var(--c-primary); }
+.sb-narration { position: sticky; top: calc(var(--bar-height) + 8px); z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 18px; padding: 10px; border: 1px solid var(--border); border-radius: 14px; background: rgba(255,255,255,.96); }
+.sb-btn { min-height: 44px; min-width: 44px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 10px; background: #fff; color: var(--text); font-weight: 600; cursor: pointer; }
+.sb-btn.primary { color: #fff; background: var(--c-primary); border-color: var(--c-primary); }
+.sb-btn:disabled { opacity: .5; cursor: not-allowed; }
+.sb-narration label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); }
+.sb-narration select, .sb-narration input[type=range] { min-height: 36px; max-width: 200px; }
+.sb-status { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--text-2); }
+.sb-note { margin-top: 18px; font-size: 13px; color: var(--text-2); }
+@media (max-width: 760px) { .sb-learn { grid-template-columns: 1fr; } .lang-switch button { min-width: 38px; padding: 0 8px; } }
+
+
+/* Smart Brain anatomical viewer: isolated from the homepage particle-cortex scene. */
+.sb-model-panel { overflow: hidden; margin: 28px 0 30px; border: 1px solid rgba(49,94,145,.22); border-radius: 22px; background: rgba(255,255,255,.86); box-shadow: 0 18px 54px rgba(35,70,109,.10); }
+.sb-model-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 24px 26px 18px; }
+.sb-model-eyebrow { margin: 0 0 7px; color: var(--c-primary); font-size: 10px; font-weight: 750; letter-spacing: .16em; }
+.sb-model-heading h2 { margin: 0 0 7px; color: var(--c-deep); font-size: clamp(23px,3vw,34px); letter-spacing: -.03em; }
+.sb-model-heading p:last-child { margin: 0; color: var(--text-2); font-size: 14px; }
+.sb-model-reset { flex: 0 0 auto; min-height: 42px; padding: 0 16px; border: 1px solid var(--c-primary); border-radius: 999px; color: #fff; background: var(--c-primary); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; transition: background .18s ease, transform .18s ease; }
+.sb-model-reset:hover { background: var(--c-deep); transform: translateY(-1px); }
+.sb-model-reset:focus-visible { outline: 3px solid var(--c-accent); outline-offset: 3px; }
+.sb-model-stage { position: relative; height: clamp(340px, 48vw, 590px); min-height: 320px; overflow: hidden; background: radial-gradient(ellipse at 50% 42%, #fff 0%, #edf3f8 56%, #e4edf6 100%); }
+.sb-model-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; }
+.sb-model-canvas:active { cursor: grabbing; }
+.sb-model-loading { position: absolute; z-index: 1; top: 14px; left: 16px; padding: 7px 10px; border: 1px solid rgba(49,94,145,.16); border-radius: 8px; color: var(--c-deep); background: rgba(255,255,255,.8); font-size: 12px; pointer-events: none; }
+.sb-model-overlay { position: absolute; right: 16px; bottom: 16px; left: 16px; display: flex; justify-content: space-between; gap: 12px; pointer-events: none; }
+.sb-model-overlay span { max-width: 70%; padding: 8px 11px; border: 1px solid rgba(49,94,145,.14); border-radius: 8px; color: var(--c-deep); background: rgba(255,255,255,.82); font-size: 11px; overflow-wrap: anywhere; }
+.sb-model-foot { display: flex; justify-content: space-between; gap: 12px; padding: 12px 20px 15px; border-top: 1px solid var(--border); color: var(--text-3); font-size: 11px; }
+.sb-model-foot a { color: var(--c-primary); text-decoration: underline; text-underline-offset: 2px; }
+@media (max-width: 600px) { .sb-model-heading { align-items: flex-start; flex-direction: column; padding: 20px 18px 16px; } .sb-model-stage { height: 390px; } .sb-model-foot { flex-direction: column; } .sb-model-overlay { flex-direction: column; align-items: flex-start; } .sb-model-overlay span { max-width: 100%; } }
