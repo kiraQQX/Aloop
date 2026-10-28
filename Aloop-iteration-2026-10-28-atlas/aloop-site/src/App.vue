@@ -57,27 +57,39 @@ function toggleExperimentsMenu() {
   experimentsMenuOpen.value = !experimentsMenuOpen.value;
 }
 
-function updateFrame(target) {
+function updateFrame(target, hash = window.location.hash) {
   if (!frame.value) return;
   if (target === 'about') {
-    if (!frame.value.getAttribute('src')?.endsWith('./说明.html')) frame.value.src = './说明.html';
+    const src = './说明.html';
+    if (frame.value.getAttribute('src') !== src) frame.value.src = src;
     return;
   }
-  const src = `./legacy.html?embed=1${legacyHashes[target] || '#/'}`;
+  const fallback = legacyHashes[target] || '#/';
+  const routeHash = target === 'experiments' && hash.startsWith('#/e/')
+    ? hash
+    : (target === 'smart-brain' && hash.startsWith('#/smart-brain')
+      ? hash
+      : (target === 'easysci' && hash.startsWith('#/easysci')
+        ? hash
+        : fallback));
+  const src = `./legacy.html?embed=1${routeHash}`;
   if (frame.value.getAttribute('src') !== src) frame.value.src = src;
 }
 
 function navigate(target) {
   if (!Object.hasOwn(shellHashes, target)) return;
   route.value = target;
-  updateFrame(target);
-  if (window.location.hash !== shellHashes[target]) window.location.hash = shellHashes[target];
+  const nextHash = target === 'experiments' && window.location.hash.startsWith('#/e/')
+    ? window.location.hash
+    : shellHashes[target];
+  updateFrame(target, nextHash);
+  if (window.location.hash !== nextHash) window.location.hash = nextHash;
 }
 
 function onShellHashChange() {
   const target = targetFromHash(window.location.hash);
   route.value = target;
-  updateFrame(target);
+  updateFrame(target, window.location.hash);
 }
 
 function onLegacyHashChange() {
@@ -86,7 +98,11 @@ function onLegacyHashChange() {
     const target = targetFromHash(frame.value.contentWindow.location.hash);
     route.value = target;
     const legacyHash = frame.value.contentWindow.location.hash;
-    const nextHash = legacyHash.startsWith('#/e/') ? legacyHash : shellHashes[target];
+    const nextHash = legacyHash.startsWith('#/e/')
+      ? legacyHash
+      : (legacyHash.startsWith('#/smart-brain')
+        ? legacyHash
+        : (legacyHash.startsWith('#/easysci') ? legacyHash : shellHashes[target]));
     if (window.location.hash !== nextHash) window.location.hash = nextHash;
   } catch {
     // The shell remains usable if the embedded document is unavailable.
