@@ -1,15 +1,40 @@
-import { cp, mkdir } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { cp, mkdir, readFile } from 'node:fs/promises';
+import { dirname, extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
-const serveAboutPageAlias = {
-  name: 'serve-about-page-alias',
+const legacyMimeTypes = {
+  '.css': 'text/css; charset=utf-8',
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.glb': 'model/gltf-binary',
+  '.gltf': 'model/gltf+json',
+  '.bin': 'application/octet-stream',
+  '.wasm': 'application/wasm',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.mp3': 'audio/mpeg',
+  '.ogg': 'audio/ogg',
+  '.wav': 'audio/wav',
+  '.pdf': 'application/pdf',
+};
+
+const serveLegacyRuntime = {
+  name: 'serve-legacy-runtime-without-vite-transforms',
   apply: 'serve',
   configureServer(server) {
-    server.middlewares.use((request, _response, next) => {
+    server.middlewares.use(async (request, response, next) => {
       const [pathname, query] = (request.url || '').split('?');
       let decodedPath = pathname;
       try {
@@ -17,10 +42,39 @@ const serveAboutPageAlias = {
       } catch {
         // Leave malformed URLs to Vite's normal request handling.
       }
+
       if (decodedPath === '/说明.html') {
         request.url = `/璇存槑.html${query ? `?${query}` : ''}`;
+        next();
+        return;
       }
-      next();
+
+      if (!decodedPath.startsWith('/assets/') && !decodedPath.startsWith('/experiments/')) {
+        next();
+        return;
+      }
+
+      const filePath = resolve(projectRoot, `.${decodedPath}`);
+      if (!filePath.startsWith(`${projectRoot}${sep}`)) {
+        response.statusCode = 403;
+        response.end('Forbidden');
+        return;
+      }
+
+      try {
+        const data = await readFile(filePath);
+        response.statusCode = 200;
+        response.setHeader('Content-Type', legacyMimeTypes[extname(filePath).toLowerCase()] || 'application/octet-stream');
+        response.setHeader('Cache-Control', 'no-cache');
+        response.setHeader('Content-Length', String(data.byteLength));
+        response.end(data);
+      } catch (error) {
+        if (error?.code === 'ENOENT' || error?.code === 'EISDIR') {
+          next();
+          return;
+        }
+        next(error);
+      }
     });
   },
 };
@@ -39,6 +93,6 @@ const copyLegacyRuntime = {
 };
 
 export default defineConfig({
-  plugins: [vue(), serveAboutPageAlias, copyLegacyRuntime],
+  plugins: [vue(), serveLegacyRuntime, copyLegacyRuntime],
   test: { environment: 'jsdom', restoreMocks: true, clearMocks: true },
 });
