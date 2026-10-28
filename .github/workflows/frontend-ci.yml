@@ -1,0 +1,26 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - 'feat/**'
+      - 'test/**'
+  pull_request:
+    branches:
+      - master
+      - 'feat/**'
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Aloop-iteration-2026-10-28-atlas/aloop-site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm test
+      - run: npm run build
