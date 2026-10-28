@@ -49,6 +49,8 @@ const legacyHashes = {
 function targetFromHash(hash) {
   const parts = (hash || '#/').replace(/^#\/?/, '').split('/').filter(Boolean);
   if (parts[0] === 'e') return 'experiments';
+  if (parts[0] === 'smart-brain') return 'smart-brain';
+  if (parts[0] === 'easysci') return 'easysci';
   const key = parts[0] || 'home';
   return Object.hasOwn(shellHashes, key) ? key : 'home';
 }
