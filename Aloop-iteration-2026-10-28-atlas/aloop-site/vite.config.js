@@ -8,6 +8,14 @@ const projectRoot = dirname(fileURLToPath(import.meta.url));
 const copyLegacyRuntime = {
   name: 'copy-legacy-runtime',
   apply: 'build',
+  configureServer(server) {
+    server.middlewares.use((request, _response, next) => {
+      if (request.url?.split('?')[0] === '/说明.html') {
+        request.url = request.url.replace('/说明.html', '/璇存槑.html');
+      }
+      next();
+    });
+  },
   async closeBundle() {
     const output = resolve(projectRoot, 'dist');
     await mkdir(output, { recursive: true });
