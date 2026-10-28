@@ -1,29 +1,22 @@
 # Aloop — 在线研究实验入口
 
-Aloop 是一个零构建依赖的静态网站原型，用于展示研究团队的在线实验入口。当前内置的首个实验是 **beLieve**。界面采用纯 HTML、CSS 和经典 JavaScript，便于在本地检查，也可直接部署到 GitHub Pages 等静态托管服务。
+Aloop 是一个在线研究实验与工具平台。当前采用 **Vue 3 + Vite** 作为站点入口层，保留原有 H5 业务环境作为 `legacy.html`，由 Vue 外壳通过 iframe 承载。当前迁移是分阶段兼容方案；EasySci、Smart Brain、beLieve 的主体业务逻辑仍有相当部分运行在旧版 JavaScript 环境中，并非已经全部重写为 Vue 组件。
 
 > **研究与数据状态：原型阶段。** beLieve 的题目与证据文案承接自上一版 `lateral-reading-lab` 项目，仍需研究者/领域专家审核。网站未接入真实服务器端账号、数据存储、分组随机化或备份机制。会话数据只保存在参与者当前浏览器的本地存储中。请勿将当前版本直接用于正式招募或验证性数据收集；正式部署前还需完成伦理审批、知情同意审查、预注册、题库审核、数据保护与服务器端随机化。
 
 ## 本地运行
 
-推荐通过本地 HTTP 服务运行，不要直接双击 `index.html`，因为实验运行时会按需加载 JavaScript 文件。
+主站入口是 Vue/Vite 外壳。不要直接双击 `index.html`；开发和验收应通过 Vite 的 HTTP 服务访问。要求 Node.js 20 或更新版本。
 
-**Windows：** 双击 `start-local.bat`。脚本会在 `http://127.0.0.1:8080/` 启动 Python 静态服务器并打开浏览器。若端口被占用，请先关闭占用该端口的程序，或在脚本中更改端口号。
-
-**macOS / Linux：** 在终端执行：
+从仓库根目录执行：
 
 ```bash
-chmod +x start-local.sh
-./start-local.sh
+cd Aloop-iteration-2026-10-28-atlas/aloop-site
+npm install
+npm run dev
 ```
 
-也可以在项目根目录手动运行：
-
-```bash
-python -m http.server 8080 --bind 127.0.0.1
-```
-
-然后访问 `http://127.0.0.1:8080/`。
+打开终端输出的本地地址，默认是 `http://localhost:5173`。Vue 外壳负责主导航、语言控件和顶层路由状态；`legacy.html?embed=1` 继续承载旧版实验、EasySci、Smart Brain 等功能。
 
 ## 当前功能
 
@@ -41,22 +34,28 @@ python -m http.server 8080 --bind 127.0.0.1
 
 ```text
 aloop-site/
-├── index.html
+├── index.html                  # Vue/Vite 主入口
+├── src/
+│   ├── main.js                 # 创建 Vue 应用
+│   ├── App.vue                 # 导航、顶层路由、legacy iframe
+│   ├── App.test.js             # Vue 外壳与路由回归测试
+│   └── style.css               # 外壳样式
+├── legacy.html                 # 旧版 H5 运行环境入口
 ├── assets/
-│   ├── css/                  # tokens、基础样式、导航、首页、EasySci、响应式与蓝色主题
-│   ├── i18n/site.js          # 网站中英文文案
-│   ├── js/core/              # 环境检测、存储、音频、mock auth、路由与性能管理
-│   ├── js/ui/                # 导航菜单、账号模态框、首页实验区块
-│   ├── js/gl/engine.js       # beLieve 数据海粒子引擎
-│   ├── js/gl/brain-surface.js# 三维脑皮层 GLB 加载、拾取与相机控制
-│   └── js/registry.js        # 实验注册与按需加载
-├── experiments/believe/      # beLieve 实验清单、样式、运行时
-├── tests/                    # 静态检查与浏览器烟雾测试
-├── design.md                 # Aloop 蓝色科研主题与可访问性规范
-├── roadmap.md                # 提供的技术路线
-├── standalone.html           # 内联资源的单文件版本
-├── DEPLOY_GITHUB_PAGES.md
-└── start-local.*
+│   ├── css/                    # 旧版样式与嵌入模式样式
+│   ├── i18n/site.js            # 中英文文案
+│   └── js/                     # 路由、认证、EasySci、Smart Brain 与图形模块
+├── experiments/believe/        # beLieve 实验清单、样式与运行时
+├── tests/
+│   ├── atlas_store.test.js
+│   ├── i18n.test.js
+│   ├── project-regression.test.js
+│   └── e2e/vue-shell.e2e.js     # Chromium 浏览器验收
+├── docs/DEVELOPMENT_WORKFLOW.md
+├── playwright.config.js
+├── vite.config.js              # Vite 配置与旧版静态资源兼容层
+├── package.json
+└── README.md
 ```
 
 
@@ -76,11 +75,7 @@ Access-model labels distinguish **Free**, **Freemium**, **Paid**, and **Open Sou
 
 The homepage brain is no longer the legacy particle/schematic drawing. `assets/js/gl/brain-surface.js` loads the open cortical-surface geometry from the `itayinbarr/brainproject` GLB atlas, keeps meshes labelled `bx_cat=cortex`, applies region-aware surface materials, and exposes drag rotation, zoom, hit-testing, arrow-key rotation, reset and optional auto-rotation. Three.js is pinned to `0.186.1`; the source GLB and Draco decoder are external HTTPS dependencies. If the CDN/model is inaccessible, the page displays a recovery link to the open-source viewer instead of showing a fake flat fallback. The anatomy asset is licensed separately from the viewer code (CC BY-SA 4.0); see the source attribution details in the technical specification.
 
-Regenerate the single-file demo after source edits with:
-
-```bash
-python tests/build_standalone.py
-```
+`standalone.html` 是遗留单文件演示副本；当前主站应通过 Vue/Vite 入口运行与构建，不应将该副本视作主站的构建产物。
 
 ## 路由与 QA
 
@@ -93,19 +88,19 @@ python tests/build_standalone.py
 
 ## 检查与测试
 
-静态检查：
+所有命令均在 `Aloop-iteration-2026-10-28-atlas/aloop-site` 目录中运行：
 
 ```bash
-python tests/static_smoke.py
+npm install
+npm test
+npm run build
+npx playwright install chromium  # 首次运行浏览器测试时安装 Chromium
+npm run test:e2e
 ```
 
-浏览器烟雾测试（需要安装 Playwright 和可用的 Chromium）：
+`npm test` 使用 Vitest，覆盖路由、目录数据、双语文案和静态资源完整性；`npm run test:e2e` 使用 Playwright 启动真实 Chromium，覆盖 Vue 外壳、说明页开发路径、beLieve 本地调试登录流程、深层链接和浏览器后退行为。GitHub Actions 会运行单元测试、生产构建和 Chromium 浏览器验收。
 
-```bash
-python tests/browser_smoke.py
-```
-
-性能核验建议按 `roadmap.md` 第 9 节使用 Chrome DevTools 录制帧时间、滚动、菜单打开与语言切换。静态检查通过不等于真实设备性能已经达标；正式发布前还应覆盖 Windows Chrome/Edge、macOS Safari、iOS Safari、Android Chrome 与不同屏幕尺寸。
+这些自动化测试不等于完整的发布验收。Smart Brain 的 WebGL/GPU 表现、移动端真机布局、外部 CDN 或模型不可用时的恢复状态，仍应在目标浏览器与设备上单独检查。
 
 ## 重要边界
 
