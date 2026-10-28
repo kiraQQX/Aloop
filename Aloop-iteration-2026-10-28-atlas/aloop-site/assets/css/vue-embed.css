@@ -1,5 +1,4 @@
 html.vue-embedded .topbar,
-html.vue-embedded .auth-backdrop,
 html.vue-embedded .skip-link { display: none !important; }
 html.vue-embedded body { padding-top: 0 !important; }
 html.vue-embedded .home-root { padding-top: 0; }
