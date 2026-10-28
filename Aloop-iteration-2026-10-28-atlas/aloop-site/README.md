@@ -122,3 +122,19 @@ python tests/browser_smoke.py
 The latest design iteration replaces the beLieve robot icon with a yellow data-ocean scene. The grid and geometric nodes follow a fixed wave formula; white monospaced data labels receive an upward glow and light rays, move rightward along fixed paths with slight vertical bobbing, and fade during a 10-second cycle. Text movement is tuned to be slower than the wave phase speed. The 2D canvas is limited to approximately 30 fps and pauses outside the viewport; reduced-motion mode draws a static frame. To keep rendering predictable, the label content is data-driven from the `labelPairs` array in `assets/js/gl/engine.js` and uses the same rendering template.
 
 The homepage brain has been redrawn as a horizontally oriented lateral-view silhouette with denser cortical folds and larger outlined triangle/diamond/square sprites. Mouse/touch movement and click shockwaves are available in both WebGL and 2D fallback rendering. Pointer repulsion is limited to a 0.28 model radius and click impulse range to 0.60. In the beLieve section, only the explicit **Enter / 进入** pill links to the experiment; the title and decorative wave area are not click targets. The data sea spans the full viewport; wave motion is slowed by 20%, white labels have a stronger upward glow, Chinese/English labels switch in place, and the saved-session actions share the same aligned button treatment.
+
+
+## Frontend migration workflow
+
+The migration introduces Vue 3 and Vite as the application entry/build layer while preserving the existing H5 environment in `legacy.html` during the transition. This is a compatibility migration; legacy feature controllers have not all been rewritten as Vue components yet.
+
+Requirements: Node.js 20 or newer.
+
+```bash
+npm install
+npm run dev
+npm test
+npm run build
+```
+
+Create a dedicated branch for each feature or fix; do not commit directly to `master`. Keep frontend migration and test migration in separate branches and pull requests. Run Vitest and the Vite production build before review.
