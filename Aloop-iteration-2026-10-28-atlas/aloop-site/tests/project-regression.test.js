@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
+const ROOT = process.cwd();
 const read = (path) => readFileSync(join(ROOT, path), 'utf8');
 
 describe('legacy shell regression checks', () => {
