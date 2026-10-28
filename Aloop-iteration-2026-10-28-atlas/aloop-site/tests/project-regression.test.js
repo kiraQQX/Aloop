@@ -43,14 +43,14 @@ describe('legacy shell regression checks', () => {
 describe('EasySci catalogue integrity', () => {
   it('contains unique, structured HTTPS resources with at least 50 entries per category', () => {
     const source = read('assets/js/easysci/data.js');
-    const match = source.match(/const C=(\\{.*?\\});\\s*const R=(\\[.*?\\]);\\s*A\\.easysciData/s);
+    const match = source.match(/const C=(\{[\s\S]*?\});\s*const R=(\[[\s\S]*?\]);\s*A\.easysciData/);
     expect(match, 'Could not parse EasySci category and resource declarations').not.toBeNull();
     const categories = JSON.parse(match[1]);
     const resources = JSON.parse(match[2]);
     expect(resources.length).toBeGreaterThanOrEqual(400);
     expect(new Set(resources.map((item) => item.id)).size).toBe(resources.length);
     expect(new Set(resources.map((item) => item.officialUrl)).size).toBe(resources.length);
-    expect(resources.every((item) => /^https:\\/\\/[^/\\s]+/.test(item.officialUrl))).toBe(true);
+    expect(resources.every((item) => item.officialUrl.startsWith('https://'))).toBe(true);
     expect(Object.keys(categories).length).toBeGreaterThanOrEqual(8);
     for (const category of Object.keys(categories)) {
       expect(resources.filter((item) => item.category === category).length, category).toBeGreaterThanOrEqual(50);
@@ -73,7 +73,7 @@ describe('routing, localization, and safety regressions', () => {
     expect(html).toContain('id="productsToggle"');
     expect(html).toContain('id="productsMenu"');
     for (const key of ['nav.experiments', 'nav.products', 'nav.about']) {
-      expect(i18n).toContain(`"${key}"\u003a`);
+      expect(i18n).toContain(`"${key}":`);
     }
     expect(i18n).toContain('"nav.experiments": "实验"');
     expect(i18n).toContain('"nav.experiments": "Experiments"');
