@@ -22,6 +22,10 @@ npm test
 npm run build
 ```
 
-## Migration status and limitation
+## Migration status and architecture
 
-Vue/Vite currently provides the application entry and build layer. Existing H5 features are preserved in `legacy.html` inside an iframe for compatibility; they have not all been converted into Vue components. Before treating the migration as complete, test navigation, localization, EasySci, Smart Brain/WebGL, and experiment execution in a real browser.
+Phase 1 adds Vue 3 and Vite as the application entry/build layer. Phase 2 moves the primary navigation, experiment discovery, language controls, and top-level hash state into the Vue shell. The shell synchronizes its route with the legacy hash router and embeds the existing H5 runtime using `legacy.html?embed=1`; the legacy topbar is hidden only in embedded mode to avoid duplicate navigation.
+
+EasySci, Smart Brain/WebGL, experiment runtimes, and most content controllers remain legacy implementations. Do not describe this as a full Vue rewrite. Migrate one feature at a time behind stable interfaces, add regression tests before replacing its legacy implementation, and remove legacy code only after equivalent behavior is verified.
+
+Before merging, validate direct URL entry, browser back/forward, the beLieve experiment route, language switching, the About page, EasySci, Smart Brain/WebGL, and experiment execution in a real browser. CI covers unit/static regression checks and production build but does not validate GPU rendering or the full cross-frame browser interaction.
