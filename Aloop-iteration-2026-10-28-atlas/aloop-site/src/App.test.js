@@ -18,7 +18,7 @@ describe('Vue migration shell', () => {
     await nextTick();
     const frame = host.querySelector('iframe');
     expect(frame).not.toBeNull();
-    expect(frame.getAttribute('src')).toBe('./legacy.html');
+    expect(frame.getAttribute('src')).toContain('./legacy.html?embed=1');
     expect(frame.getAttribute('title')).toBe('Aloop legacy research environment');
   });
 });
