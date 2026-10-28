@@ -14,7 +14,7 @@ const copyLegacyRuntime = {
     await cp(resolve(projectRoot, 'legacy.html'), resolve(output, 'legacy.html'));
     await cp(resolve(projectRoot, 'assets'), resolve(output, 'assets'), { recursive: true });
     await cp(resolve(projectRoot, 'experiments'), resolve(output, 'experiments'), { recursive: true });
-    await cp(resolve(projectRoot, '说明.html'), resolve(output, '说明.html'));
+    await cp(resolve(projectRoot, '璇存槑.html'), resolve(output, '说明.html'));
   },
 };
 
