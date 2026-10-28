@@ -107,3 +107,43 @@ describe('Vue experiment menu compatibility', () => {
     expect(window.location.hash).toBe('#/e/believe');
   });
 });
+
+
+describe('Vue shell routing regression cases', () => {
+  let app;
+  let host;
+
+  afterEach(() => {
+    app?.unmount();
+    document.body.innerHTML = '';
+    window.location.hash = '';
+    app = undefined;
+    host = undefined;
+  });
+
+  async function mount() {
+    host = document.createElement('div');
+    document.body.appendChild(host);
+    app = createApp(App);
+    app.mount(host);
+    await nextTick();
+    return host;
+  }
+
+  it('maps the nested experiment route to the experiments navigation state without losing its URL', async () => {
+    window.location.hash = '#/e/believe/run';
+    const root = await mount();
+    await nextTick();
+    expect(root.querySelector('[data-shell-route="experiments"]').getAttribute('aria-current')).toBe('page');
+    expect(window.location.hash).toBe('#/e/believe/run');
+    expect(root.querySelector('iframe').getAttribute('src')).toContain('#/e/believe/run');
+  });
+
+  it('maps direct Smart Brain deep links to the matching shell state', async () => {
+    window.location.hash = '#/smart-brain/atlas';
+    const root = await mount();
+    await nextTick();
+    expect(root.querySelector('[data-shell-route="smart-brain"]').getAttribute('aria-current')).toBe('page');
+    expect(root.querySelector('iframe').getAttribute('src')).toContain('#/smart-brain/atlas');
+  });
+});
