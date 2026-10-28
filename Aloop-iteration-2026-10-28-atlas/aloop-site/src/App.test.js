@@ -60,9 +60,13 @@ describe('Vue-owned navigation and language controls', () => {
     root.querySelector('[data-shell-route="easysci"]').click();
     await nextTick();
     expect(frame.getAttribute('src')).toContain('#/easysci');
+    expect(window.location.hash).toBe('#/easysci');
+    expect(root.querySelector('[data-shell-route="easysci"]').getAttribute('aria-current')).toBe('page');
     root.querySelector('[data-shell-route="smart-brain"]').click();
     await nextTick();
     expect(frame.getAttribute('src')).toContain('#/smart-brain');
+    expect(window.location.hash).toBe('#/smart-brain');
+    expect(root.querySelector('[data-shell-route="smart-brain"]').getAttribute('aria-current')).toBe('page');
   });
 
   it('keeps the shell language selection state and aria state synchronized', async () => {
