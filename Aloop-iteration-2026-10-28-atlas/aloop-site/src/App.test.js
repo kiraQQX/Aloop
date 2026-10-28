@@ -162,8 +162,8 @@ describe('Vue shell routing regression cases', () => {
 describe('P0 legacy compatibility regressions', () => {
   it('does not globally hide the legacy authentication backdrop in embedded mode', async () => {
     const { readFileSync } = await import('node:fs');
-    const { fileURLToPath } = await import('node:url');
-    const cssPath = fileURLToPath(new URL('../assets/css/vue-embed.css', import.meta.url));
+    const { resolve } = await import('node:path');
+    const cssPath = resolve(process.cwd(), 'assets/css/vue-embed.css');
     const css = readFileSync(cssPath, 'utf8');
     expect(css).not.toMatch(/\.auth-backdrop\s*,?[^}]*display:\s*none\s*!important/s);
     expect(css).not.toMatch(/\.topbar\s*,\s*\.auth-backdrop/);
@@ -171,8 +171,8 @@ describe('P0 legacy compatibility regressions', () => {
 
   it('opens the About page using a URL that is available in development and production', async () => {
     const { readFileSync } = await import('node:fs');
-    const { fileURLToPath } = await import('node:url');
-    const configPath = fileURLToPath(new URL('../vite.config.js', import.meta.url));
+    const { resolve } = await import('node:path');
+    const configPath = resolve(process.cwd(), 'vite.config.js');
     const config = readFileSync(configPath, 'utf8');
     expect(config).toContain('/说明.html');
     expect(config).toContain('configureServer');
