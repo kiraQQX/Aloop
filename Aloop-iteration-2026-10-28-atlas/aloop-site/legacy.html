@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh" data-view="desktop" class="is-loading" data-os="other">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#23466D">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Aloop — an online research experiment home.">
+  <title>Aloop — Online Research Experiments</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='17' fill='none' stroke='%23315E91' stroke-width='2'/%3E%3Cpath d='M20 8 9 31h5l6-14 6 14h5z' fill='%23fff'/%3E%3C/svg%3E">
+  <script>if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.classList.add("vue-embedded");</script>
+  <link rel="stylesheet" href="assets/css/vue-embed.css">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/topbar.css">
+  <link rel="stylesheet" href="assets/css/home.css">
+  <link rel="stylesheet" href="assets/css/easysci.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+  <link rel="stylesheet" href="experiments/believe/believe.css">
+  <link rel="stylesheet" href="assets/css/theme-blue.css">
+  <link rel="stylesheet" href="assets/css/revision3.css">
+  <link rel="stylesheet" href="assets/css/atlas.css">
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}
+  </script>
+</head>
+<body>
+  <div class="curtain" id="curtain" aria-hidden="true"></div>
+  <a class="skip-link" href="#home" data-i18n="a11y.skip">跳至主要内容</a>
+
+  <header class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#/" aria-label="Aloop — home" data-sound="chime">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="13.2" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".75"/>
+          <path d="M16 5.8 8.5 25.5h3.9L16 15.7l3.6 9.8h3.9L16 5.8Z" fill="currentColor"/>
+          <path d="M12.7 19.7h6.6" stroke="var(--c-primary)" stroke-width="1.7"/>
+        </svg>
+        <span>Aloop</span>
+      </a>
+
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <button class="nav-trigger" id="experimentsToggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="quickMenu" data-sound="chime">
+          <span data-i18n="nav.experiments">实验</span>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="nav-trigger" id="productsToggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="productsMenu" data-sound="chime">
+          <span data-i18n="nav.products">产品</span>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <a class="nav-trigger nav-direct-link" href="说明.html" data-i18n="nav.about">说明</a>
+      </nav>
+
+      <div class="topbar-spacer" aria-hidden="true"></div>
+      <div class="topbar-actions">
+        <button class="auth-trigger" id="authOpen" type="button" data-i18n="nav.auth" data-sound="chime">登录 / 注册</button>
+        <span class="topbar-divider" aria-hidden="true"></span>
+        <div class="lang-switch" id="langToggle" role="group" aria-label="Switch language" data-i18n-attr="aria-label:nav.langLabel"><button type="button" data-lang-set="zh" aria-pressed="true" lang="zh-CN" data-sound="chime">中</button><button type="button" data-lang-set="en" aria-pressed="false" lang="en" data-sound="chime">EN</button></div>
+      </div>
+    </div>
+
+    <div class="quick-menu glass-panel" id="quickMenu" role="menu" aria-labelledby="experimentsToggle" hidden>
+      <p class="panel-kicker" data-i18n="menu.title">选择实验</p>
+      <div id="quickMenuItems"></div>
+      <div class="menu-soon" aria-disabled="true"><span class="soon-dot" aria-hidden="true"></span><span data-i18n="menu.soon">更多实验即将上线</span></div>
+    </div>
+    <div class="products-menu glass-panel" id="productsMenu" role="menu" aria-labelledby="productsToggle" hidden>
+      <p class="panel-kicker" data-i18n="products.menuTitle">产品与工具</p>
+      <div id="productsMenuItems"></div>
+    </div>
+  </header>
+
+  <div class="auth-backdrop" id="authBackdrop" hidden>
+    <section class="auth-modal glass-panel" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle" aria-describedby="authMessage" tabindex="-1">
+      <button class="icon-button modal-close" id="authClose" type="button" aria-label="Close" data-i18n-attr="aria-label:auth.close" data-sound="chime">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <p class="panel-kicker" data-i18n="auth.kicker">ALOOP ACCOUNT</p>
+      <h2 id="authTitle" data-i18n="auth.login.title">欢迎回来</h2>
+      <div class="auth-tabs" role="tablist" aria-label="Account action">
+        <button class="auth-tab is-active" id="authLoginTab" type="button" role="tab" aria-selected="true" aria-controls="authForm" data-mode="login" data-i18n="auth.login.tab">登录</button>
+        <button class="auth-tab" id="authSignupTab" type="button" role="tab" aria-selected="false" aria-controls="authForm" data-mode="signup" data-i18n="auth.signup.tab">注册</button>
+      </div>
+      <form id="authForm" novalidate>
+        <label class="field-label" for="authEmail" data-i18n="auth.email">邮箱</label>
+        <input class="text-field" id="authEmail" name="email" type="text" inputmode="text" autocomplete="username" required>
+        <label class="field-label" for="authPassword" data-i18n="auth.password">密码</label>
+        <input class="text-field" id="authPassword" name="password" type="password" autocomplete="current-password" required>
+        <div id="authConfirmWrap" hidden>
+          <label class="field-label" for="authConfirm" data-i18n="auth.confirm">确认密码</label>
+          <input class="text-field" id="authConfirm" name="confirm" type="password" autocomplete="new-password">
+        </div>
+        <button class="primary-pill auth-submit" type="submit"><span data-i18n="auth.submit.login">登录</span></button>
+      </form>
+      <p class="auth-debug-hint" id="authDebugHint" data-i18n="auth.debugHint">本地调试账号：邮箱 1，密码 1。</p>
+      <p class="auth-message" id="authMessage" role="status" aria-live="polite" data-i18n="auth.pending">账号功能暂未开放。</p>
+    </section>
+  </div>
+
+  <main id="home" class="home-root">
+    <section class="hero-section" id="hero" aria-label="Aloop">
+      <div class="hero-inner">
+        <div class="hero-wordmark-wrap">
+          <div class="hero-wordmark" aria-label="Aloop">
+            <svg class="hero-mark" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="1.25" opacity=".55"/><path d="M24 6.5 9.5 41h7.1L24 22.6 31.4 41h7.1L24 6.5Z" fill="currentColor"/><path d="M17.2 30.8h13.6" stroke="var(--c-primary)" stroke-width="2.4"/></svg>
+            <span>Aloop</span>
+          </div>
+        </div>
+        <section id="particleCortexStage" class="particle-stage brain-stage particle-cortex-stage" role="img" tabindex="0" aria-label="Interactive particle model of the cerebral hemispheres" data-i18n-attr="aria-label:hero.particleLabel">
+          <svg class="particle-poster" viewBox="0 0 400 330" aria-hidden="true"><g fill="none" stroke="#315E91" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"><path d="M196 60C150 36 80 52 56 108c-20 46-6 100 36 126 30 18 70 20 104 6Z"/><path d="M204 60c46-24 116-8 140 48 20 46 6 100-36 126-30 18-70 20-104 6Z"/></g></svg>
+          <canvas class="particle-cortex-canvas" aria-hidden="true"></canvas>
+          <p id="particleCortexState" class="cortex-status" role="status" aria-live="polite">正在生成粒子大脑…</p>
+          <p class="cortex-hint" data-i18n="hero.particleHint">移动鼠标旋转 · 点击扩散</p>
+          <div class="brain-model-credit"><span data-i18n="hero.brainCredit">模型：Z-Anatomy / BodyParts3D · CC BY-SA 4.0</span><a href="https://github.com/itayinbarr/brainproject" target="_blank" rel="noopener noreferrer" data-i18n="hero.brainSource">来源与许可</a></div>
+          <div class="brain-orbit orbit-one" aria-hidden="true"></div><div class="brain-orbit orbit-two" aria-hidden="true"></div>
+        </section>
+      </div>
+      <div class="hero-bottomline"><span class="hero-index">01 / ALOOP</span><span class="scroll-cue"><span data-i18n="hero.scroll">向下滚动</span><i aria-hidden="true"></i></span><button id="soundToggle" class="sound-toggle" type="button" aria-pressed="true" data-i18n-attr="aria-label:sound.toggle" data-sound="chime"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8v4h3l4 3V5L6 8H3Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path class="sound-wave" d="M13 7c2 1.7 2 4.3 0 6M15.5 4.5c3.4 3 3.4 8 0 11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div>
+    </section>
+
+    <div id="experimentSections" class="experiment-sections" aria-label="Experiments"></div>
+    <footer class="site-footer"><span class="footer-mark" aria-hidden="true">◎</span><span data-i18n="foot.copy">© Aloop</span><span class="footer-note" data-i18n="foot.note">在线研究实验</span></footer>
+  </main>
+
+  <main class="easysci-view" id="easysciView" hidden></main>
+  <main class="sb-view" id="smartbrainView" hidden></main>
+  <section class="experiment-shell" id="experimentShell" hidden aria-label="Experiment runtime">
+    <div class="experiment-subbar" id="experimentSubbar" hidden>
+      <button class="experiment-exit" id="experimentExit" type="button" data-sound="none"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5M7.5 10H17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="exp.exit">退出</span></button>
+      <div class="progress-meta"><span id="progressLabel" aria-live="polite"></span><span class="progress-count" id="progressCount"></span></div>
+      <div class="progress-track" aria-hidden="true"><span id="progressFill"></span></div>
+    </div>
+    <div class="experiment-root" id="experiment-root" tabindex="-1"></div>
+  </section>
+
+  <p class="storage-warning" id="storageWarning" role="status" aria-live="polite"></p>
+
+  <script defer src="assets/js/core/env.js"></script>
+  <script defer src="assets/js/core/store.js"></script>
+  <script defer src="assets/i18n/site.js"></script>
+  <script defer src="assets/js/core/audio.js"></script>
+  <script defer src="assets/js/core/auth.js"></script>
+  <script defer src="assets/js/core/perf.js"></script>
+  <script defer src="assets/js/gl/engine.js"></script>
+  <script defer src="assets/js/ui/quickmenu.js"></script>
+  <script defer src="assets/js/ui/authmodal.js"></script>
+  <script defer src="assets/js/ui/topbar.js"></script>
+  <script defer src="assets/js/ui/sections.js"></script>
+  <script defer src="assets/js/registry.js"></script>
+  <script defer src="experiments/believe/manifest.js"></script>
+  <script defer src="assets/js/easysci/data.js"></script>
+  <script defer src="assets/js/easysci/easysci.js"></script>
+  <script defer src="assets/js/smartbrain/lessons.js"></script>
+  <script defer src="assets/js/smartbrain/narration.js"></script>
+  <script defer src="assets/js/smartbrain/learn.js"></script>
+  <script defer src="assets/js/smartbrain/atlas/store.js"></script>
+  <script defer src="assets/js/smartbrain/atlas/cards.js"></script>
+  <script defer src="assets/js/smartbrain/atlas/data.js"></script>
+  <script defer src="assets/js/smartbrain/atlas/assets.js"></script>
+  <script defer src="assets/js/smartbrain/atlas/scene.js"></script>
+  <script defer src="assets/js/smartbrain/atlas/sidebar.js"></script>
+  <script defer src="assets/js/ui/transition.js"></script>
+  <script defer src="assets/js/core/router.js"></script>
+  <script type="module" src="assets/js/gl/particle-cortex.js"></script>
+</body>
+</html>

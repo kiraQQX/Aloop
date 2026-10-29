@@ -1,0 +1,28 @@
+:root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+* { box-sizing: border-box; }
+html, body, #app { width: 100%; min-width: 320px; min-height: 100%; margin: 0; }
+body { background: #f5f7fa; }
+button { font: inherit; }
+.app-shell { width: 100%; min-height: 100vh; background: #f5f7fa; color: #173654; }
+.vue-topbar { position: relative; z-index: 20; display: flex; align-items: center; gap: clamp(12px, 2.5vw, 36px); min-height: 64px; padding: 0 clamp(16px, 4vw, 52px); border-bottom: 1px solid #dce5ef; background: rgba(255,255,255,.96); }
+.vue-brand { display: inline-flex; align-items: center; gap: 9px; flex: 0 0 auto; border: 0; padding: 0; background: transparent; color: #23466d; font-size: 18px; font-weight: 700; cursor: pointer; }
+.vue-brand-mark { display: grid; width: 30px; height: 30px; place-items: center; border: 1.5px solid #315e91; border-radius: 50%; color: #315e91; font-family: Georgia, serif; font-size: 20px; line-height: 1; }
+.vue-nav { display: flex; align-items: center; gap: clamp(2px, 1vw, 14px); flex: 1 1 auto; }
+.vue-nav button, .vue-language button { min-height: 36px; border: 1px solid transparent; border-radius: 8px; padding: 0 12px; background: transparent; color: #52677d; font-size: 14px; cursor: pointer; transition: color .15s ease, background .15s ease, border-color .15s ease; }
+.vue-nav button:hover, .vue-language button:hover { color: #23466d; background: #f2f6fa; }
+.vue-nav button[aria-current="page"] { border-color: #d7e3ef; background: #edf3f9; color: #23466d; font-weight: 650; }
+.vue-experiment-menu { position: absolute; top: calc(100% - 4px); left: clamp(140px, 18vw, 240px); z-index: 40; min-width: 180px; padding: 8px; border: 1px solid #dce5ef; border-radius: 12px; background: rgba(255,255,255,.98); box-shadow: 0 14px 36px rgba(23,54,84,.12); }
+.vue-experiment-menu button { width: 100%; text-align: left; }
+.vue-language { display: flex; flex: 0 0 auto; gap: 2px; padding: 3px; border: 1px solid #e0e7ef; border-radius: 10px; background: #f8fafc; }
+.vue-language button { min-width: 34px; min-height: 30px; padding: 0 7px; }
+.vue-language button[aria-pressed="true"] { background: #23466d; color: #fff; }
+.legacy-frame-wrap { position: relative; width: 100%; min-height: calc(100vh - 64px); }
+.legacy-runtime { display: block; width: 100%; height: calc(100vh - 64px); min-height: 580px; border: 0; background: transparent; }
+.loading-status { position: fixed; inset: auto 1rem 1rem auto; z-index: 30; margin: 0; padding: .5rem .75rem; border: 1px solid #d5deea; border-radius: .5rem; background: #fff; color: #23466d; font-size: 13px; line-height: 1.4; box-shadow: 0 6px 22px rgba(35,70,109,.08); }
+@media (max-width: 720px) {
+  .vue-topbar { flex-wrap: wrap; gap: 6px 10px; padding: 10px 12px; }
+  .vue-brand { margin-right: auto; }
+  .vue-nav { order: 3; width: 100%; overflow-x: auto; gap: 2px; }
+  .vue-nav button { flex: 0 0 auto; padding: 0 9px; font-size: 13px; }
+  .legacy-runtime { height: calc(100vh - 112px); min-height: 520px; }
+}
