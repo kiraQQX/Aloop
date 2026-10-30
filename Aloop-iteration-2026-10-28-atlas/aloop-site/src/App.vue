@@ -1,5 +1,7 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount, nextTick, ref } from 'vue';
+import { authState, getCurrentUser, initAuth, signIn, signOut, signUp, subscribeAuth } from './lib/auth';
+import { isSupabaseConfigured } from './lib/supabase';
 
 // Shared with the legacy runtime (assets/i18n/site.js) so the shell and the
 // embedded documents always agree on the active language.
@@ -34,6 +36,42 @@ const copy = computed(() => language.value === 'zh'
 // The account UI lives inside the legacy runtime; the shell button forwards to
 // it so the embedded document stays the single source of authentication state.
 let pendingAccountOpen = false;
+
+const account = computed(() => authState.user.value);
+const authConfigError = computed(() => authState.configError);
+// Local development without Supabase env vars keeps the debug adapter; a
+// production build without configuration must fail loudly instead of silently
+// falling back to the debug account.
+const configWarning = computed(() => (import.meta.env.PROD ? authConfigError.value : null));
+const bridgeEnabled = isSupabaseConfigured || import.meta.env.PROD;
+const accountText = computed(() => (account.value
+  ? `${account.value.label} · ${language.value === 'zh' ? '退出' : 'Sign out'}`
+  : copy.value.account));
+
+// Same-origin bridge: the legacy runtime calls these instead of its local mock.
+// Assigned synchronously so it exists before the iframe requests the document.
+if (typeof window !== 'undefined' && bridgeEnabled) {
+  window.__ALOOP_AUTH__ = {
+    signIn,
+    signUp,
+    signOut,
+    getUser: getCurrentUser,
+    subscribe: subscribeAuth,
+  };
+}
+
+let unsubscribeAuth = null;
+
+function pushSessionToFrame() {
+  if (!bridgeEnabled) return;
+  try {
+    const apply = frame.value?.contentWindow?.Aloop?.auth?.applySession;
+    if (typeof apply === 'function') apply(account.value);
+  } catch {
+    // Cross-document access can fail while the frame is navigating; the next
+    // load event pushes the session again.
+  }
+}
 
 function openAccount() {
   const trigger = frameDocument()?.getElementById?.('authOpen');
@@ -86,6 +124,7 @@ function onFrameLoad() {
       legacyWindow = null;
     }
     syncLegacyLanguage();
+    pushSessionToFrame();
     if (pendingAccountOpen) {
       pendingAccountOpen = false;
       doc.getElementById('authOpen')?.click();
@@ -251,6 +290,12 @@ onMounted(() => {
   const initialRoute = targetFromHash(window.location.hash);
   route.value = initialRoute;
   updateFrame(initialRoute);
+  // Restore the Supabase session before the first iframe push, then keep the
+  // embedded runtime in sync with every later sign-in / sign-out.
+  unsubscribeAuth = bridgeEnabled ? subscribeAuth(() => pushSessionToFrame()) : null;
+  initAuth()
+    .catch((error) => console.warn('Supabase initialisation failed:', error?.message || error))
+    .finally(() => pushSessionToFrame());
 });
 onBeforeUnmount(() => {
   frame.value?.removeEventListener('load', onFrameLoad);
@@ -258,6 +303,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', onMenuDocumentClick);
   document.removeEventListener('keydown', onMenuDocumentKeydown);
   legacyWindow?.removeEventListener('hashchange', onLegacyHashChange);
+  unsubscribeAuth?.();
 });
 </script>
 
@@ -302,7 +348,7 @@ onBeforeUnmount(() => {
         <button type="button" data-shell-route="about" :aria-current="route === 'about' ? 'page' : undefined" @click="navigate('about')">{{ copy.about }}</button>
       </nav>
       <div class="vue-topbar-actions">
-        <button class="vue-auth" type="button" data-shell-account @click="openAccount">{{ copy.account }}</button>
+        <button class="vue-auth" type="button" data-shell-account @click="openAccount">{{ accountText }}</button>
         <span class="vue-topbar-divider" aria-hidden="true"></span>
         <div class="vue-language" role="group" :aria-label="copy.language">
           <button type="button" data-shell-language="zh" lang="zh-CN" :aria-pressed="language === 'zh'" @click="setLanguage('zh')">中</button>
@@ -310,6 +356,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </header>
+    <p v-if="configWarning" class="auth-config-warning" role="alert">{{ configWarning.message }}</p>
     <section class="legacy-frame-wrap" aria-label="Aloop research content">
       <iframe
         ref="frame"
