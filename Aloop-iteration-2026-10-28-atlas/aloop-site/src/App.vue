@@ -9,7 +9,7 @@ const frameSrc = ref('');
 const status = ref('正在加载原有实验环境…');
 const language = ref(readStoredLanguage());
 const route = ref('home');
-const experimentsMenuOpen = ref(false);
+const openMenu = ref(null);
 
 function readStoredLanguage() {
   try {
@@ -24,8 +24,8 @@ function readStoredLanguage() {
 }
 
 const copy = computed(() => language.value === 'zh'
-  ? { home: '首页', experiments: '实验', easysci: 'EasySci', brain: 'Smart Brain', about: '说明', account: '登录 / 注册', loading: '正在加载原有实验环境…', language: '语言切换' }
-  : { home: 'Home', experiments: 'Experiments', easysci: 'EasySci', brain: 'Smart Brain', about: 'About', account: 'Log in / Sign up', loading: 'Loading the existing research environment…', language: 'Language' });
+  ? { home: '首页', experiments: '实验', products: '产品', easysci: 'EasySci', brain: 'Smart Brain', about: '说明', account: '登录 / 注册', loading: '正在加载原有实验环境…', language: '语言切换' }
+  : { home: 'Home', experiments: 'Experiments', products: 'Products', easysci: 'EasySci', brain: 'Smart Brain', about: 'About', account: 'Log in / Sign up', loading: 'Loading the existing research environment…', language: 'Language' });
 
 // The account UI lives inside the legacy runtime; the shell button forwards to
 // it so the embedded document stays the single source of authentication state.
@@ -112,8 +112,13 @@ function targetFromHash(hash) {
   return Object.hasOwn(shellHashes, key) ? key : 'home';
 }
 
-function toggleExperimentsMenu() {
-  experimentsMenuOpen.value = !experimentsMenuOpen.value;
+function toggleMenu(name) {
+  openMenu.value = openMenu.value === name ? null : name;
+}
+
+function choose(target) {
+  openMenu.value = null;
+  navigate(target);
 }
 
 function updateFrame(target, hash = window.location.hash) {
@@ -203,12 +208,35 @@ onBeforeUnmount(() => {
       </button>
       <nav class="vue-nav" aria-label="Primary navigation" data-testid="vue-shell-nav">
         <button type="button" data-shell-route="home" :aria-current="route === 'home' ? 'page' : undefined" @click="navigate('home')">{{ copy.home }}</button>
-        <button type="button" data-shell-route="experiments" :aria-current="route === 'experiments' ? 'page' : undefined" :aria-expanded="experimentsMenuOpen" aria-haspopup="menu" @click="toggleExperimentsMenu">{{ copy.experiments }}</button>
-        <div v-if="experimentsMenuOpen" class="vue-experiment-menu" role="menu" aria-label="Experiments">
-          <button type="button" data-shell-experiment="believe" role="menuitem" @click="experimentsMenuOpen = false; navigate('experiments')">beLieve</button>
+        <div class="vue-menu-wrap">
+          <button
+            type="button"
+            data-shell-route="experiments"
+            :aria-current="route === 'experiments' ? 'page' : undefined"
+            :aria-expanded="openMenu === 'experiments'"
+            aria-haspopup="menu"
+            aria-controls="shellExperimentsMenu"
+            @click="toggleMenu('experiments')"
+          >{{ copy.experiments }}<svg class="vue-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div v-show="openMenu === 'experiments'" id="shellExperimentsMenu" class="vue-menu" role="menu" aria-label="Experiments">
+            <button type="button" data-shell-experiment="believe" role="menuitem" @click="choose('experiments')">beLieve</button>
+          </div>
         </div>
-        <button type="button" data-shell-route="easysci" :aria-current="route === 'easysci' ? 'page' : undefined" @click="navigate('easysci')">{{ copy.easysci }}</button>
-        <button type="button" data-shell-route="smart-brain" :aria-current="route === 'smart-brain' ? 'page' : undefined" @click="navigate('smart-brain')">{{ copy.brain }}</button>
+        <div class="vue-menu-wrap">
+          <button
+            type="button"
+            data-shell-route="products"
+            :aria-current="route === 'easysci' || route === 'smart-brain' ? 'page' : undefined"
+            :aria-expanded="openMenu === 'products'"
+            aria-haspopup="menu"
+            aria-controls="shellProductsMenu"
+            @click="toggleMenu('products')"
+          >{{ copy.products }}<svg class="vue-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div v-show="openMenu === 'products'" id="shellProductsMenu" class="vue-menu" role="menu" aria-label="Products">
+            <button type="button" data-shell-route="easysci" :aria-current="route === 'easysci' ? 'page' : undefined" role="menuitem" @click="choose('easysci')">{{ copy.easysci }}</button>
+            <button type="button" data-shell-route="smart-brain" :aria-current="route === 'smart-brain' ? 'page' : undefined" role="menuitem" @click="choose('smart-brain')">{{ copy.brain }}</button>
+          </div>
+        </div>
         <button type="button" data-shell-route="about" :aria-current="route === 'about' ? 'page' : undefined" @click="navigate('about')">{{ copy.about }}</button>
       </nav>
       <div class="vue-topbar-actions">

@@ -13,8 +13,11 @@ button { font: inherit; }
 .vue-nav button, .vue-language button, .vue-auth { min-height: 36px; border: 1px solid transparent; border-radius: 8px; padding: 0 12px; background: transparent; color: rgba(255,255,255,.82); font-size: 14px; cursor: pointer; transition: color .15s ease, background .15s ease, border-color .15s ease; }
 .vue-nav button:hover, .vue-language button:hover { color: #fff; background: rgba(255,255,255,.13); }
 .vue-nav button[aria-current="page"] { color: #fff; font-weight: 650; background: rgba(255,255,255,.10); box-shadow: inset 0 -2px 0 #f2cc4d; }
-.vue-experiment-menu { position: absolute; top: calc(100% - 4px); left: clamp(150px, 18vw, 250px); z-index: 40; min-width: 190px; padding: 8px; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; background: rgba(20,42,70,.97); box-shadow: 0 18px 44px rgba(9,23,40,.35); backdrop-filter: blur(10px); }
-.vue-experiment-menu button { width: 100%; text-align: left; color: #fff; }
+.vue-menu-wrap { position: relative; display: flex; align-items: center; }
+.vue-caret { width: 12px; height: 12px; margin-left: 5px; vertical-align: -1px; opacity: .8; }
+.vue-menu { position: absolute; top: calc(100% + 2px); left: 0; z-index: 40; min-width: 190px; padding: 8px; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; background: rgba(20,42,70,.97); box-shadow: 0 18px 44px rgba(9,23,40,.35); backdrop-filter: blur(10px); }
+.vue-menu button { width: 100%; text-align: left; color: #fff; }
+.vue-menu button[aria-current="page"] { background: rgba(242,204,77,.16); box-shadow: none; }
 .vue-topbar-actions { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
 .vue-auth { border-color: rgba(255,255,255,.32); border-radius: 999px; padding: 0 16px; color: rgba(255,255,255,.9); }
 .vue-auth:hover { border-color: #f2cc4d; color: #f2cc4d; background: rgba(242,204,77,.08); }

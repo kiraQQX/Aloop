@@ -230,6 +230,23 @@ describe('Vue shell language and About route', () => {
     await nextTick();
     expect(root.querySelector('[data-shell-account]').textContent).toBe('Log in / Sign up');
   });
+
+  it('groups EasySci and Smart Brain under the products menu', async () => {
+    const root = await mount();
+    const products = root.querySelector('[data-shell-route="products"]');
+    expect(products).not.toBeNull();
+    expect(products.getAttribute('aria-expanded')).toBe('false');
+    products.click();
+    await nextTick();
+    expect(products.getAttribute('aria-expanded')).toBe('true');
+    const easysci = root.querySelector('[data-shell-route="easysci"]');
+    expect(easysci.getAttribute('role')).toBe('menuitem');
+    easysci.click();
+    await nextTick();
+    expect(window.location.hash).toBe('#/easysci');
+    expect(products.getAttribute('aria-expanded')).toBe('false');
+    expect(products.getAttribute('aria-current')).toBe('page');
+  });
 });
 
 
