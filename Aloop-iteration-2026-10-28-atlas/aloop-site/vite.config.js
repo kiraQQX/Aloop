@@ -45,7 +45,6 @@ const serveLegacyRuntime = {
 
       // The iframe runtime must remain a classic static H5 site in dev: Vite's
       // HTML transform crawls module scripts and cannot resolve the legacy import map.
-      const sourcePath = decodedPath === '/说明.html' ? '/璇存槑.html' : decodedPath;
       const isLegacyDocument = decodedPath === '/legacy.html' || decodedPath === '/说明.html';
       const isLegacyAsset = decodedPath.startsWith('/assets/') || decodedPath.startsWith('/experiments/');
       if (!isLegacyDocument && !isLegacyAsset) {
@@ -53,7 +52,7 @@ const serveLegacyRuntime = {
         return;
       }
 
-      const filePath = resolve(projectRoot, `.${sourcePath}`);
+      const filePath = resolve(projectRoot, `.${decodedPath}`);
       if (!filePath.startsWith(`${projectRoot}${sep}`)) {
         response.statusCode = 403;
         response.end('Forbidden');
@@ -87,7 +86,7 @@ const copyLegacyRuntime = {
     await cp(resolve(projectRoot, 'legacy.html'), resolve(output, 'legacy.html'));
     await cp(resolve(projectRoot, 'assets'), resolve(output, 'assets'), { recursive: true });
     await cp(resolve(projectRoot, 'experiments'), resolve(output, 'experiments'), { recursive: true });
-    await cp(resolve(projectRoot, '璇存槑.html'), resolve(output, '说明.html'));
+    await cp(resolve(projectRoot, '说明.html'), resolve(output, '说明.html'));
   },
 };
 

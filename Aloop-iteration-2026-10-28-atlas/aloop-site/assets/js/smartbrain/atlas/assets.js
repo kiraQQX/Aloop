@@ -3,8 +3,11 @@
 (function () {
   const Aloop = window.Aloop = window.Aloop || {};
   const atlas = Aloop.atlas = Aloop.atlas || {};
-  const BASE = (window.ALOOP_ATLAS_BASE || "https://raw.githubusercontent.com/itayinbarr/brainproject/main/brain-atlas/models/").replace(/\/?$/, "/");
-  const DRACO = window.ALOOP_DRACO_PATH || "https://www.gstatic.com/draco/versioned/decoders/1.5.7/";
+  // Model + manifest are self-hosted under assets/models/atlas/ (see ATTRIBUTION.md).
+  // They used to come from raw.githubusercontent.com, which is reset in mainland China.
+  const LOCAL_BASE = new URL("assets/models/atlas/", document.baseURI).href;
+  const BASE = (window.ALOOP_ATLAS_BASE || LOCAL_BASE).replace(/\/?$/, "/");
+  const DRACO = window.ALOOP_DRACO_PATH || new URL("assets/models/atlas/draco/", document.baseURI).href;
   let modelPromise = null, manifestPromise = null;
 
   const metaOf = obj => { for (let o = obj; o; o = o.parent) if (o.userData && o.userData.bx_id != null) return o.userData; return null; };

@@ -23,7 +23,7 @@ npm run dev
 - 深蓝全屏首页，以抽象地形纹理与真实的三维脑皮层表面网格为视觉主体，并提供滚动式实验入口。
 - 固定深蓝半透明导航栏；实验快速选择菜单、登录/注册交互模型、中文/英文原位切换。
 - beLieve 入口与实验运行时分离；进入后首先展示知情同意页面。
-- 基于公开 GLB 解剖网格的可交互 3D 脑皮层：支持拖动旋转、缩放、点击区域高亮、键盘旋转、重置视角和可选自动旋转；模型或 CDN 加载失败时显示错误状态及原始开源查看器链接。模型网格与查看器代码采用不同许可，具体见技术规范。
+- 基于公开 GLB 解剖网格的可交互 3D 脑皮层：支持拖动旋转、缩放、点击区域高亮、键盘旋转、重置视角和可选自动旋转；模型、清单与 Draco 解码器随站点自托管于 `assets/models/atlas/`，模型缺失时显示错误状态及原始开源查看器链接。模型网格与查看器代码采用不同许可，具体见技术规范。
 - Web Audio 合成的轻提示音和玻璃滑动声；本轮视觉与身份修改未改动音频模块，声音状态仍保存在本地，并在实验运行期间静音。
 - beLieve 要求登录后进入。当前预留本地调试账号：邮箱/用户名 `1`，密码 `1`；登录状态保存在当前浏览器中，尚不属于真实账号系统。
 - beLieve 保留训练、测试、反馈、结果说明和 JSON 导出流程；导出数据包含 `site`、`experiment_id` 和 `app_version` 元数据。
@@ -73,7 +73,7 @@ Access-model labels distinguish **Free**, **Freemium**, **Paid**, and **Open Sou
 
 **Verification note:** every resource currently uses `lastVerifiedAt: null` unless individually updated after human verification. The records include source links and install guidance, but destination reachability, current package names, feature availability, pricing, account requirements, repository license, and each asset's reuse rights still require a final item-level check. Before formal research or commercial use, verify official docs and do not upload identifiable participant data to public tools without reviewing consent, institutional requirements, security, and data-processing terms. Review third-party Skills, MCP servers, and plugins like code dependencies: inspect permissions, file/network scope, scripts, authentication, and tool calls before enabling them.
 
-The homepage brain is no longer the legacy particle/schematic drawing. `assets/js/gl/brain-surface.js` loads the open cortical-surface geometry from the `itayinbarr/brainproject` GLB atlas, keeps meshes labelled `bx_cat=cortex`, applies region-aware surface materials, and exposes drag rotation, zoom, hit-testing, arrow-key rotation, reset and optional auto-rotation. Three.js is pinned to `0.186.1`; the source GLB and Draco decoder are external HTTPS dependencies. If the CDN/model is inaccessible, the page displays a recovery link to the open-source viewer instead of showing a fake flat fallback. The anatomy asset is licensed separately from the viewer code (CC BY-SA 4.0); see the source attribution details in the technical specification.
+The homepage brain is no longer the legacy particle/schematic drawing. `assets/js/gl/brain-surface.js` loads the open cortical-surface geometry from the `itayinbarr/brainproject` GLB atlas, keeps meshes labelled `bx_cat=cortex`, applies region-aware surface materials, and exposes drag rotation, zoom, hit-testing, arrow-key rotation, reset and optional auto-rotation. Three.js is pinned to `0.186.1`; the source GLB, `manifest.json` and the Draco decoder are **self-hosted** under `assets/models/atlas/`, so the page no longer depends on `raw.githubusercontent.com` or `gstatic.com` (that host is reset in some regions, which previously made both the homepage and Smart Brain report a model load failure). If the local model is missing, the page displays a recovery link to the open-source viewer instead of showing a fake flat fallback. The anatomy asset is licensed separately from the viewer code (CC BY-SA 4.0); checksums and attribution are in `assets/models/atlas/ATTRIBUTION.md`, source details in the technical specification.
 
 `standalone.html` 是遗留单文件演示副本；当前主站应通过 Vue/Vite 入口运行与构建，不应将该副本视作主站的构建产物。
 

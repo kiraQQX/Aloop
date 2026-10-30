@@ -11,7 +11,9 @@
   const rotateButton = document.getElementById("brainRotateToggle");
   const resetButton = document.getElementById("brainResetView");
   const modelLink = document.getElementById("brainModelLink");
-  const MODEL_URL = "https://raw.githubusercontent.com/itayinbarr/brainproject/main/brain-atlas/models/brain.glb";
+  // Self-hosted (assets/models/atlas/brain.glb): raw.githubusercontent.com is reset in
+  // mainland China and a 4.6 MB cold fetch there exceeds the load timeout.
+  const MODEL_URL = new URL("assets/models/atlas/brain.glb", document.baseURI).href;
   const VIEWER_URL = "https://itayinbarr.github.io/brainproject/";
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let renderer, scene, camera, controls, brainRoot, corticalMeshes = [];
@@ -207,7 +209,7 @@
       raycasterHolder.pointer = new THREE.Vector2();
 
       const draco = new DRACOLoader();
-      draco.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");
+      draco.setDecoderPath(new URL("assets/models/atlas/draco/", document.baseURI).href);
       const loader = new GLTFLoader();
       loader.setDRACOLoader(draco);
       const gltf = await withTimeout(loader.loadAsync(MODEL_URL), 14000, "Open-source brain GLB");

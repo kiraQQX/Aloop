@@ -3735,7 +3735,7 @@ Aloop.experimentApi = Aloop.experiments.believe;
 /* Smart Brain product model viewer. Independent Three.js scene; never shares homepage particle state. */
 (function () {
   const Aloop = window.Aloop = window.Aloop || {};
-  const MODEL_URL = "https://raw.githubusercontent.com/itayinbarr/brainproject/main/brain-atlas/models/brain.glb";
+  const MODEL_URL = new URL("assets/models/atlas/brain.glb", document.baseURI).href;
   let active = null;
   const copy = () => Aloop.i18n?.lang === "en"
     ? { loading: "Loading anatomical model…", drag: "Drag to rotate · Scroll to zoom · Select a structure", selected: "Selected structure", ready: "Model ready", failed: "Model failed to load. Check the network and try again.", reset: "Reset view", attribution: "Z-Anatomy / BodyParts3D · CC BY-SA 4.0", source: "Model source" }
@@ -3796,7 +3796,7 @@ Aloop.experimentApi = Aloop.experiments.believe;
       const modelRoot = new THREE.Group(); scene.add(modelRoot);
 
       const draco = new DRACOLoader();
-      draco.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");
+      draco.setDecoderPath(new URL("assets/models/atlas/draco/", document.baseURI).href);
       const loader = new GLTFLoader(); loader.setDRACOLoader(draco);
       const gltf = await new Promise((resolve, reject) => loader.load(MODEL_URL, resolve, undefined, reject));
       draco.dispose();
@@ -4159,8 +4159,8 @@ document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest
   if (!stage) return;
   const canvas = stage.querySelector(".particle-cortex-canvas");
   const statusEl = document.getElementById("particleCortexState");
-  const MODEL_URL = "https://raw.githubusercontent.com/itayinbarr/brainproject/main/brain-atlas/models/brain.glb";
-  const DRACO_PATH = "https://www.gstatic.com/draco/versioned/decoders/1.5.7/";
+  const MODEL_URL = new URL("assets/models/atlas/brain.glb", document.baseURI).href;
+  const DRACO_PATH = new URL("assets/models/atlas/draco/", document.baseURI).href;
   const FOV = 30, CAM_Z = 4.25, R = 1.3, EXTENT = 2.6, WAVE_SPEED = 3.2;
   const DEG = Math.PI / 180;
   const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");

@@ -1,0 +1,26 @@
+# Node.js dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+**/dist/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test outputs
+coverage/
+playwright-report/
+test-results/
+
+# Local tool files
+.wrangler/
+.DS_Store
+Thumbs.db

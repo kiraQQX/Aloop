@@ -8,8 +8,10 @@
   if (!stage) return;
   const canvas = stage.querySelector(".particle-cortex-canvas");
   const statusEl = document.getElementById("particleCortexState");
-  const MODEL_URL = "https://raw.githubusercontent.com/itayinbarr/brainproject/main/brain-atlas/models/brain.glb";
-  const DRACO_PATH = "https://www.gstatic.com/draco/versioned/decoders/1.5.7/";
+  // Self-hosted copy (assets/models/atlas/): the upstream raw.githubusercontent.com URL
+  // is reset in mainland China, which made the homepage report a model load failure.
+  const MODEL_URL = new URL("assets/models/atlas/brain.glb", document.baseURI).href;
+  const DRACO_PATH = new URL("assets/models/atlas/draco/", document.baseURI).href;
   const FOV = 30, CAM_Z = 4.25, R = 1.3, EXTENT = 2.6, WAVE_SPEED = 3.2;
   const DEG = Math.PI / 180;
   const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
