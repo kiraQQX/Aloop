@@ -57,10 +57,8 @@ test('direct deep links and browser back keep shell navigation synchronized', as
 
   const frame = page.locator('iframe.legacy-runtime');
   await expect(frame).toHaveAttribute('src', /legacy\.html\?embed=1#\/smart-brain\/atlas/);
-  // Products owns EasySci and Smart Brain, so the section trigger carries the state.
-  await expect(page.locator('[data-shell-route="products"]')).toHaveAttribute('aria-current', 'page');
-
   await page.locator('[data-shell-route="products"]').click();
+  await expect(page.getByRole('menuitem', { name: 'Smart Brain' })).toHaveAttribute('aria-current', 'true');
   await page.getByRole('menuitem', { name: 'EasySci' }).click();
   await expect(page).toHaveURL(/#\/easysci$/);
   await expect(frame).toHaveAttribute('src', /legacy\.html\?embed=1#\/easysci/);

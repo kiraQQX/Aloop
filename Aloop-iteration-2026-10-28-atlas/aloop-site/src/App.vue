@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
+import { computed, onMounted, onBeforeUnmount, nextTick, ref } from 'vue';
 
 // Shared with the legacy runtime (assets/i18n/site.js) so the shell and the
 // embedded documents always agree on the active language.
@@ -10,6 +10,10 @@ const status = ref('正在加载原有实验环境…');
 const language = ref(readStoredLanguage());
 const route = ref('home');
 const openMenu = ref(null);
+const experimentsTrigger = ref(null);
+const experimentsPanel = ref(null);
+const productsTrigger = ref(null);
+const productsPanel = ref(null);
 
 function readStoredLanguage() {
   try {
@@ -113,12 +117,65 @@ function targetFromHash(hash) {
 }
 
 function toggleMenu(name) {
-  openMenu.value = openMenu.value === name ? null : name;
+  if (openMenu.value === name) {
+    openMenu.value = null;
+    return;
+  }
+  openMenu.value = name;
+  nextTick(() => {
+    const panel = name === 'experiments' ? experimentsPanel.value : productsPanel.value;
+    panel?.querySelector('[role=menuitem]')?.focus({ preventScroll: true });
+  });
+}
+
+function closeMenu(restoreFocus = false) {
+  const name = openMenu.value;
+  openMenu.value = null;
+  if (!restoreFocus || !name) return;
+  const trigger = name === 'experiments' ? experimentsTrigger.value : productsTrigger.value;
+  trigger?.focus({ preventScroll: true });
 }
 
 function choose(target) {
   openMenu.value = null;
   navigate(target);
+}
+
+// Same interaction contract as assets/js/ui/quickmenu.js: outside click closes,
+// Escape closes and restores focus, arrows cycle, Home/End jump.
+function onMenuDocumentClick(event) {
+  if (openMenu.value === 'experiments'
+    && !experimentsPanel.value?.contains(event.target)
+    && !experimentsTrigger.value?.contains(event.target)) openMenu.value = null;
+  if (openMenu.value === 'products'
+    && !productsPanel.value?.contains(event.target)
+    && !productsTrigger.value?.contains(event.target)) openMenu.value = null;
+}
+
+function onMenuDocumentKeydown(event) {
+  const name = openMenu.value;
+  if (!name) return;
+  const panel = name === 'experiments' ? experimentsPanel.value : productsPanel.value;
+  if (!panel) return;
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeMenu(true);
+    return;
+  }
+  const items = Array.from(panel.querySelectorAll('[role=menuitem]'));
+  const current = items.indexOf(document.activeElement);
+  if (items.length && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+    event.preventDefault();
+    const offset = event.key === 'ArrowDown' ? 1 : -1;
+    items[(current + offset + items.length) % items.length]?.focus();
+    return;
+  }
+  if (name === 'experiments') {
+    if (event.key === 'Home') { event.preventDefault(); items[0]?.focus(); }
+    if (event.key === 'End') { event.preventDefault(); items.at(-1)?.focus(); }
+    return;
+  }
+  if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); items[0]?.focus(); }
 }
 
 function updateFrame(target, hash = window.location.hash) {
@@ -149,6 +206,7 @@ function navigate(target) {
 }
 
 function onShellHashChange() {
+  openMenu.value = null;
   const target = targetFromHash(window.location.hash);
   route.value = target;
   updateFrame(target, window.location.hash);
@@ -188,6 +246,8 @@ function setLanguage(value) {
 onMounted(() => {
   frame.value?.addEventListener('load', onFrameLoad);
   window.addEventListener('hashchange', onShellHashChange);
+  document.addEventListener('click', onMenuDocumentClick);
+  document.addEventListener('keydown', onMenuDocumentKeydown);
   const initialRoute = targetFromHash(window.location.hash);
   route.value = initialRoute;
   updateFrame(initialRoute);
@@ -195,6 +255,8 @@ onMounted(() => {
 onBeforeUnmount(() => {
   frame.value?.removeEventListener('load', onFrameLoad);
   window.removeEventListener('hashchange', onShellHashChange);
+  document.removeEventListener('click', onMenuDocumentClick);
+  document.removeEventListener('keydown', onMenuDocumentKeydown);
   legacyWindow?.removeEventListener('hashchange', onLegacyHashChange);
 });
 </script>
@@ -210,31 +272,31 @@ onBeforeUnmount(() => {
         <button type="button" data-shell-route="home" :aria-current="route === 'home' ? 'page' : undefined" @click="navigate('home')">{{ copy.home }}</button>
         <div class="vue-menu-wrap">
           <button
+            ref="experimentsTrigger"
             type="button"
             data-shell-route="experiments"
-            :aria-current="route === 'experiments' ? 'page' : undefined"
             :aria-expanded="openMenu === 'experiments'"
             aria-haspopup="menu"
             aria-controls="shellExperimentsMenu"
             @click="toggleMenu('experiments')"
           >{{ copy.experiments }}<svg class="vue-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <div v-show="openMenu === 'experiments'" id="shellExperimentsMenu" class="vue-menu" role="menu" aria-label="Experiments">
-            <button type="button" data-shell-experiment="believe" role="menuitem" @click="choose('experiments')">beLieve</button>
+          <div ref="experimentsPanel" id="shellExperimentsMenu" class="vue-menu" role="menu" aria-label="Experiments" :hidden="openMenu !== 'experiments'">
+            <button type="button" data-shell-experiment="believe" :aria-current="route === 'experiments' ? 'true' : undefined" role="menuitem" @click="choose('experiments')">beLieve</button>
           </div>
         </div>
         <div class="vue-menu-wrap">
           <button
+            ref="productsTrigger"
             type="button"
             data-shell-route="products"
-            :aria-current="route === 'easysci' || route === 'smart-brain' ? 'page' : undefined"
             :aria-expanded="openMenu === 'products'"
             aria-haspopup="menu"
             aria-controls="shellProductsMenu"
             @click="toggleMenu('products')"
           >{{ copy.products }}<svg class="vue-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <div v-show="openMenu === 'products'" id="shellProductsMenu" class="vue-menu" role="menu" aria-label="Products">
-            <button type="button" data-shell-route="easysci" :aria-current="route === 'easysci' ? 'page' : undefined" role="menuitem" @click="choose('easysci')">{{ copy.easysci }}</button>
-            <button type="button" data-shell-route="smart-brain" :aria-current="route === 'smart-brain' ? 'page' : undefined" role="menuitem" @click="choose('smart-brain')">{{ copy.brain }}</button>
+          <div ref="productsPanel" id="shellProductsMenu" class="vue-menu" role="menu" aria-label="Products" :hidden="openMenu !== 'products'">
+            <button type="button" data-shell-route="easysci" :aria-current="route === 'easysci' ? 'true' : undefined" role="menuitem" @click="choose('easysci')">{{ copy.easysci }}</button>
+            <button type="button" data-shell-route="smart-brain" :aria-current="route === 'smart-brain' ? 'true' : undefined" role="menuitem" @click="choose('smart-brain')">{{ copy.brain }}</button>
           </div>
         </div>
         <button type="button" data-shell-route="about" :aria-current="route === 'about' ? 'page' : undefined" @click="navigate('about')">{{ copy.about }}</button>

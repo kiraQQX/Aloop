@@ -61,12 +61,12 @@ describe('Vue-owned navigation and language controls', () => {
     await nextTick();
     expect(frame.getAttribute('src')).toContain('#/easysci');
     expect(window.location.hash).toBe('#/easysci');
-    expect(root.querySelector('[data-shell-route="easysci"]').getAttribute('aria-current')).toBe('page');
+    expect(root.querySelector('[data-shell-route="easysci"]').getAttribute('aria-current')).toBe('true');
     root.querySelector('[data-shell-route="smart-brain"]').click();
     await nextTick();
     expect(frame.getAttribute('src')).toContain('#/smart-brain');
     expect(window.location.hash).toBe('#/smart-brain');
-    expect(root.querySelector('[data-shell-route="smart-brain"]').getAttribute('aria-current')).toBe('page');
+    expect(root.querySelector('[data-shell-route="smart-brain"]').getAttribute('aria-current')).toBe('true');
   });
 
   it('keeps the shell language selection state and aria state synchronized', async () => {
@@ -134,7 +134,7 @@ describe('Vue shell routing regression cases', () => {
     window.location.hash = '#/e/believe/run';
     const root = await mount();
     await nextTick();
-    expect(root.querySelector('[data-shell-route="experiments"]').getAttribute('aria-current')).toBe('page');
+    expect(root.querySelector('[data-shell-experiment="believe"]').getAttribute('aria-current')).toBe('true');
     expect(window.location.hash).toBe('#/e/believe/run');
     expect(root.querySelector('iframe').getAttribute('src')).toContain('#/e/believe/run');
   });
@@ -143,7 +143,7 @@ describe('Vue shell routing regression cases', () => {
     window.location.hash = '#/smart-brain/atlas';
     const root = await mount();
     await nextTick();
-    expect(root.querySelector('[data-shell-route="smart-brain"]').getAttribute('aria-current')).toBe('page');
+    expect(root.querySelector('[data-shell-route="smart-brain"]').getAttribute('aria-current')).toBe('true');
     expect(root.querySelector('iframe').getAttribute('src')).toContain('#/smart-brain/atlas');
   });
 
@@ -151,7 +151,7 @@ describe('Vue shell routing regression cases', () => {
     window.location.hash = '#/easysci/analysis';
     const root = await mount();
     await nextTick();
-    expect(root.querySelector('[data-shell-route="easysci"]').getAttribute('aria-current')).toBe('page');
+    expect(root.querySelector('[data-shell-route="easysci"]').getAttribute('aria-current')).toBe('true');
     expect(window.location.hash).toBe('#/easysci/analysis');
     expect(root.querySelector('iframe').getAttribute('src')).toContain('#/easysci/analysis');
   });
@@ -245,7 +245,7 @@ describe('Vue shell language and About route', () => {
     await nextTick();
     expect(window.location.hash).toBe('#/easysci');
     expect(products.getAttribute('aria-expanded')).toBe('false');
-    expect(products.getAttribute('aria-current')).toBe('page');
+    expect(root.querySelector('[data-shell-route="easysci"]').getAttribute('aria-current')).toBe('true');
   });
 });
 
