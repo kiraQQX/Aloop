@@ -72,7 +72,27 @@ dist/
 └── standalone.html                  不存在（构建插件强制）
 ```
 
-## 3. 验收中发现并已修复的问题
+## 3. Cloudflare 部署链路核查（2026-10-30 追加）
+
+通过 GitHub check runs 与 PR 上的 Cloudflare 机器人评论核对（`App: cloudflare-workers-and-pages`，check 名称 `Workers Builds: aloop`）：
+
+| 提交 | 角色 | 结论 | Version ID |
+|---|---|---|---|
+| `883c4d0` | `master` | ✅ success | 有 |
+| `3786e50` | `master` | ✅ success | `e1a83cd0-f1c7-46d5-906a-22a451f881c9` |
+| `9d73349` | 功能分支 | ❌ **failure** | 无 |
+| `a461050` | 功能分支 | ❌ **failure** | 无 |
+
+结论：
+
+1. 线上是 **Cloudflare Workers 静态资源**（不是 Pages）；`master` 推送会自动构建并生成新 Version，即生产分支与仓库同步。
+2. **非生产分支的预览构建目前失败**（两次，均无 Version ID）。构建日志需在 dashboard 查看（build `12b3a0d1-cf53-4991-91a6-35a6cbd2879a`、`277b05c9-ce3b-4a25-bd25-0c900d37b16d`），本地无 Cloudflare API token，未取得日志文本。
+3. 由于预览构建不可用，PR 合并前无法用 Cloudflare 预览地址验收；当前以本地 `npm run build` + `vite preview` 与 GitHub Actions 为准。
+4. 生产构建若失败，线上继续运行上一个成功 Version，不会白屏；可用 dashboard 回滚或 `git revert` 后重新推送。
+
+**本次相关改动**：`wrangler` 由未声明改为 `devDependencies` 中的精确版本 `4.80.0`（要求 Node ≥ 20.3），使构建与部署使用同一 CLI，减少构建环境差异；`package-lock.json` 已同步，未改变任何既有依赖版本。
+
+## 4. 验收中发现并已修复的问题
 
 | # | 问题 | 证据 | 修复 |
 |---|---|---|---|
@@ -84,7 +104,7 @@ dist/
 | 6 | 说明页仅中文 | 页面无语言开关 | `?lang=` + 双语内容 + 语言按钮 + 共享存储键 |
 | 7 | 构建无产物契约 | 缺少资源时仍构建成功 | `verify-production-output` 插件（正向与反向均验证） |
 
-## 4. 未覆盖 / 未完成的风险
+## 5. 未覆盖 / 未完成的风险
 
 | 风险 | 严重度 | 说明 | 建议 |
 |---|---|---|---|
@@ -92,6 +112,8 @@ dist/
 | 移动端真机布局 | 中 | 仅 390×844 视口模拟，无真机触控/安全区验证 | 人工真机走查 |
 | 外部 CDN 不可用 | 中 | Three.js 通过 import map 从 jsDelivr 加载 `0.186.1`；断网时首页保留海报图并提示失败，Atlas 显示 `atlas.modelFail` | 在弱网/断网下人工确认提示与恢复路径 |
 | SPA fallback 掩盖 404 | 中 | 预览与 Cloudflare `single-page-application` 会对不存在的资源返回 `index.html`（实测 `/assets/models/atlas/does-not-exist.glb` 与 `/standalone.html` 均 200 + HTML 576 B） | 建议部署负责人评估把 `wrangler.jsonc` 改为 `not_found_handling: "404-page"`（当前路由全为 hash，不需要 SPA fallback） |
+| 分支预览构建失败 | 中高 | Cloudflare `Workers Builds: aloop` 对 `9d73349`、`a461050` 均为 failure 且无 Version ID；`master` 的 `883c4d0`、`3786e50` 为 success | 打开 dashboard 构建日志定位（root dir / 预览分支设置 / wrangler 可用性），修复前合并只能依赖本地与 GitHub Actions |
+| Cloudflare 构建设置未核对 | 中 | Root directory、Build/Deploy command、Node 版本、环境变量都只能在控制台确认，本次未取得 | 部署负责人核对一次；`wrangler` 已固定为 `4.80.0`（Node ≥ 20.3） |
 | 首页粒子视觉与 standalone 不一致 | 低 | 生产为 `uSize×1.2`（颗粒极细），standalone 为 `uSize×10.2`（明显的三角面脑），桌面观感差异明显；10.2 在 390px 视口会与「Aloop」字标重叠 | 保持 1.2（不改动既有视觉）；是否放大需设计负责人决定 |
 | 首页就绪提示常驻 | 低 | `粒子模型已就绪。` 文本渲染在署名下，standalone 同样存在 | 属既有行为，未改动 |
 | `brain-surface.js` 未接线 | 低 | 无文档引用，测试只校验路径 | 文档标注；后续决定删除或接线 |
@@ -99,7 +121,7 @@ dist/
 | Supabase 配置 | 中 | `src/lib/supabase.js` 未被任何入口 import；Cloudflare 是否配置 `VITE_SUPABASE_*` 未验证 | 由部署负责人在控制台确认；不要提交 secret/service_role |
 | 本地调试账号 | 高（上线前） | `1/1` 可进入实验 | 正式招募前必须移除并接入真实认证 |
 
-## 5. 复现方式
+## 6. 复现方式
 
 ```bash
 cd Aloop-iteration-2026-10-28-atlas/aloop-site

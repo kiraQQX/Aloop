@@ -62,6 +62,7 @@
 | `@vitejs/plugin-vue` | `^5.2.1` | SFC 支持 |
 | Vitest / jsdom | `^2.1.8` / `^25.0.1` | 单元测试（jsdom 环境） |
 | Playwright | `1.64.1` | Chromium 端到端验收 |
+| `wrangler` | `4.80.0`（精确版本，devDependency） | Cloudflare 构建/部署 CLI；要求 Node ≥ 20.3，保证构建环境与本地使用同一版本 |
 | `@supabase/supabase-js` | `^2.118.0` | 仅安装，`src/lib/supabase.js` 未接线 |
 | Three.js | `0.186.1`（import map，jsDelivr CDN） | 不写入 `package.json`；升级必须单独验证 GLTF/Draco 兼容性 |
 | Draco | 自托管 `assets/models/atlas/draco/` | `draco_decoder.js`、`.wasm`、`draco_wasm_wrapper.js` |
@@ -124,23 +125,28 @@ standalone.html   # 第二个生产首页
 
 - `src/lib/supabase.js` 读取 `VITE_SUPABASE_URL` 与 `VITE_SUPABASE_PUBLISHABLE_KEY`，缺失时在模块顶层抛错。
 - 该模块**当前未被任何入口 import**，因此构建与运行都不受影响；它只是未接线的客户端草稿。
-- 仓库中没有 `.env` 或 `.env.example`；Cloudflare Pages 是否配置了上述变量需要在控制台人工确认（本次未修改）。
+- 仓库中没有 `.env` 或 `.env.example`；Cloudflare Workers 是否配置了上述变量需要在控制台人工确认（本次未修改）。
 - 不得把 `service_role` / secret key 写入前端或仓库。
 - 真实认证、数据表、RLS、实验数据上传均为未实现项，需单独设计与评审。
 
-## 8. 部署（Cloudflare Pages）
+## 8. 部署（Cloudflare Workers + 静态资源）
 
-预期配置（以控制台实际值为准，本次未修改）：
+线上不是 Pages 项目，而是 **Cloudflare Workers 静态资源**（Worker 名 `aloop`），由 **Workers Builds** 跟踪 GitHub 仓库。`wrangler.jsonc` 的 `assets.directory = ./dist`、`not_found_handling = single-page-application`。
 
 | 项 | 值 |
 |---|---|
+| 服务类型 | Worker（静态资源模式） |
+| 生产分支 | `master`（GitHub 默认分支） |
 | Root directory | `Aloop-iteration-2026-10-28-atlas/aloop-site` |
 | Build command | `npm run build` |
-| Build output | `dist` |
-| 生产分支 | `master`（GitHub 默认分支） |
-| 环境变量 | `VITE_SUPABASE_*`（如实际使用） |
+| Deploy command | `npx wrangler deploy`（`wrangler` 固定为 `devDependencies` 的 `4.80.0`，要求 Node ≥ 20.3） |
+| 环境变量 | `VITE_SUPABASE_*`（仅在 import `src/lib/supabase.js` 后需要） |
 
-`wrangler.jsonc` 中 `assets.directory = ./dist`、`not_found_handling = single-page-application`。
+行为与已验证事实（2026-10-30）：
+
+- `master` 推送 → Workers Builds 构建成功并生成 Version（`883c4d0`、`3786e50` 均有 Version ID），即 **生产分支的推送会自动上线**。
+- 非生产分支 / PR → 预览构建目前**失败**（`9d73349`、`a461050` 的 `Workers Builds: aloop` 结论为 failure，且无 Version ID）。失败原因需在 dashboard 构建日志确认；在修复前，分支无法提供 Cloudflare 预览地址，合并前验证以本地 `npm run build` + `npm run preview` 和 GitHub Actions 为准。
+- 生产构建失败时，线上继续运行上一个成功版本，不会白屏。
 
 **风险**：SPA fallback 会把缺失的静态资源请求也返回 `index.html`（HTTP 200），从而掩盖资源 404。当前路由全部是 hash 路由，理论上不需要 SPA fallback；如需改为 `404-page`，必须先经部署负责人确认，因为这会改变所有未知路径的行为。
 
@@ -154,7 +160,7 @@ standalone.html   # 第二个生产首页
 
 ## 10. 验收环境
 
-- Node.js 20+（本次验收使用 Node 24.13.0）。
+- Node.js 20.3+（`wrangler 4.80.0` 的最低要求；本次验收使用 Node 24.13.0，CI 使用 Node 20）。
 - Chromium（Playwright 1.64.1 自带构建）。
 - 桌面 1365×900、移动 390×844。
 - 真实 WebGL：headless Chromium（SwiftShader）可创建上下文；仍需在目标设备上人工确认 GPU 渲染与移动端布局。

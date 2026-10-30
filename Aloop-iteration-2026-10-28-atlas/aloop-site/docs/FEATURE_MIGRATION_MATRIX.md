@@ -42,7 +42,8 @@
 | 数据库 / RLS / 实验数据上传 | 未实现 | 需要单独设计与安全评审，本次不实施 |
 | `brain-surface.js` 首页挂载 | 未接线 | 该模块期望 `.brain-surface-canvas` 标记，当前文档未提供；保留文件与测试引用 |
 | Three.js 本地打包 | 未实现 | 仍通过 import map 从 jsDelivr 加载固定版本 `0.186.1` |
-| Cloudflare 部署配置变更 | 未执行 | `wrangler.jsonc` 未修改；`not_found_handling: single-page-application` 会掩盖缺失静态资源的 404，已记入风险 |
+| Cloudflare 部署形态 | 已核实 | 线上为 Workers 静态资源（Worker `aloop`），由 Workers Builds 跟踪 `master`；`wrangler.jsonc` 未修改；分支预览构建失败已记入风险 |
+| 部署 CLI 版本 | 已固定 | `wrangler` 由未声明改为 `devDependencies` 精确版本 `4.80.0`（Node ≥ 20.3） |
 
 ## 4. 验收覆盖对照
 

@@ -6,7 +6,7 @@ Aloop 是一个在线研究实验与工具平台。当前采用 **Vue 3 + Vite**
 
 ## 本地运行
 
-主站入口是 Vue/Vite 外壳。不要直接双击 `index.html`；开发和验收应通过 Vite 的 HTTP 服务访问。要求 Node.js 20 或更新版本。
+主站入口是 Vue/Vite 外壳。不要直接双击 `index.html`；开发和验收应通过 Vite 的 HTTP 服务访问。要求 Node.js 20.3 或更新版本（`wrangler 4.80.0` 的最低要求；CI 使用 Node 20，本地验收使用 24）。
 
 从仓库根目录执行：
 
@@ -66,8 +66,8 @@ aloop-site/
 │   └── RELEASE_QA_REPORT.md        # 发布前验收结果
 ├── playwright.config.js
 ├── vite.config.js              # Vite 配置、旧运行时兼容层、构建产物契约
-├── wrangler.jsonc              # Cloudflare Pages（dist + SPA fallback）
-├── package.json
+├── wrangler.jsonc              # Cloudflare Workers（静态资源 + SPA fallback）
+├── package.json                # 含固定版本 wrangler，保证构建与部署使用同一 CLI
 └── README.md
 ```
 
@@ -135,17 +135,26 @@ npm run preview -- --host 127.0.0.1 --port 4175
 
 这些自动化测试不等于完整的发布验收。Smart Brain 的 WebGL/GPU 表现、移动端真机布局、外部 CDN 或模型不可用时的恢复状态，仍应在目标浏览器与设备上单独检查；详细结果与未覆盖风险见 `docs/RELEASE_QA_REPORT.md`。
 
-## 部署（Cloudflare Pages）
+## 部署（Cloudflare Workers + 静态资源）
+
+当前线上不是 Pages 项目，而是 **Cloudflare Workers 静态资源**（Worker 名 `aloop`，配置在 `wrangler.jsonc` 的 `assets` 段），由 **Workers Builds** 跟踪 GitHub 仓库。
 
 | 配置项 | 值 |
 |---|---|
+| 服务类型 | Worker（`wrangler.jsonc` → `assets.directory = ./dist`） |
+| 生产分支 | `master`（GitHub 默认分支） |
 | Root directory | `Aloop-iteration-2026-10-28-atlas/aloop-site` |
 | Build command | `npm run build` |
-| Build output directory | `dist` |
-| 生产分支 | `master`（GitHub 默认分支） |
+| Deploy command | `npx wrangler deploy`（`wrangler` 已固定为 `devDependencies` 中的 `4.80.0`） |
+| Node | 20.3+（`wrangler 4.80.0` 的最低要求；本地使用 24，CI 使用 20） |
 | 环境变量 | `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`（仅在真正 import `src/lib/supabase.js` 后才需要） |
 
-`dist/index.html` 是唯一入口；`dist/legacy.html`、`dist/说明.html` 与 `dist/assets/**` 由构建插件复制。合并到生产分支前必须完成本地生产预览与必要的人工验收；本次任务未修改 Cloudflare 的部署分支或环境变量。
+行为：
+
+- 推送到 `master` → 触发生产构建；成功后自动生成新的 Worker Version 并上线。构建失败时线上继续运行上一个成功版本。
+- 推送到其他分支 / PR → 尝试生成预览构建；截至 2026-10-30，**分支预览构建失败**（`master` 构建成功），详见 `docs/RELEASE_QA_REPORT.md` 的 Cloudflare 一节。预览构建修好前，以本地 `npm run build` + `npm run preview` 和 GitHub Actions 作为合并前验证。
+
+`dist/index.html` 是唯一入口；`dist/legacy.html`、`dist/说明.html` 与 `dist/assets/**` 由构建插件复制。合并到生产分支前必须完成本地生产预览与必要的人工验收。
 
 ## 重要边界
 
@@ -157,7 +166,8 @@ npm run preview -- --host 127.0.0.1 --port 4175
 6. Three.js 仍通过 import map 从 jsDelivr 加载固定版本 `0.186.1`；模型与 Draco 解码器已自托管，但页面整体不是离线包。CDN 不可用时首页保留海报并提示失败，Smart Brain Atlas 显示模型加载失败状态。
 7. All 432 EasySci records currently use `lastVerifiedAt: null` and `verificationStatus: "needs-manual-confirmation"`. Their access labels are editorial starting points; verify each destination, tier and licence before relying on the catalogue commercially or in a research workflow.
 8. Supabase 尚未接线：`src/lib/supabase.js` 只有在被 import 时才读取 `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY`，缺失会抛错；当前没有任何入口 import 它。不得把 service_role 或 secret key 写入前端或仓库。
-9. Cloudflare Pages 的 `wrangler.jsonc` 使用 `not_found_handling: "single-page-application"`，会把缺失的静态资源请求返回 `index.html`（HTTP 200），从而掩盖 404。当前路由全部是 hash 路由，技术上不需要该 fallback；是否改为 `404-page` 需部署负责人确认。
+9. `wrangler.jsonc` 的 `not_found_handling: "single-page-application"` 会把缺失的静态资源请求返回 `index.html`（HTTP 200），从而掩盖 404。当前路由全部是 hash 路由，技术上不需要该 fallback；是否改为 `404-page` 需部署负责人确认。
+10. 分支预览构建当前失败（`master` 成功）。合并前请以本地 `vite preview` + GitHub Actions 为准，并在 Cloudflare dashboard 查看分支构建日志确认原因。
 
 ## Visual revision — 2026-10-14
 
@@ -176,7 +186,7 @@ Vue 3 + Vite is the application entry/build layer; the existing H5 environment s
 3. `docs/TECHNICAL_REQUIREMENTS.md` — entry, routing, language, asset and build contracts.
 4. `docs/RELEASE_QA_REPORT.md` — current verification status and open risks.
 
-Requirements: Node.js 20 or newer.
+Requirements: Node.js 20.3 or newer (`wrangler 4.80.0`).
 
 ```bash
 npm install

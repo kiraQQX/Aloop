@@ -66,19 +66,39 @@
 - PR：[#7](https://github.com/kiraQQX/Aloop/pull/7) → `master`，**Draft**（第 8 节人工验收项未完成）。
 - PR #6 已合并（`3bbb302`），因此未使用 `integration/vue-migration-complete` 作为目标分支。
 
+## 2026-10-30 — 阶段七：Cloudflare 部署链路核查与依赖固定（已完成）
+
+核查方式：GitHub check runs（`App: cloudflare-workers-and-pages`）+ PR #7 上的 Cloudflare 机器人评论。
+
+| 提交 | 角色 | Workers Builds | Version ID |
+|---|---|---|---|
+| `883c4d0` | `master` | ✅ success | 有 |
+| `3786e50` | `master` | ✅ success | `e1a83cd0…` |
+| `9d73349` | 功能分支 | ❌ failure | 无 |
+| `a461050` | 功能分支 | ❌ failure | 无 |
+
+结论与改动：
+
+1. 线上是 **Cloudflare Workers 静态资源**，不是 Pages；此前 README 与技术规范写成 Pages，属事实性错误，已全部更正。
+2. `master` 推送会自动构建并上线；**功能分支的预览构建失败**，原因需看 dashboard 构建日志（本地无 Cloudflare API token）。在修复前，PR 合并前验证以本地 `npm run build` + `vite preview` + GitHub Actions 为准。
+3. `wrangler` 从未声明改为 `devDependencies` 中的精确版本 `4.80.0`（Node ≥ 20.3，兼容 CI 的 Node 20 与本地 Node 24），`package-lock.json` 同步；既有依赖版本未发生任何变化。
+
 ## 未完成 / 下一步（未开始）
 
 1. Smart Brain WebGL 在目标桌面与移动真机上的 GPU 验收（自动化仅证明上下文可用与画布渲染）。
 2. 移动端真机布局复核（当前仅 390×844 视口截图）。
 3. 外部 CDN（jsDelivr Three.js）不可用时的恢复路径人工验收。
 4. `standalone.html` 是否归档/删除的决策（须在验收后单独确认）。
-5. Supabase 环境变量在 Cloudflare Pages 的配置确认；前后端认证与数据方案另行设计。
+5. Supabase 环境变量在 Cloudflare Workers 的配置确认；前后端认证与数据方案另行设计。
+6. Cloudflare 功能分支预览构建失败的定位与修复（需 dashboard 构建日志）。
 
 ## 风险登记
 
 | 风险 | 等级 | 说明 | 缓解 |
 |---|---|---|---|
 | SPA fallback 掩盖资源 404 | 中 | `wrangler.jsonc` 的 `single-page-application` 对所有未匹配请求返回 `index.html` | 已在构建期校验必需资源；是否改为 `404-page` 待部署负责人决定 |
+| 功能分支预览构建失败 | 中高 | `Workers Builds: aloop` 对功能分支两次失败（无 Version ID），`master` 两次成功 | 需 dashboard 构建日志定位；修复前合并只能依赖本地预览与 GitHub Actions |
+| Cloudflare 构建设置未核对 | 中 | Root directory、Build/Deploy command、Node 版本、环境变量只在控制台 | 部署负责人核对；`wrangler` 已固定为 `4.80.0` |
 | 首页粒子尺寸分叉（1.2 vs 10.2） | 低 | standalone 与模块化常量不同 | 保留 1.2，视觉改动需单独评审 |
 | Three.js 依赖 CDN | 中 | import map 固定 `0.186.1`，无本地回退 | 记录为已知限制；升级/本地化需单独任务 |
 | iframe 架构 | 中 | 旧顶栏 DOM 仍存在（被 CSS 隐藏），两套导航实现并存 | 已统一可见导航与语言；更深层重构需独立计划 |

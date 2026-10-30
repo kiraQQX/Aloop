@@ -112,7 +112,7 @@
 - 不把 `model-viewer.js` 迁入生产：模块化 Atlas 是功能超集。
 - 不升级 Three.js（保持 `0.186.1`），不把 CDN 依赖改为本地打包（需要单独评估体积与许可）。
 - 不接入真实认证、数据库、RLS 或实验数据上传；`src/lib/supabase.js` 保持未接线状态。
-- 不改动 Cloudflare Pages 的正式部署分支、构建命令或环境变量。
+- 不改动 Cloudflare Workers 的正式部署分支、构建命令或环境变量。
 
 ## 9. 每个模块的验证方法
 
