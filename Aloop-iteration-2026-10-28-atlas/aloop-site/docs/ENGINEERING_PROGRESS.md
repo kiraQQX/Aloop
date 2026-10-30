@@ -83,6 +83,12 @@
 2. `master` 推送会自动构建并上线；**功能分支的预览构建失败**，原因需看 dashboard 构建日志（本地无 Cloudflare API token）。在修复前，PR 合并前验证以本地 `npm run build` + `vite preview` + GitHub Actions 为准。
 3. `wrangler` 从未声明改为 `devDependencies` 中的精确版本 `4.80.0`（Node ≥ 20.3，兼容 CI 的 Node 20 与本地 Node 24），`package-lock.json` 同步；既有依赖版本未发生任何变化。
 
+## 2026-10-31 — 首页视觉对齐 standalone（已完成）
+
+- 舞台上移除三处文案：模型署名/来源链接（`.brain-model-credit`）、操作提示（`.cortex-hint`）、加载/就绪提示（`#particleCortexState` 改为 `.sr-only`，仍对读屏软件播报加载与失败状态）。归属信息保留在 `说明.html` 与 `assets/models/atlas/ATTRIBUTION.md`。
+- `particle-cortex.js` 使用工作区中已应用的优化版本（`TUNING` 参数化、逐顶点法线采样、质量分级）；`TUNING.particlePixelScale` 由 1.2 调整为桌面 `10.2`（与 standalone 一致）、`≤700px` 为 `5.2`（避免与字标重叠）。
+- 验证：`npm test` 47/47、`npm run build`、`npm run test:e2e` 8/8；1365×900 与 390×844 截图确认无误、无控制台错误。
+
 ## 未完成 / 下一步（未开始）
 
 1. Smart Brain WebGL 在目标桌面与移动真机上的 GPU 验收（自动化仅证明上下文可用与画布渲染）。
@@ -99,7 +105,7 @@
 | SPA fallback 掩盖资源 404 | 中 | `wrangler.jsonc` 的 `single-page-application` 对所有未匹配请求返回 `index.html` | 已在构建期校验必需资源；是否改为 `404-page` 待部署负责人决定 |
 | 功能分支预览构建失败 | 中高 | `Workers Builds: aloop` 对功能分支两次失败（无 Version ID），`master` 两次成功 | 需 dashboard 构建日志定位；修复前合并只能依赖本地预览与 GitHub Actions |
 | Cloudflare 构建设置未核对 | 中 | Root directory、Build/Deploy command、Node 版本、环境变量只在控制台 | 部署负责人核对；`wrangler` 已固定为 `4.80.0` |
-| 首页粒子尺寸分叉（1.2 vs 10.2） | 低 | standalone 与模块化常量不同 | 保留 1.2，视觉改动需单独评审 |
+| 首页粒子尺寸 | 已关闭 | 2026-10-31：桌面 10.2 对齐 standalone，≤700px 5.2 避免压字标 | 如需再调，改 `TUNING.particlePixelScale` |
 | Three.js 依赖 CDN | 中 | import map 固定 `0.186.1`，无本地回退 | 记录为已知限制；升级/本地化需单独任务 |
 | iframe 架构 | 中 | 旧顶栏 DOM 仍存在（被 CSS 隐藏），两套导航实现并存 | 已统一可见导航与语言；更深层重构需独立计划 |
 | `brain-surface.js` 未接线 | 低 | 无文档引用，测试仅校验路径 | 文档标注；不删除 |

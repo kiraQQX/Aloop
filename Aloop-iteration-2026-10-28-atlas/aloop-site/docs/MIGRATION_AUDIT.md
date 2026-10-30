@@ -47,7 +47,7 @@
 | Smart Brain 路由 | `parseRoute()` 只识别 `#/smart-brain` 与 `#/smart-brain/learn` | 额外识别 `#/smart-brain/atlas` 与 `#/smart-brain/atlas/<bx_id>` | 保留模块化路由 |
 | Learn 页 CTA | 指向内部 `#sbModelStage`（旧查看器） | 指向 `#/smart-brain/atlas`，并新增 Atlas 标签页 | 保留模块化 |
 | 嵌入模式样式 | 无 `vue-embed.css` | `assets/css/vue-embed.css` 在 `?embed=1` 时隐藏旧顶栏 | 保留 |
-| 首页粒子尺寸 | `uSize × 10.2` | `uSize × 1.2`（注释「restrained ~2px particle facets」） | **保留 1.2**：真实浏览器中 1.2 能稳定渲染可见皮层粒子；standalone 的 10.2 在同等 GPU 环境下画面异常（见第 5 节），无法作为基准 |
+| 首页粒子尺寸 | `uSize × 10.2` | `uSize × 1.2`（后改为 `TUNING.particlePixelScale`） | **已对齐**：桌面取 10.2（与 standalone 一致），≤700px 取 5.2 避免与「Aloop」字标重叠 |
 
 > 两个数值在同一提交（`95f44d7`）中就已分叉，无法从历史判断哪个是「最新」。因此本审计以**运行结果**判定，而不是文件时间或体积。
 

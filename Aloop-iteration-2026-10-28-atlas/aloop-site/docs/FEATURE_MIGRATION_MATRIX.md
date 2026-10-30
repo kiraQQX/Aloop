@@ -21,7 +21,7 @@
 | 模块 | 生产实现 | standalone 对照 | 状态 | 验收依据 | 风险 / 备注 |
 |---|---|---|---|---|---|
 | 首页视觉与实验入口 | `legacy.html` L100–123、`assets/css/{home,revision3,theme-blue}.css`、`assets/js/ui/sections.js` | L522–545 | 保持原实现（通过兼容层复用） | Playwright 首页截图 + `#home` 可见 | 首页粒子亮度偏弱，属既有设计取舍，未改动 |
-| 首页粒子脑 | `assets/js/gl/particle-cortex.js`（采样 `brain.glb` 皮层网格） | 同名内联段落，`uSize` 常量 10.2 | 保持原实现（通过兼容层复用） | Playwright：`data-source="cortex-glb"` + `is-ready` + 画布可见 | 两版 `uSize` 为 1.2 / 10.2，已判定保留 1.2；若后续要调整需视觉确认 |
+| 首页粒子脑 | `assets/js/gl/particle-cortex.js`（采样 `brain.glb` 皮层网格） | 同名内联段落，`uSize` 常量 10.2 | 保持原实现（通过兼容层复用） | Playwright：`data-source="cortex-glb"` + `is-ready` + 画布可见 | 已有 `TUNING.particlePixelScale`：桌面 10.2（对齐 standalone），≤700px 5.2（避免压字标） |
 | 全局导航 | `src/App.vue` `.vue-topbar` | 旧顶栏 | 已迁移并验证 | Vitest + Playwright（`aria-current`、实验菜单） | — |
 | 中英文切换 | `src/App.vue` + `assets/i18n/site.js` | 同一 i18n 模块 | 已迁移并验证 | Vitest 语言持久化；Playwright 中英切换与刷新后保持 | 语言键 `aloop_lang_v1` 为双端共享契约 |
 | EasySci 目录 | `assets/js/easysci/{data,easysci}.js` | 同名内联段落（432 条，完全一致） | 保持原实现（通过兼容层复用） | Playwright：首屏 50 卡片、搜索 `zotero` 收敛到 3 张 | 1.4 MB 数据文件单行压缩，编辑需工具 |

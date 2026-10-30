@@ -114,7 +114,7 @@ dist/
 | SPA fallback 掩盖 404 | 中 | 预览与 Cloudflare `single-page-application` 会对不存在的资源返回 `index.html`（实测 `/assets/models/atlas/does-not-exist.glb` 与 `/standalone.html` 均 200 + HTML 576 B） | 建议部署负责人评估把 `wrangler.jsonc` 改为 `not_found_handling: "404-page"`（当前路由全为 hash，不需要 SPA fallback） |
 | 分支预览构建失败 | 中高 | Cloudflare `Workers Builds: aloop` 对 `9d73349`、`a461050` 均为 failure 且无 Version ID；`master` 的 `883c4d0`、`3786e50` 为 success | 打开 dashboard 构建日志定位（root dir / 预览分支设置 / wrangler 可用性），修复前合并只能依赖本地与 GitHub Actions |
 | Cloudflare 构建设置未核对 | 中 | Root directory、Build/Deploy command、Node 版本、环境变量都只能在控制台确认，本次未取得 | 部署负责人核对一次；`wrangler` 已固定为 `4.80.0`（Node ≥ 20.3） |
-| 首页粒子视觉与 standalone 不一致 | 低 | 生产为 `uSize×1.2`（颗粒极细），standalone 为 `uSize×10.2`（明显的三角面脑），桌面观感差异明显；10.2 在 390px 视口会与「Aloop」字标重叠 | 保持 1.2（不改动既有视觉）；是否放大需设计负责人决定 |
+| 首页粒子视觉 | 已对齐 | 2026-10-31：桌面 10.2（与 standalone 一致），≤700px 5.2（避免与字标重叠）；舞台上的署名与操作提示文案已移除 | 归属信息保留在 `说明.html` 与 `assets/models/atlas/ATTRIBUTION.md` |
 | 首页就绪提示常驻 | 低 | `粒子模型已就绪。` 文本渲染在署名下，standalone 同样存在 | 属既有行为，未改动 |
 | `brain-surface.js` 未接线 | 低 | 无文档引用，测试只校验路径 | 文档标注；后续决定删除或接线 |
 | iframe 双套导航 DOM | 低 | 旧顶栏仍随 `legacy.html` 加载，仅被 CSS 隐藏 | 深层重构需独立计划 |
