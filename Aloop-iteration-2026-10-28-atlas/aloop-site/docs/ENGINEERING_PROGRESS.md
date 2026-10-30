@@ -53,16 +53,18 @@
 
 ## 2026-10-30 — 阶段六：Git 与 PR（已完成）
 
-| 提交 | 说明 |
-|---|---|
-| `docs: add standalone migration audit and feature matrix` | 审计与矩阵 |
-| `refactor: enforce single Vue entry and build output contract` | vite 配置 |
-| `feat: unify shell language state and bilingual About page` | App.vue + 说明.html |
-| `test: cover entry contract, atlas webgl and bilingual about` | 测试 |
-| `docs: record migration progress and release QA` | 文档与 README |
+| 提交 | SHA | 说明 |
+|---|---|---|
+| `docs: add standalone migration audit and feature matrix` | `43ad193` | 审计、矩阵、技术规范 |
+| `refactor: enforce single Vue entry and build output contract` | `300a091` | vite 配置与产物契约 |
+| `feat: unify shell language state and bilingual About page` | `040b063` | App.vue + 说明.html + 相关测试 |
+| `test: cover entry contract, atlas webgl and bilingual about` | `2c1fe15` | 入口契约测试 + e2e |
+| `docs: record migration progress and release QA` | `68443de` | README、进度、QA 报告 |
+| `ci: run frontend workflow on feature branches` | `9d73349` | GitHub Actions 分支触发 |
 
-- 推送：`origin feature/standalone-to-vue-integration`。
-- PR：目标 `master`，Draft（人工验收项未全部完成）。
+- 推送：`origin feature/standalone-to-vue-integration`（`9d73349`，`git ls-remote` 已确认）。
+- PR：[#7](https://github.com/kiraQQX/Aloop/pull/7) → `master`，**Draft**（第 8 节人工验收项未完成）。
+- PR #6 已合并（`3bbb302`），因此未使用 `integration/vue-migration-complete` 作为目标分支。
 
 ## 未完成 / 下一步（未开始）
 
