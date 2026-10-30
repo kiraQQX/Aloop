@@ -2,7 +2,7 @@
 
 Aloop 是一个在线研究实验与工具平台。当前采用 **Vue 3 + Vite** 作为站点入口层，保留原有 H5 业务环境作为 `legacy.html`，由 Vue 外壳通过 iframe 承载。**`index.html` 是唯一生产入口**；`standalone.html` 只是历史单文件对照副本，不参与生产构建与路由。EasySci、Smart Brain、beLieve 的主体业务逻辑仍运行在旧版 JavaScript 环境中，并非已经全部重写为 Vue 组件。
 
-> **研究与数据状态：原型阶段。** beLieve 的题目与证据文案承接自上一版 `lateral-reading-lab` 项目，仍需研究者/领域专家审核。网站未接入真实服务器端账号、数据存储、分组随机化或备份机制。会话数据只保存在参与者当前浏览器的本地存储中。请勿将当前版本直接用于正式招募或验证性数据收集；正式部署前还需完成伦理审批、知情同意审查、预注册、题库审核、数据保护与服务器端随机化。
+> **研究与数据状态：原型阶段。** beLieve 的题目与证据文案承接自上一版 `lateral-reading-lab` 项目，仍需研究者/领域专家审核。网站已接入 Supabase Auth（邮箱 + 密码），但实验数据仍只保存在参与者当前浏览器的本地存储中，尚未上传服务器，也没有正式随机化或备份机制。请勿将当前版本直接用于正式招募或验证性数据收集；正式部署前还需完成伦理审批、知情同意审查、预注册、题库审核、数据保护与服务器端随机化。
 
 ## 本地运行
 
@@ -27,7 +27,7 @@ npm run dev
 - beLieve 入口与实验运行时分离；进入后首先展示知情同意页面。
 - 基于公开 GLB 解剖网格的可交互 3D 脑皮层：支持拖动旋转、缩放、点击区域高亮、键盘旋转、重置视角和可选自动旋转；模型、清单与 Draco 解码器随站点自托管于 `assets/models/atlas/`，模型缺失时显示错误状态及原始开源查看器链接。模型网格与查看器代码采用不同许可，具体见技术规范。
 - Web Audio 合成的轻提示音和玻璃滑动声；本轮视觉与身份修改未改动音频模块，声音状态仍保存在本地，并在实验运行期间静音。
-- beLieve 要求登录后进入。当前预留本地调试账号：邮箱/用户名 `1`，密码 `1`；登录状态保存在当前浏览器中，尚不属于真实账号系统。
+- beLieve 要求登录后进入。登录使用 Supabase Auth（会话持久化，刷新可恢复）；未配置 Supabase 的本地开发环境保留调试账号 `1` / `1`，生产构建不会退回该账号。
 - beLieve 保留训练、测试、反馈、结果说明和 JSON 导出流程；导出数据包含 `site`、`experiment_id` 和 `app_version` 元数据。
 - 从部分旧 `llab_*` 本地键迁移语言与未完成会话，便于原型测试时续接此前进度。
 - A/B/C 条件选择不作为公开首页内容；仅通过 `?qa=1&arm=A|B|C` 供开发质检使用。该客户端分组不是正式研究随机化。
@@ -41,10 +41,14 @@ aloop-site/
 │   ├── main.js                 # 创建 Vue 应用
 │   ├── App.vue                 # 导航、顶层路由、iframe、语言同步
 │   ├── App.test.js             # Vue 外壳、路由、语言与 About 回归测试
-│   └── lib/supabase.js         # 未接线的 Supabase 客户端草稿（见下文）
+│   └── lib/
+│       ├── supabase.js         # 单例客户端 + 配置校验（缺变量/非法 URL/secret key）
+│       ├── auth.js             # 会话恢复、登录、注册、退出、状态订阅
+│       └── data.js             # profiles / experiment_sessions / events 数据访问
 ├── legacy.html                 # 旧版 H5 运行环境入口（iframe 承载）
 ├── 说明.html                   # 说明/许可页面（?embed=1&lang=zh|en）
 ├── standalone.html             # 历史单文件对照副本（仅 dev，参考用）
+├── supabase/migrations/        # 可重复执行的 SQL 迁移（表 + RLS + 触发器）
 ├── assets/
 │   ├── css/                    # 旧版样式与嵌入模式样式
 │   ├── i18n/site.js            # 中英文文案
@@ -53,6 +57,9 @@ aloop-site/
 ├── experiments/believe/        # beLieve 实验清单、样式与运行时
 ├── tests/
 │   ├── entry-contract.test.js  # 单一入口、构建契约、资源路径、双语 About
+│   ├── supabase-config.test.js # 环境变量校验、密钥拦截、RLS 迁移静态检查
+│   ├── auth-service.test.js    # 会话恢复、登录/注册/退出、错误映射
+│   ├── legacy-auth-adapter.test.js # 旧运行时桥接与超时兜底
 │   ├── atlas_store.test.js
 │   ├── i18n.test.js
 │   ├── project-regression.test.js
@@ -63,6 +70,7 @@ aloop-site/
 │   ├── FEATURE_MIGRATION_MATRIX.md # 功能迁移矩阵
 │   ├── TECHNICAL_REQUIREMENTS.md   # 统一后的架构与验收要求
 │   ├── ENGINEERING_PROGRESS.md     # 工程进度与风险登记
+│   ├── SUPABASE_INTEGRATION.md     # 认证/表结构/RLS/配置步骤
 │   └── RELEASE_QA_REPORT.md        # 发布前验收结果
 ├── playwright.config.js
 ├── vite.config.js              # Vite 配置、旧运行时兼容层、构建产物契约
@@ -147,7 +155,7 @@ npm run preview -- --host 127.0.0.1 --port 4175
 | Build command | `npm run build` |
 | Deploy command | `npx wrangler deploy`（`wrangler` 已固定为 `devDependencies` 中的 `4.80.0`） |
 | Node | 20.3+（`wrangler 4.80.0` 的最低要求；本地使用 24，CI 使用 20） |
-| 环境变量 | `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`（仅在真正 import `src/lib/supabase.js` 后才需要） |
+| 环境变量 | `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`（publishable/anon key；未配置时登录不可用并显示错误条） |
 
 行为：
 
@@ -158,14 +166,14 @@ npm run preview -- --host 127.0.0.1 --port 4175
 
 ## 重要边界
 
-1. 当前登录仅为本地调试适配器，允许调试账号 `1` / `1` 并在浏览器本地保存登录状态，不提供真实身份验证，不可用于公开部署；上线前必须接入服务端认证并清除这组演示凭据。
+1. 生产登录使用 Supabase Auth；`1` / `1` 调试账号只在未配置 Supabase 的开发环境生效（生产构建遇到缺失配置会显示错误条而不是降级）。
 2. 实验数据不上传到服务器，浏览器本地存储不等于可靠备份。
 3. 当前题目与证据内容只适合作为原型材料，不能因界面已重建就视为经过学术验证。
 4. `standalone.html` 仅是历史单文件对照副本：dev 下可访问、带 `noindex`，不进入 `dist`，不被任何路由链接。归档或删除需在验收后单独确认。
 5. 不包含 dala 原始站点的商业字体文件或大型克隆资源；未获得许可时使用系统字体栈。
 6. Three.js 仍通过 import map 从 jsDelivr 加载固定版本 `0.186.1`；模型与 Draco 解码器已自托管，但页面整体不是离线包。CDN 不可用时首页保留海报并提示失败，Smart Brain Atlas 显示模型加载失败状态。
 7. All 432 EasySci records currently use `lastVerifiedAt: null` and `verificationStatus: "needs-manual-confirmation"`. Their access labels are editorial starting points; verify each destination, tier and licence before relying on the catalogue commercially or in a research workflow.
-8. Supabase 尚未接线：`src/lib/supabase.js` 只有在被 import 时才读取 `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY`，缺失会抛错；当前没有任何入口 import 它。不得把 service_role 或 secret key 写入前端或仓库。
+8. Supabase 已接入认证：`src/lib/supabase.js`（单例 + 配置校验）、`src/lib/auth.js`（会话/登录/注册/退出）、`src/lib/data.js`（profiles 与会话数据）。数据库迁移在 `supabase/migrations/`，需在控制台执行后才会生效。不得把 service_role 或 secret key 写入前端或仓库。
 9. `wrangler.jsonc` 的 `not_found_handling: "single-page-application"` 会把缺失的静态资源请求返回 `index.html`（HTTP 200），从而掩盖 404。当前路由全部是 hash 路由，技术上不需要该 fallback；是否改为 `404-page` 需部署负责人确认。
 10. 分支预览构建当前失败（`master` 成功）。合并前请以本地 `vite preview` + GitHub Actions 为准，并在 Cloudflare dashboard 查看分支构建日志确认原因。
 

@@ -121,13 +121,18 @@ standalone.html   # 第二个生产首页
 
 其余请求交给 Vite。这样可保证旧 import map、`defer` 顺序与相对路径行为与生产一致。
 
-## 7. Supabase 现状（明确边界）
+## 7. Supabase 认证与数据（已接入）
 
-- `src/lib/supabase.js` 读取 `VITE_SUPABASE_URL` 与 `VITE_SUPABASE_PUBLISHABLE_KEY`，缺失时在模块顶层抛错。
-- 该模块**当前未被任何入口 import**，因此构建与运行都不受影响；它只是未接线的客户端草稿。
-- 仓库中没有 `.env` 或 `.env.example`；Cloudflare Workers 是否配置了上述变量需要在控制台人工确认（本次未修改）。
+完整设计见 `docs/SUPABASE_INTEGRATION.md`。
+
+- 客户端：`src/lib/supabase.js` 单例，读取 `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY`；缺失或 URL 非法时**不抛错**，而是导出 `supabaseConfigError` 由 UI 展示；检测到 `service_role` / `sb_secret_` 直接拒绝。
+- 认证：`src/lib/auth.js` 负责会话恢复（`getSession`）、登录（`signInWithPassword`）、注册（`signUp`，含邮箱确认分支）、退出与 `onAuthStateChange` 订阅；`initAuth` 幂等，不会重复订阅。
+- 旧运行时：`assets/js/core/auth.js` 在嵌入模式下调用外壳的 `window.__ALOOP_AUTH__`；无外壳（`standalone.html` 或直接打开 `legacy.html`）时保留 `1/1` 本地调试适配器。`Aloop.authReady` 让旧路由在会话恢复后再渲染。
+- 数据：`src/lib/data.js` 封装 `profiles`、`experiment_sessions`、`experiment_events`；未配置时返回 `not_configured`，不伪造数据。
+- 数据库：`supabase/migrations/20261031090000_init_profiles_and_sessions.sql`，三张表全部启用 RLS，策略限定 `auth.uid()`。
+- 边界：beLieve 运行时仍写 localStorage，实验数据上传**未接入**；密码重置/邮箱变更入口**未接入**（现有 UI 无入口）。
+- 真实注册/登录尚未在线上验证（仓库无 Supabase 项目凭据）；测试为 mock SDK 单元测试 + 本地调试适配器 e2e。
 - 不得把 `service_role` / secret key 写入前端或仓库。
-- 真实认证、数据表、RLS、实验数据上传均为未实现项，需单独设计与评审。
 
 ## 8. 部署（Cloudflare Workers + 静态资源）
 

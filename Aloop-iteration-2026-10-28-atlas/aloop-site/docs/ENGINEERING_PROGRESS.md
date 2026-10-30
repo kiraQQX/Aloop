@@ -95,6 +95,19 @@
 - 审阅工作区中另一 Agent 提交的 `particle-cortex.js` 大范围改动（+294/−100），结论：采样改逐顶点法线插值、按皮层包围盒缩放、实例数分级与 FPS 调节均为有效改进；发现并修复一处两版都存在的缺陷——`shockTimer` 未声明，首次点击会抛 `ReferenceError` 导致冲击波动画不生效。
 - 验证：`npm test` 49/49、`npm run build`、`npm run test:e2e` 8/8；桌面与 390×844 截图确认；点击舞台与「登录 / 注册」均无控制台错误。
 
+## 2026-10-31 — Supabase 认证与数据接入（已实现，待线上验证）
+
+分支：`feat/supabase-integration`（从 `master` `bd80730` 创建）。
+
+- 审计确认：`src/lib/supabase.js` 从未被引用，登录为 `assets/js/core/auth.js` 的本地调试适配器（`1/1`），实验数据只写 localStorage。
+- 客户端：`src/lib/supabase.js` 改为单例 + 配置校验（缺变量/非法 URL/secret key 分别报错），不在 import 时抛错。
+- 认证：新增 `src/lib/auth.js`（`initAuth` / `signIn` / `signUp` / `signOut` / `onAuthStateChange`），会话持久化与刷新恢复由 SDK 负责。
+- 桥接：`src/App.vue` 暴露 `window.__ALOOP_AUTH__`；`assets/js/core/auth.js` 在嵌入模式下转发调用，`Aloop.authReady` 让旧路由在会话恢复后再渲染；无外壳时保留本地调试适配器。
+- 数据库：`supabase/migrations/20261031090000_init_profiles_and_sessions.sql`（profiles / experiment_sessions / experiment_events，全部 RLS + `auth.uid()` 策略 + 新用户触发器）。
+- 数据层：`src/lib/data.js`；未配置时返回 `not_configured`，不伪造数据。
+- 验证：`npm test` 67/67（新增 18 项）；`npm run test:e2e` 8/8；构建通过（JS 305 kB / gzip 88 kB）。
+- 未验证：真实 Supabase 项目的注册/登录/邮件确认（无项目凭据）；beLieve 实验数据上传未接入。
+
 ## 未完成 / 下一步（未开始）
 
 1. Smart Brain WebGL 在目标桌面与移动真机上的 GPU 验收（自动化仅证明上下文可用与画布渲染）。

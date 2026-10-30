@@ -22,5 +22,6 @@ test-results/
 
 # Local tool files
 .wrangler/
+.tmp-build/
 .DS_Store
 Thumbs.db

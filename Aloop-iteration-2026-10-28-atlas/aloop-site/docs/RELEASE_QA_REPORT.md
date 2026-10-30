@@ -12,17 +12,20 @@
 
 | 命令 | 结果 | 数量 | 备注 |
 |---|---|---|---|
-| `npm test` | ✅ 通过 | 6 个文件 / 49 项 | jsdom 环境；含 `src/App.test.js`、`tests/entry-contract.test.js` |
-| `npm run build` | ✅ 通过 | 10 modules transformed | `dist/index.html` 0.58 kB、CSS 2.66 kB、JS 70.41 kB；旧运行时与模型由插件复制 |
-| `npm run test:e2e` | ✅ 通过 | 8 / 8（10.9 s） | Chromium，开发服务器；每个用例断言 `console.error` 与 `pageerror` 为空 |
+| `npm test` | ✅ 通过 | 9 个文件 / 67 项 | jsdom 环境；含认证、Supabase 配置与迁移静态检查 |
+| `npm run build` | ✅ 通过 | 56 modules transformed | `dist/index.html` 0.58 kB、CSS 3.63 kB、JS 305.20 kB（gzip 88.49 kB，含 supabase-js） |
+| `npm run test:e2e` | ✅ 通过 | 8 / 8（14.5 s） | Chromium，开发服务器；每个用例断言 `console.error` 与 `pageerror` 为空 |
 | 构建期产物校验 | ✅ 生效 | — | 临时移走 `manifest.json` 后构建按预期失败：`Production build is missing required files: assets/models/atlas/manifest.json`，随后已恢复 |
 
-### 1.1 Vitest 明细（47 项）
+### 1.1 Vitest 明细（67 项）
 
 | 文件 | 项数 | 覆盖 |
 |---|---|---|
-| `src/App.test.js` | 16 | iframe 挂载、导航、实验菜单、深层链接、语言持久化、About embed、P0 兼容断言 |
+| `src/App.test.js` | 17 | iframe 挂载、导航、菜单、深层链接、语言持久化、About embed、账号入口、P0 兼容断言 |
 | `tests/entry-contract.test.js` | 17 | 单一入口、dev/构建契约、产物清单、静态资源路径、Atlas 资源、双语 About、文档存在性、旧运行时模块图 |
+| `tests/supabase-config.test.js` | 7 | 环境变量缺失/非法 URL/secret key 拒绝、单例、源码无密钥、迁移文件 RLS 断言 |
+| `tests/auth-service.test.js` | 7 | 会话恢复、登录成功/失败、网络异常、注册待确认、退出、幂等订阅 |
+| `tests/legacy-auth-adapter.test.js` | 4 | 无外壳时本地调试、嵌入时桥接、会话推送与 `authReady`、超时兜底 |
 | `tests/project-regression.test.js` | 6 | 旧样式/脚本可解析、脚本顺序、EasySci 完整性、分离层次 |
 | `tests/atlas_store.test.js` | 5 | Atlas store 状态机 |
 | `tests/model-assets.test.js` | 3 | GLB/manifest/Draco/署名、禁用退役 CDN |
@@ -105,7 +108,28 @@ dist/
 | 7 | 构建无产物契约 | 缺少资源时仍构建成功 | `verify-production-output` 插件（正向与反向均验证） |
 | 8 | 首页点击舞台抛 `ReferenceError` | `shockTimer` 从未声明（旧版与优化版都存在），首次点击中断冲击波样式 | 补充 `let shockTimer = 0`，点击后无控制台错误 |
 
-## 5. 未覆盖 / 未完成的风险
+## 5. Supabase 认证验证（2026-10-31 追加）
+
+代码分支 `feat/supabase-integration`；详细设计见 `docs/SUPABASE_INTEGRATION.md`。
+
+| 验收项 | 方式 | 结果 |
+|---|---|---|
+| 配置缺失时明确报错 | `tests/supabase-config.test.js`（`missing_env` / `invalid_url` / `secret_key`） | ✅ 单元验证 |
+| 客户端单例、不在 import 时抛错 | 同上 | ✅ |
+| 登录成功 / 失败 / 网络异常映射 | `tests/auth-service.test.js`（mock SDK） | ✅ |
+| 注册（含待邮箱确认分支） | 同上 | ✅ |
+| 退出并清空用户状态 | 同上 | ✅ |
+| 会话恢复（`getSession`） | 同上 | ✅（mock） |
+| 重复订阅防护 | 同上（`initAuth` 幂等） | ✅ |
+| 未登录访问受保护实验 | Playwright：登录门禁弹出 | ✅（本地调试适配器） |
+| 旧运行时桥接 / 超时兜底 | `tests/legacy-auth-adapter.test.js`（vm 沙箱） | ✅ |
+| RLS 与迁移可重复执行 | `tests/supabase-config.test.js` 静态断言 + SQL 文件 | ✅（静态检查，未在数据库执行） |
+| 真实注册 / 登录 / 邮件确认 | 需 Supabase 项目凭据 | ❌ **未执行** |
+| 用户 A 无法读写用户 B 数据 | 需两个真实账号 + 已应用迁移 | ❌ **未执行**（策略已编写） |
+
+结论：认证代码路径与策略已实现并通过 mock/静态测试；**线上真实行为尚未验证**，不能宣称“真实线上验证成功”。
+
+## 6. 未覆盖 / 未完成的风险
 
 | 风险 | 严重度 | 说明 | 建议 |
 |---|---|---|---|
@@ -119,10 +143,13 @@ dist/
 | 首页就绪提示常驻 | 低 | `粒子模型已就绪。` 文本渲染在署名下，standalone 同样存在 | 属既有行为，未改动 |
 | `brain-surface.js` 未接线 | 低 | 无文档引用，测试只校验路径 | 文档标注；后续决定删除或接线 |
 | iframe 双套导航 DOM | 低 | 旧顶栏仍随 `legacy.html` 加载，仅被 CSS 隐藏 | 深层重构需独立计划 |
-| Supabase 配置 | 中 | `src/lib/supabase.js` 未被任何入口 import；Cloudflare 是否配置 `VITE_SUPABASE_*` 未验证 | 由部署负责人在控制台确认；不要提交 secret/service_role |
-| 本地调试账号 | 高（上线前） | `1/1` 可进入实验 | 正式招募前必须移除并接入真实认证 |
+| Supabase 真实认证未验证 | 高 | 代码已接入但无项目凭据：注册/登录/邮件确认/RLS 双账号隔离均未在真实项目执行 | 应用迁移后，用两个测试账号完成注册→确认→登录→跨账号读写拒绝的验证 |
+| 迁移未应用 | 高 | `profiles` 等表尚不存在；登录可用但资料 upsert 会失败并告警 | 上线前在 Supabase SQL Editor 执行迁移文件 |
+| 实验数据仍在本机 | 中 | beLieve 继续写 localStorage，尚未上传 Supabase | 需先完成研究协议与知情同意评审，再接 `experiment_sessions` |
+| 生产缺少环境变量 | 高 | 生产构建若未配置 `VITE_SUPABASE_*`，登录会返回 `not_configured` 并显示错误条（不会退回调试账号） | 部署前在 Workers 构建变量中确认 |
+| 本地调试账号 | 中（仅开发） | `1/1` 仅在无 Supabase 配置的开发环境生效；生产构建不会使用 | 保留用于开发与 e2e，文档已标注 |
 
-## 6. 复现方式
+## 7. 复现方式
 
 ```bash
 cd Aloop-iteration-2026-10-28-atlas/aloop-site
