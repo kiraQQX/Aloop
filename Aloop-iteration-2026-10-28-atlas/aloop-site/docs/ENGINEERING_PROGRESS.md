@@ -91,9 +91,9 @@
 
 ## 2026-10-31 — 外壳顶栏对齐 standalone 与点击缺陷修复（已完成）
 
-- `src/App.vue` + `src/style.css`：Vue 顶栏改为 standalone 的深蓝主题（`#23466D → #1D3C5F` 渐变、白色导航、金色下划线/悬停、玻璃下拉面板），新增「登录 / 注册」入口，点击后转发到 iframe 内 `#authOpen`（About 页会先回到首页再打开）。
+- `src/App.vue` + `src/style.css`：Vue 顶栏改为 standalone 的深蓝主题（`#23466D → #1D3C5F` 渐变、白色导航、金色下划线/悬停、玻璃下拉面板），新增「登录 / 注册」入口，点击后转发到 iframe 内 `#authOpen`（About 页会先回到首页再打开）。导航结构改为「实验」下拉（beLieve）与「产品」下拉（EasySci / Smart Brain），与 standalone 一致；EasySci/Smart Brain 的激活态上移到「产品」触发器。
 - 审阅工作区中另一 Agent 提交的 `particle-cortex.js` 大范围改动（+294/−100），结论：采样改逐顶点法线插值、按皮层包围盒缩放、实例数分级与 FPS 调节均为有效改进；发现并修复一处两版都存在的缺陷——`shockTimer` 未声明，首次点击会抛 `ReferenceError` 导致冲击波动画不生效。
-- 验证：`npm test` 48/48、`npm run build`、`npm run test:e2e` 8/8；桌面与 390×844 截图确认；点击舞台与「登录 / 注册」均无控制台错误。
+- 验证：`npm test` 49/49、`npm run build`、`npm run test:e2e` 8/8；桌面与 390×844 截图确认；点击舞台与「登录 / 注册」均无控制台错误。
 
 ## 未完成 / 下一步（未开始）
 

@@ -12,7 +12,7 @@
 
 | 命令 | 结果 | 数量 | 备注 |
 |---|---|---|---|
-| `npm test` | ✅ 通过 | 6 个文件 / 47 项 | jsdom 环境；含 `src/App.test.js`、`tests/entry-contract.test.js` |
+| `npm test` | ✅ 通过 | 6 个文件 / 49 项 | jsdom 环境；含 `src/App.test.js`、`tests/entry-contract.test.js` |
 | `npm run build` | ✅ 通过 | 10 modules transformed | `dist/index.html` 0.58 kB、CSS 2.66 kB、JS 70.41 kB；旧运行时与模型由插件复制 |
 | `npm run test:e2e` | ✅ 通过 | 8 / 8（10.9 s） | Chromium，开发服务器；每个用例断言 `console.error` 与 `pageerror` 为空 |
 | 构建期产物校验 | ✅ 生效 | — | 临时移走 `manifest.json` 后构建按预期失败：`Production build is missing required files: assets/models/atlas/manifest.json`，随后已恢复 |
@@ -21,7 +21,7 @@
 
 | 文件 | 项数 | 覆盖 |
 |---|---|---|
-| `src/App.test.js` | 15 | iframe 挂载、导航、实验菜单、深层链接、语言持久化、About embed、P0 兼容断言 |
+| `src/App.test.js` | 16 | iframe 挂载、导航、实验菜单、深层链接、语言持久化、About embed、P0 兼容断言 |
 | `tests/entry-contract.test.js` | 17 | 单一入口、dev/构建契约、产物清单、静态资源路径、Atlas 资源、双语 About、文档存在性、旧运行时模块图 |
 | `tests/project-regression.test.js` | 6 | 旧样式/脚本可解析、脚本顺序、EasySci 完整性、分离层次 |
 | `tests/atlas_store.test.js` | 5 | Atlas store 状态机 |
