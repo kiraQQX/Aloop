@@ -72,18 +72,56 @@
     if (event.shiftKey && document.activeElement === focusable[0]) { event.preventDefault(); focusable.at(-1).focus(); }
     else if (!event.shiftKey && document.activeElement === focusable.at(-1)) { event.preventDefault(); focusable[0].focus(); }
   });
+  const submitButton = document.querySelector("#authForm .auth-submit");
+
+  function failureMessage(result) {
+    const reason = result?.reason || "";
+    if (reason === "not_configured") return t("auth.notConfigured");
+    if (reason === "network_error") return t("auth.networkError");
+    if (reason === "email_not_confirmed") return t("auth.emailNotConfirmed");
+    if (reason === "invalid_credentials" || reason === "invalid_grant") return t("auth.validation.credentials");
+    return t("auth.errorGeneric");
+  }
+
   document.getElementById("authForm")?.addEventListener("submit", async event => {
     event.preventDefault();
+    if (submitButton?.disabled) return;
     const email = emailInput.value.trim();
     if (!email) { message.textContent = t("auth.validation.email"); emailInput.focus(); return; }
     if (!password.value) { message.textContent = t("auth.validation.password"); password.focus(); return; }
     if (mode === "signup" && password.value !== confirm.value) { message.textContent = t("auth.validation.confirm"); confirm.focus(); return; }
-    if (mode === "signup") { message.textContent = t("auth.pending"); return; }
-    const result = await Aloop.auth.signIn(email, password.value);
-    if (!result.ok) { message.textContent = t("auth.validation.credentials"); password.select(); return; }
-    message.textContent = t("auth.loginSuccess");
-    close();
-    document.dispatchEvent(new CustomEvent("aloop:auth-success", { detail: { user: result.user } }));
+
+    const originalLabel = submitLabel?.textContent;
+    if (submitButton) submitButton.disabled = true;
+    if (submitLabel) submitLabel.textContent = t("auth.submitting");
+    message.textContent = t("auth.submitting");
+
+    try {
+      if (mode === "signup") {
+        const result = await Aloop.auth.signUp(email, password.value);
+        if (!result.ok) { message.textContent = failureMessage(result); return; }
+        if (result.needsConfirmation) {
+          message.textContent = t("auth.signupConfirm");
+          setMode("login");
+          return;
+        }
+        message.textContent = t("auth.signupSuccess");
+        close();
+        document.dispatchEvent(new CustomEvent("aloop:auth-success", { detail: { user: result.user } }));
+        return;
+      }
+      const result = await Aloop.auth.signIn(email, password.value);
+      if (!result.ok) { message.textContent = failureMessage(result); password.select(); return; }
+      message.textContent = t("auth.loginSuccess");
+      close();
+      document.dispatchEvent(new CustomEvent("aloop:auth-success", { detail: { user: result.user } }));
+    } catch (error) {
+      console.error("Aloop auth request failed", error);
+      message.textContent = t("auth.networkError");
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+      if (submitLabel) submitLabel.textContent = originalLabel;
+    }
   });
   Aloop.authModal = { open, close, setMode, syncAccountLabel };
   syncAccountLabel();

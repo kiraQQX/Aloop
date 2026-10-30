@@ -61,7 +61,7 @@
 | EasySci | 内联 `easysci.js` + 432 条数据 | `assets/js/easysci/{data,easysci}.js`（同一内容） | 无 | 复用现有实现，不重复迁移 |
 | Smart Brain | `model-viewer.js`（旧单画布） | `assets/js/smartbrain/{learn,lessons,narration}.js` + `atlas/*`（6 个模块） | 模块化多出 Atlas 全交互 | 复用 Atlas；**不得**用首页粒子脑替代 |
 | beLieve | 内联 runtime（34,290 字符） | `experiments/believe/{manifest,runtime}.js` + `believe.css` | 完全相同 | 保留外置运行时 |
-| 登录弹窗 | `standalone.html` L495–520 + `authmodal.js` | `legacy.html` L73–98 + `authmodal.js` | 无 | 保留；仅本地调试账号 `1/1`，不是真实认证 |
+| 登录弹窗 | `standalone.html` L495–520 + `authmodal.js` | `legacy.html` L73–98 + `authmodal.js` | 无 | 保留 UI；认证实现已由本地 mock 切换为 Supabase（见 `docs/SUPABASE_INTEGRATION.md`） |
 | 说明页面 | 无（链接到 `说明.html`） | `说明.html`，由 Vue iframe 加载 | 仅有中文，且未嵌入模式 → 双顶栏 | **已修复**：新增 `?embed=1` 与中英双语 |
 | 路由与深层链接 | `core/router.js`（无 atlas 子路由） | 同模块（含 `#/smart-brain/atlas/<id>`） | Vue 外壳只透传 4 类 hash | 保留模块化路由；Vue 统一透传 `#/e/*`、`#/easysci/*`、`#/smart-brain/*`、`#/about` |
 | 3D 模型与粒子 | `particle-cortex.js` + `model-viewer.js` | `particle-cortex.js` + `atlas/*` + 未被引用的 `brain-surface.js` | `brain-surface.js`（16,618 B）没有任何 HTML 引用，是死代码 | 保留文件（资源测试引用其路径），在文档中标注为未挂载 |

@@ -28,7 +28,7 @@
 | Smart Brain 概览 / 学习 | `assets/js/smartbrain/{learn,lessons,narration}.js` | 同名内联段落（Learn 指向旧查看器） | 保持原实现（通过兼容层复用） | Playwright：三个标签页存在 | 语音讲解依赖浏览器 Web Speech API，未做自动化断言 |
 | Smart Brain Atlas | `assets/js/smartbrain/atlas/*` + `assets/css/atlas.css` | **不存在**（只有 `model-viewer.js`） | 保持原实现（通过兼容层复用） | Playwright：WebGL 画布 ≥ 200×200、上下文可用、图层文案可见 | 模型 4.6 MB，首屏较慢；依赖 WebGL |
 | beLieve 实验运行时 | `experiments/believe/{manifest,runtime}.js` | 内联 runtime（去空白后完全一致） | 保持原实现（通过兼容层复用） | Playwright：登录门槛 + 调试账号 `1/1` 进入运行态 | 不是真实认证；数据只存浏览器本地 |
-| 登录弹窗 | `assets/js/ui/authmodal.js` + `assets/js/core/auth.js` | 同名内联段落 | 保持原实现（通过兼容层复用） | Playwright beLieve 用例 | 调试凭据上线前必须移除 |
+| 登录弹窗 | `assets/js/ui/authmodal.js` + `assets/js/core/auth.js` | 同名内联段落 | 保持原实现（通过兼容层复用） | Playwright beLieve 用例 | UI 保留；认证已切换为 Supabase（嵌入时经桥接），`1/1` 仅用于未配置的本地开发 |
 | 说明页面 | `说明.html`（`?embed=1&lang=zh|en`） | 无（只链接到此页） | 已迁移并验证 | Playwright：embed 隐藏顶栏、中英标题、返回首页 | 双语内容为人工翻译，需内容负责人复核 |
 | 路由与深层链接 | `assets/js/core/router.js` + `src/App.vue` | 旧 router（无 atlas 子路由） | 已迁移并验证 | Vitest 深层链接；Playwright 前进/后退 | 仅 hash 路由，无服务端路径路由 |
 | 3D 模型与 Draco | `assets/models/atlas/**` | 同路径引用 | 保持原实现（通过兼容层复用） | `tests/model-assets.test.js` + 构建产物校验 + Playwright WebGL | 依赖 CDN 的 Three.js；模型与解码器已自托管 |
@@ -38,8 +38,11 @@
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
-| 真实账号认证 | 未实现 | `src/lib/supabase.js` 只是未接线的客户端草稿；前端登录为本地调试适配器 |
-| 数据库 / RLS / 实验数据上传 | 未实现 | 需要单独设计与安全评审，本次不实施 |
+| 真实账号认证 | 已接入（待线上验证） | `src/lib/auth.js` 使用 Supabase Auth；旧登录 UI 经 `window.__ALOOP_AUTH__` 桥接；未配置时生产会报错而开发保留 `1/1` |
+| 用户资料（profiles） | 已接入 | 登录后 upsert，RLS 限定 `auth.uid()` |
+| 实验会话 / 事件表 | 已建表 + RLS | 迁移文件已提交；**beLieve 运行时尚不写入**，仍用 localStorage，需协议评审后再接 |
+| 密码重置 / 邮箱变更 | 未实现 | 现有 UI 无入口，列为后续任务 |
+| 真实线上注册/登录验证 | 未执行 | 无 Supabase 项目凭据；仅单元测试（mock）与本地调试 e2e |
 | `brain-surface.js` 首页挂载 | 未接线 | 该模块期望 `.brain-surface-canvas` 标记，当前文档未提供；保留文件与测试引用 |
 | Three.js 本地打包 | 未实现 | 仍通过 import map 从 jsDelivr 加载固定版本 `0.186.1` |
 | Cloudflare 部署形态 | 已核实 | 线上为 Workers 静态资源（Worker `aloop`），由 Workers Builds 跟踪 `master`；`wrangler.jsonc` 未修改；分支预览构建失败已记入风险 |
