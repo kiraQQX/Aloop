@@ -25,6 +25,8 @@ body::before { position: fixed; z-index: -1; inset: 0; content: ""; pointer-even
 .particle-cortex-stage.is-ready .particle-poster { opacity: 0; }
 .particle-cortex-stage::after { border-color: rgba(242,204,77,.95); }
 .cortex-status { position: absolute; z-index: 3; left: 0; bottom: 0; margin: 0; max-width: 70%; font-size: 12px; color: var(--text-2); }
+/* Visually hidden but still announced: keeps model load/failure status for assistive tech without page copy. */
+.sr-only { position: absolute !important; width: 1px !important; height: 1px !important; margin: -1px !important; padding: 0 !important; overflow: hidden !important; clip: rect(0 0 0 0) !important; white-space: nowrap !important; border: 0 !important; }
 .cortex-hint { position: absolute; z-index: 3; right: 0; bottom: 0; margin: 0; font-size: 11px; letter-spacing: .06em; color: var(--text-3); }
 .brain-model-credit { right: auto; width: auto; justify-content: flex-start; position: absolute; z-index: 3; left: 0; bottom: 22px; font-size: 11px; color: var(--text-3); display: flex; gap: 10px; }
 .brain-model-credit a { color: var(--c-primary); text-decoration: underline; }

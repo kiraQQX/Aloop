@@ -159,6 +159,97 @@ describe('Vue shell routing regression cases', () => {
 });
 
 
+describe('Vue shell language and About route', () => {
+  let app;
+  let host;
+
+  afterEach(() => {
+    app?.unmount();
+    document.body.innerHTML = '';
+    window.location.hash = '';
+    window.localStorage.clear();
+    app = undefined;
+    host = undefined;
+  });
+
+  async function mount() {
+    host = document.createElement('div');
+    document.body.appendChild(host);
+    app = createApp(App);
+    app.mount(host);
+    await nextTick();
+    return host;
+  }
+
+  it('restores the stored language instead of forcing Chinese on every load', async () => {
+    window.localStorage.setItem('aloop_lang_v1', 'en');
+    const root = await mount();
+    expect(root.querySelector('[data-shell-language="en"]').getAttribute('aria-pressed')).toBe('true');
+    expect(root.querySelector('.vue-nav [data-shell-route="home"]').textContent).toBe('Home');
+  });
+
+  it('persists the language choice for the embedded legacy runtime', async () => {
+    const root = await mount();
+    root.querySelector('[data-shell-language="en"]').click();
+    await nextTick();
+    expect(window.localStorage.getItem('aloop_lang_v1')).toBe('en');
+    window.localStorage.removeItem('aloop_lang_v1');
+  });
+
+  it('loads the About page in embedded, language-aware mode', async () => {
+    window.location.hash = '#/about';
+    const root = await mount();
+    const src = root.querySelector('iframe').getAttribute('src');
+    expect(src).toContain('说明.html?embed=1');
+    expect(src).toContain('lang=zh');
+    expect(root.querySelector('[data-shell-route="about"]').getAttribute('aria-current')).toBe('page');
+  });
+
+  it('updates the About document when the language changes', async () => {
+    window.location.hash = '#/about';
+    const root = await mount();
+    root.querySelector('[data-shell-language="en"]').click();
+    await nextTick();
+    expect(root.querySelector('iframe').getAttribute('src')).toContain('lang=en');
+  });
+
+  it('returns to the legacy runtime after leaving the About page', async () => {
+    window.location.hash = '#/about';
+    const root = await mount();
+    root.querySelector('[data-shell-route="easysci"]').click();
+    await nextTick();
+    expect(root.querySelector('iframe').getAttribute('src')).toContain('./legacy.html?embed=1#/easysci');
+  });
+
+  it('exposes the account entry that forwards to the embedded runtime', async () => {
+    const root = await mount();
+    const account = root.querySelector('[data-shell-account]');
+    expect(account).not.toBeNull();
+    expect(account.textContent).toBe('登录 / 注册');
+    root.querySelector('[data-shell-language="en"]').click();
+    await nextTick();
+    expect(root.querySelector('[data-shell-account]').textContent).toBe('Log in / Sign up');
+  });
+
+  it('groups EasySci and Smart Brain under the products menu', async () => {
+    const root = await mount();
+    const products = root.querySelector('[data-shell-route="products"]');
+    expect(products).not.toBeNull();
+    expect(products.getAttribute('aria-expanded')).toBe('false');
+    products.click();
+    await nextTick();
+    expect(products.getAttribute('aria-expanded')).toBe('true');
+    const easysci = root.querySelector('[data-shell-route="easysci"]');
+    expect(easysci.getAttribute('role')).toBe('menuitem');
+    easysci.click();
+    await nextTick();
+    expect(window.location.hash).toBe('#/easysci');
+    expect(products.getAttribute('aria-expanded')).toBe('false');
+    expect(products.getAttribute('aria-current')).toBe('page');
+  });
+});
+
+
 describe('P0 legacy compatibility regressions', () => {
   it('does not globally hide the legacy authentication backdrop in embedded mode', async () => {
     const { readFileSync } = await import('node:fs');
