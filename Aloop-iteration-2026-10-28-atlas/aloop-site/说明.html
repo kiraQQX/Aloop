@@ -1,8 +1,26 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-lang="zh">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aloop · 说明</title>
+<script>
+  // Resolve language and embed mode before first paint so the page never flashes
+  // the wrong language or a duplicate top bar inside the Vue shell.
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var lang = params.get('lang');
+    if (lang !== 'zh' && lang !== 'en') {
+      try { lang = localStorage.getItem('aloop_lang_v1'); } catch (error) { lang = null; }
+    }
+    if (lang !== 'zh' && lang !== 'en') {
+      lang = (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en';
+    }
+    var html = document.documentElement;
+    html.setAttribute('data-lang', lang);
+    html.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    if (params.get('embed') === '1') html.classList.add('vue-embedded');
+  })();
+</script>
 <link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/topbar.css">
@@ -12,18 +30,70 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-cjk)
 .about-wrap{max-width:980px;margin:0 auto;padding:calc(var(--bar-height) + 48px) 24px 80px}
 .about-top{position:fixed;z-index:10;inset:0 0 auto;min-height:var(--bar-height);display:flex;align-items:center;justify-content:space-between;padding:0 var(--page-pad);border-bottom:1px solid var(--border);background:rgba(245,247,250,.92);backdrop-filter:blur(12px)}
 .about-top a{color:var(--c-primary);text-decoration:none;font-weight:650}
+.about-actions{display:flex;align-items:center;gap:18px}
+.about-lang{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.about-lang button{min-width:36px;min-height:28px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--text-2);font:inherit;font-size:13px;cursor:pointer}
+.about-lang button[aria-pressed="true"]{background:var(--c-deep);color:#fff}
 .eyebrow{color:var(--c-primary);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
 h1{font-size:clamp(36px,6vw,60px);line-height:1.1;letter-spacing:-.04em;margin:12px 0 20px}
 h2{font-size:22px;margin:38px 0 8px}.panel{padding:22px 24px;border:1px solid var(--border);border-radius:16px;background:var(--surface);margin:16px 0}
 a{color:var(--c-primary);overflow-wrap:anywhere}.muted{color:var(--text-2);font-size:14px}
+html[data-lang="zh"] .lang-en{display:none}
+html[data-lang="en"] .lang-zh{display:none}
+/* Embedded in the Vue shell: the shell owns the top bar and the language control. */
+html.vue-embedded .about-top{display:none}
+html.vue-embedded .about-wrap{padding-top:40px}
 </style></head>
 <body>
-<header class="about-top"><a href="./#/ ">Aloop</a><a href="./#/">返回首页 ↗</a></header>
+<header class="about-top">
+  <a href="./#/">Aloop</a>
+  <div class="about-actions">
+    <div class="about-lang" role="group" aria-label="Switch language">
+      <button type="button" data-about-lang="zh" lang="zh-CN" aria-pressed="true">中</button>
+      <button type="button" data-about-lang="en" lang="en" aria-pressed="false">EN</button>
+    </div>
+    <a href="./#/" class="lang-zh">返回首页 ↗</a>
+    <a href="./#/" class="lang-en">Back to home ↗</a>
+  </div>
+</header>
 <main class="about-wrap">
-<div class="eyebrow">ALOOP / INFORMATION</div><h1>说明</h1>
-<p>本页集中说明 Aloop 的使用方式、第三方资源来源、许可信息与技术边界。许可状态仅按当前代码中能够识别的来源记录；发布前仍应逐项核对依赖版本、资源文件及上游许可文件。</p>
-<section class="panel"><h2>网站使用</h2><p>通过顶部「实验」进入实验模块，通过「产品」访问 EasySci 与 Smart Brain。首页大脑为品牌展示交互，支持指针旋转与点击粒子扩散；Smart Brain 属于独立产品模块，其模型加载与交互状态应与首页隔离。部分功能依赖浏览器 WebGL、外部 CDN 或模型托管服务。</p><p class="muted">心理学实验与学习内容仅供研究/教学用途，不构成临床诊断或治疗建议。请在开展研究前完成适当的伦理审查、知情同意与数据保护安排。</p></section>
-<section class="panel"><h2>首页大脑模型</h2><p>模型与清单已随站点自托管在 <code>assets/models/atlas/</code>（<code>brain.glb</code>、<code>manifest.json</code>、<code>draco/</code> 解码器），不再从 <code>raw.githubusercontent.com</code> 或 <code>gstatic.com</code> 加载；该域名在部分地区会被重置，曾导致首页与 Smart Brain 同时报「模型加载失败」。上游项目：<a href="https://github.com/itayinbarr/brainproject" target="_blank" rel="noopener noreferrer">itayinbarr/brainproject</a>，上游原始模型：<a href="https://github.com/itayinbarr/brainproject/blob/main/brain-atlas/models/brain.glb" target="_blank" rel="noopener noreferrer">brain.glb</a>；许可与校验和见 <code>assets/models/atlas/ATTRIBUTION.md</code>。</p><p>项目现有源码注释将解剖几何资源归因于 Z-Anatomy / BodyParts3D / DBCLS，并标注 CC BY-SA 4.0；该标注应与实际下载版本中的元数据和上游许可文件再次核验。首页使用独立场景采样模型表面粒子，隐藏的是首页场景内的实体网格，不应修改 Smart Brain 场景的材质或可见性。</p></section>
-<section class="panel"><h2>开源组件与依赖</h2><p>当前首页粒子渲染代码通过模块导入使用 Three.js，并尝试使用 GLTF/DRACO 相关加载能力。应以项目部署时实际解析到的 Three.js 版本及其随附 LICENSE 文件为准。当前压缩包没有包含可供独立审计的第三方模型二进制文件或完整依赖锁定清单，因此本页不宣称已经完成全部依赖许可证审计。</p><p>项目自有 HTML、CSS 与 JavaScript 文件的许可范围应以仓库根目录中实际存在的 LICENSE 文件或发布声明为准；若仓库未提供，不能据此推定为开源或授予特定使用权。</p></section>
-<section class="panel"><h2>版权与可追溯性</h2><p>第三方模型、代码库和外部服务仍归各自权利人所有。使用者应遵循对应许可中的署名、相同方式共享、再分发及其他适用条件。来源地址、版本号和许可文本应随正式发布版本归档。</p><p class="muted">核验状态：来源链接已从当前代码识别；完整许可证文本、部署依赖版本及最终分发义务尚需发布前审计。此状态不等同于法律意见。</p></section>
-</main></body></html>
+  <div class="lang-zh">
+    <div class="eyebrow">ALOOP / INFORMATION</div><h1>说明</h1>
+    <p>本页集中说明 Aloop 的使用方式、第三方资源来源、许可信息与技术边界。许可状态仅按当前代码中能够识别的来源记录；发布前仍应逐项核对依赖版本、资源文件及上游许可文件。</p>
+    <section class="panel"><h2>网站使用</h2><p>通过顶部「实验」进入实验模块，通过「产品」访问 EasySci 与 Smart Brain。首页大脑为品牌展示交互，使用自托管解剖模型的皮层网格采样生成粒子，支持指针旋转与点击粒子扩散；Smart Brain 属于独立产品模块（含探索图谱与学习讲解），其模型加载与交互状态与首页隔离，首页动画不会替代产品模型。部分功能依赖浏览器 WebGL；Three.js 通过 import map 从固定版本的 CDN 加载，模型与 Draco 解码器随站点自托管。</p><p class="muted">心理学实验与学习内容仅供研究/教学用途，不构成临床诊断或治疗建议。请在开展研究前完成适当的伦理审查、知情同意与数据保护安排。</p></section>
+    <section class="panel"><h2>首页大脑模型</h2><p>模型与清单已随站点自托管在 <code>assets/models/atlas/</code>（<code>brain.glb</code>、<code>manifest.json</code>、<code>draco/</code> 解码器），不再从 <code>raw.githubusercontent.com</code> 或 <code>gstatic.com</code> 加载；该域名在部分地区会被重置，曾导致首页与 Smart Brain 同时报「模型加载失败」。上游项目：<a href="https://github.com/itayinbarr/brainproject" target="_blank" rel="noopener noreferrer">itayinbarr/brainproject</a>，上游原始模型：<a href="https://github.com/itayinbarr/brainproject/blob/main/brain-atlas/models/brain.glb" target="_blank" rel="noopener noreferrer">brain.glb</a>；许可与校验和见 <code>assets/models/atlas/ATTRIBUTION.md</code>。</p><p>项目现有源码注释将解剖几何资源归因于 Z-Anatomy / BodyParts3D / DBCLS，并标注 CC BY-SA 4.0；该标注应与实际下载版本中的元数据和上游许可文件再次核验。首页使用独立场景采样模型表面粒子，隐藏的是首页场景内的实体网格，不修改 Smart Brain 场景的材质或可见性。</p></section>
+    <section class="panel"><h2>开源组件与依赖</h2><p>本仓库包含 Three.js 的固定版本声明（import map 中的 0.186.1）、自托管模型资源、Draco 解码器与 <code>package-lock.json</code>，因此依赖版本可追溯。应以实际部署解析到的 Three.js 版本及其随附 LICENSE 文件为准。许可证文本本身仍需在发布前逐项归档核对。</p><p>项目自有 HTML、CSS 与 JavaScript 文件的许可范围应以仓库根目录中实际存在的 LICENSE 文件或发布声明为准；当前仓库未提供 LICENSE 文件，不能据此推定为开源或授予特定使用权。</p></section>
+    <section class="panel"><h2>版权与可追溯性</h2><p>第三方模型、代码库和外部服务仍归各自权利人所有。使用者应遵循对应许可中的署名、相同方式共享、再分发及其他适用条件。来源地址、版本号和许可文本应随正式发布版本归档。</p><p class="muted">核验状态：来源链接与依赖版本已从当前代码识别并可由构建产物验证；完整许可证文本与最终分发义务仍需发布前审计。此状态不等同于法律意见。</p></section>
+  </div>
+  <div class="lang-en">
+    <div class="eyebrow">ALOOP / INFORMATION</div><h1>About</h1>
+    <p>This page records how Aloop is used, where its third-party resources come from, which licences apply, and where the technical boundaries are. Licence status reflects only what is identifiable in the current code; dependency versions, asset files and upstream licence files still need an item-by-item check before release.</p>
+    <section class="panel"><h2>Using the site</h2><p>Open the experiments through <em>Experiments</em> and EasySci or Smart Brain through <em>Products</em>. The homepage brain is a brand interaction: its particles are sampled from the cortical mesh of the self-hosted anatomical model, with pointer rotation and click diffusion. Smart Brain is a separate product module (atlas exploration plus guided lessons); its model loading and interaction state stay isolated from the homepage, and the homepage animation never substitutes for the product model. Some features require WebGL; Three.js is loaded from a pinned CDN version through an import map, while the model and the Draco decoder are self-hosted.</p><p class="muted">Psychology experiments and learning material are for research and teaching only; they are not clinical diagnosis or treatment. Complete appropriate ethics review, informed consent and data-protection arrangements before running a study.</p></section>
+    <section class="panel"><h2>Homepage brain model</h2><p>The model and manifest are self-hosted under <code>assets/models/atlas/</code> (<code>brain.glb</code>, <code>manifest.json</code> and the <code>draco/</code> decoder) instead of being fetched from <code>raw.githubusercontent.com</code> or <code>gstatic.com</code>; those hosts are reset in some regions, which previously made both the homepage and Smart Brain report a model load failure. Upstream project: <a href="https://github.com/itayinbarr/brainproject" target="_blank" rel="noopener noreferrer">itayinbarr/brainproject</a>; original model: <a href="https://github.com/itayinbarr/brainproject/blob/main/brain-atlas/models/brain.glb" target="_blank" rel="noopener noreferrer">brain.glb</a>. Licence and checksums: <code>assets/models/atlas/ATTRIBUTION.md</code>.</p><p>Existing source comments attribute the anatomical geometry to Z-Anatomy / BodyParts3D / DBCLS under CC BY-SA 4.0; that attribution should be re-checked against the metadata of the downloaded version and the upstream licence files. The homepage samples surface particles in its own scene and only hides solid meshes inside that scene; it never mutates Smart Brain materials or visibility.</p></section>
+    <section class="panel"><h2>Open-source components and dependencies</h2><p>This repository contains the pinned Three.js declaration (0.186.1 in the import map), the self-hosted model assets, the Draco decoder and <code>package-lock.json</code>, so dependency versions are traceable. The Three.js version actually resolved at deploy time and its bundled LICENSE file remain authoritative. Licence texts still need to be archived and checked before release.</p><p>The licence of the project's own HTML, CSS and JavaScript is defined only by a LICENSE file or release statement actually present in the repository root. No LICENSE file is currently provided, so this repository must not be assumed to be open source or to grant any particular right of use.</p></section>
+    <section class="panel"><h2>Copyright and traceability</h2><p>Third-party models, codebases and external services remain the property of their respective owners. Users must follow the attribution, share-alike, redistribution and other conditions of the corresponding licences. Source URLs, version numbers and licence texts should be archived with each release.</p><p class="muted">Verification status: source links and dependency versions are identifiable in the current code and verifiable from the build output; full licence texts and final distribution obligations still require a pre-release audit. This is not legal advice.</p></section>
+  </div>
+</main>
+<script>
+  (function () {
+    var html = document.documentElement;
+    var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-about-lang]'));
+    function paint(lang) {
+      html.setAttribute('data-lang', lang);
+      html.lang = lang === 'zh' ? 'zh-CN' : 'en';
+      document.title = lang === 'zh' ? 'Aloop · 说明' : 'Aloop · About';
+      buttons.forEach(function (button) {
+        button.setAttribute('aria-pressed', String(button.getAttribute('data-about-lang') === lang));
+      });
+    }
+    buttons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        var lang = button.getAttribute('data-about-lang') === 'en' ? 'en' : 'zh';
+        paint(lang);
+        try { localStorage.setItem('aloop_lang_v1', lang); } catch (error) { /* storage may be disabled */ }
+      });
+    });
+    paint(html.getAttribute('data-lang') === 'en' ? 'en' : 'zh');
+  })();
+</script>
+</body></html>

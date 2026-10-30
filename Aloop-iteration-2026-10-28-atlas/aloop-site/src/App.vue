@@ -1,21 +1,53 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
 
+// Shared with the legacy runtime (assets/i18n/site.js) so the shell and the
+// embedded documents always agree on the active language.
+const LANGUAGE_KEY = 'aloop_lang_v1';
 const frame = ref(null);
+const frameSrc = ref('');
 const status = ref('正在加载原有实验环境…');
-const language = ref('zh');
+const language = ref(readStoredLanguage());
 const route = ref('home');
 const experimentsMenuOpen = ref(false);
+
+function readStoredLanguage() {
+  try {
+    const stored = window.localStorage.getItem(LANGUAGE_KEY);
+    if (stored === 'en' || stored === 'zh') return stored;
+  } catch {
+    // Storage can be unavailable in private mode; fall through to the site default.
+  }
+  // The site ships as a zh-CN document; Chinese stays the default until a
+  // language is chosen explicitly (the legacy runtime then follows the store).
+  return 'zh';
+}
 
 const copy = computed(() => language.value === 'zh'
   ? { home: '首页', experiments: '实验', easysci: 'EasySci', brain: 'Smart Brain', about: '说明', loading: '正在加载原有实验环境…', language: '语言切换' }
   : { home: 'Home', experiments: 'Experiments', easysci: 'EasySci', brain: 'Smart Brain', about: 'About', loading: 'Loading the existing research environment…', language: 'Language' });
 
+const aboutSrc = computed(() => `./说明.html?embed=1&lang=${language.value}`);
+
+function frameDocument() {
+  try {
+    return frame.value?.contentDocument || null;
+  } catch {
+    return null;
+  }
+}
+
+function documentLanguage(doc) {
+  return (doc?.documentElement?.getAttribute('lang') || '').toLowerCase().startsWith('en') ? 'en' : 'zh';
+}
+
+// The legacy runtime owns its own language control; click it only when the two
+// sides disagree so a stored preference is never overwritten on load.
 function syncLegacyLanguage() {
-  const doc = frame.value?.contentDocument;
-  if (!doc) return;
-  const button = doc.querySelector(`[data-lang-set="${language.value}"]`);
-  button?.click();
+  const doc = frameDocument();
+  const button = doc?.querySelector?.(`[data-lang-set="${language.value}"]`);
+  if (!button) return;
+  if (documentLanguage(doc) !== language.value) button.click();
 }
 
 let legacyWindow = null;
@@ -23,13 +55,20 @@ let legacyWindow = null;
 function onFrameLoad() {
   status.value = '';
   if (legacyWindow) legacyWindow.removeEventListener('hashchange', onLegacyHashChange);
-  try {
-    legacyWindow = frame.value?.contentWindow || null;
-    legacyWindow?.addEventListener('hashchange', onLegacyHashChange);
-  } catch {
-    legacyWindow = null;
+  legacyWindow = null;
+  const doc = frameDocument();
+  // The About document and the legacy runtime are different documents; only the
+  // legacy runtime reports hash navigation and needs the language click adapter.
+  const isLegacyRuntime = Boolean(doc?.location?.pathname?.endsWith('/legacy.html'));
+  if (isLegacyRuntime) {
+    try {
+      legacyWindow = frame.value?.contentWindow || null;
+      legacyWindow?.addEventListener('hashchange', onLegacyHashChange);
+    } catch {
+      legacyWindow = null;
+    }
+    syncLegacyLanguage();
   }
-  syncLegacyLanguage();
 }
 
 const shellHashes = {
@@ -60,10 +99,8 @@ function toggleExperimentsMenu() {
 }
 
 function updateFrame(target, hash = window.location.hash) {
-  if (!frame.value) return;
   if (target === 'about') {
-    const src = './说明.html';
-    if (frame.value.getAttribute('src') !== src) frame.value.src = src;
+    if (frameSrc.value !== aboutSrc.value) frameSrc.value = aboutSrc.value;
     return;
   }
   const fallback = legacyHashes[target] || '#/';
@@ -75,7 +112,7 @@ function updateFrame(target, hash = window.location.hash) {
         ? hash
         : fallback));
   const src = `./legacy.html?embed=1${routeHash}`;
-  if (frame.value.getAttribute('src') !== src) frame.value.src = src;
+  if (frameSrc.value !== src) frameSrc.value = src;
 }
 
 function navigate(target) {
@@ -112,7 +149,16 @@ function onLegacyHashChange() {
 }
 
 function setLanguage(value) {
-  language.value = value;
+  language.value = value === 'en' ? 'en' : 'zh';
+  try {
+    window.localStorage.setItem(LANGUAGE_KEY, language.value);
+  } catch {
+    // Non-persistent fallback: the current document still switches language.
+  }
+  if (route.value === 'about') {
+    updateFrame('about');
+    return;
+  }
   syncLegacyLanguage();
 }
 
@@ -156,7 +202,7 @@ onBeforeUnmount(() => {
       <iframe
         ref="frame"
         class="legacy-runtime"
-        src="./legacy.html?embed=1"
+        :src="frameSrc || undefined"
         title="Aloop legacy research environment"
         allow="fullscreen"
       />

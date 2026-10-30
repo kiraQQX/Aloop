@@ -33,7 +33,7 @@ describe('legacy shell regression checks', () => {
     const app = read('src/App.vue');
     expect(index).toContain('id="app"');
     expect(index).toContain('/src/main.js');
-    expect(app).toContain("src=\"./legacy.html?embed=1\"");
+    expect(app).toContain('legacy.html?embed=1');
     expect(html).toContain('id="experiment-root"');
   });
 });
