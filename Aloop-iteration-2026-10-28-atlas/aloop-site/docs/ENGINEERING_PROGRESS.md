@@ -89,6 +89,12 @@
 - `particle-cortex.js` 使用工作区中已应用的优化版本（`TUNING` 参数化、逐顶点法线采样、质量分级）；`TUNING.particlePixelScale` 由 1.2 调整为桌面 `10.2`（与 standalone 一致）、`≤700px` 为 `5.2`（避免与字标重叠）。
 - 验证：`npm test` 47/47、`npm run build`、`npm run test:e2e` 8/8；1365×900 与 390×844 截图确认无误、无控制台错误。
 
+## 2026-10-31 — 外壳顶栏对齐 standalone 与点击缺陷修复（已完成）
+
+- `src/App.vue` + `src/style.css`：Vue 顶栏改为 standalone 的深蓝主题（`#23466D → #1D3C5F` 渐变、白色导航、金色下划线/悬停、玻璃下拉面板），新增「登录 / 注册」入口，点击后转发到 iframe 内 `#authOpen`（About 页会先回到首页再打开）。
+- 审阅工作区中另一 Agent 提交的 `particle-cortex.js` 大范围改动（+294/−100），结论：采样改逐顶点法线插值、按皮层包围盒缩放、实例数分级与 FPS 调节均为有效改进；发现并修复一处两版都存在的缺陷——`shockTimer` 未声明，首次点击会抛 `ReferenceError` 导致冲击波动画不生效。
+- 验证：`npm test` 48/48、`npm run build`、`npm run test:e2e` 8/8；桌面与 390×844 截图确认；点击舞台与「登录 / 注册」均无控制台错误。
+
 ## 未完成 / 下一步（未开始）
 
 1. Smart Brain WebGL 在目标桌面与移动真机上的 GPU 验收（自动化仅证明上下文可用与画布渲染）。
