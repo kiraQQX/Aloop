@@ -24,8 +24,22 @@ function readStoredLanguage() {
 }
 
 const copy = computed(() => language.value === 'zh'
-  ? { home: '首页', experiments: '实验', easysci: 'EasySci', brain: 'Smart Brain', about: '说明', loading: '正在加载原有实验环境…', language: '语言切换' }
-  : { home: 'Home', experiments: 'Experiments', easysci: 'EasySci', brain: 'Smart Brain', about: 'About', loading: 'Loading the existing research environment…', language: 'Language' });
+  ? { home: '首页', experiments: '实验', easysci: 'EasySci', brain: 'Smart Brain', about: '说明', account: '登录 / 注册', loading: '正在加载原有实验环境…', language: '语言切换' }
+  : { home: 'Home', experiments: 'Experiments', easysci: 'EasySci', brain: 'Smart Brain', about: 'About', account: 'Log in / Sign up', loading: 'Loading the existing research environment…', language: 'Language' });
+
+// The account UI lives inside the legacy runtime; the shell button forwards to
+// it so the embedded document stays the single source of authentication state.
+let pendingAccountOpen = false;
+
+function openAccount() {
+  const trigger = frameDocument()?.getElementById?.('authOpen');
+  if (trigger) {
+    trigger.click();
+    return;
+  }
+  pendingAccountOpen = true;
+  if (route.value !== 'home') navigate('home');
+}
 
 const aboutSrc = computed(() => `./说明.html?embed=1&lang=${language.value}`);
 
@@ -68,6 +82,10 @@ function onFrameLoad() {
       legacyWindow = null;
     }
     syncLegacyLanguage();
+    if (pendingAccountOpen) {
+      pendingAccountOpen = false;
+      doc.getElementById('authOpen')?.click();
+    }
   }
 }
 
@@ -193,9 +211,13 @@ onBeforeUnmount(() => {
         <button type="button" data-shell-route="smart-brain" :aria-current="route === 'smart-brain' ? 'page' : undefined" @click="navigate('smart-brain')">{{ copy.brain }}</button>
         <button type="button" data-shell-route="about" :aria-current="route === 'about' ? 'page' : undefined" @click="navigate('about')">{{ copy.about }}</button>
       </nav>
-      <div class="vue-language" role="group" :aria-label="copy.language">
-        <button type="button" data-shell-language="zh" lang="zh-CN" :aria-pressed="language === 'zh'" @click="setLanguage('zh')">中</button>
-        <button type="button" data-shell-language="en" lang="en" :aria-pressed="language === 'en'" @click="setLanguage('en')">EN</button>
+      <div class="vue-topbar-actions">
+        <button class="vue-auth" type="button" data-shell-account @click="openAccount">{{ copy.account }}</button>
+        <span class="vue-topbar-divider" aria-hidden="true"></span>
+        <div class="vue-language" role="group" :aria-label="copy.language">
+          <button type="button" data-shell-language="zh" lang="zh-CN" :aria-pressed="language === 'zh'" @click="setLanguage('zh')">中</button>
+          <button type="button" data-shell-language="en" lang="en" :aria-pressed="language === 'en'" @click="setLanguage('en')">EN</button>
+        </div>
       </div>
     </header>
     <section class="legacy-frame-wrap" aria-label="Aloop research content">

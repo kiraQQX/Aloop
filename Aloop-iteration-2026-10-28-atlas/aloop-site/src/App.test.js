@@ -220,6 +220,16 @@ describe('Vue shell language and About route', () => {
     await nextTick();
     expect(root.querySelector('iframe').getAttribute('src')).toContain('./legacy.html?embed=1#/easysci');
   });
+
+  it('exposes the account entry that forwards to the embedded runtime', async () => {
+    const root = await mount();
+    const account = root.querySelector('[data-shell-account]');
+    expect(account).not.toBeNull();
+    expect(account.textContent).toBe('登录 / 注册');
+    root.querySelector('[data-shell-language="en"]').click();
+    await nextTick();
+    expect(root.querySelector('[data-shell-account]').textContent).toBe('Log in / Sign up');
+  });
 });
 
 

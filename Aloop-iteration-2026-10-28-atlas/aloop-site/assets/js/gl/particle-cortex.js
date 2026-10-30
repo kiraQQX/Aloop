@@ -266,6 +266,7 @@
     let yaw = 0, pitch = 0, keyYaw = 0, keyPitch = 0, ndcX = 0, ndcY = 0, pointerIn = false;
     let raf = 0, last = 0, inView = true, ready = false, lost = false, reduced = motionQuery.matches;
     let pointerDirty = false, hoverTarget = 0;
+    let shockTimer = 0;
     const hoverPosTarget = new THREE.Vector3();
     let cortexMeshes = [];
     const clicks = [];                                              // At most 3 concurrent click-wave origins.
