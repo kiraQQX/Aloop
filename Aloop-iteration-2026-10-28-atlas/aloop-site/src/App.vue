@@ -1,6 +1,18 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount, nextTick, ref } from 'vue';
-import { authState, getCurrentUser, initAuth, signIn, signOut, signUp, subscribeAuth } from './lib/auth';
+import {
+  authState,
+  getCurrentUser,
+  initAuth,
+  requestPasswordReset,
+  resendVerification,
+  signIn,
+  signOut,
+  signUp,
+  subscribeAuth,
+  subscribeAuthEvent,
+  updatePassword,
+} from './lib/auth';
 import { isSupabaseConfigured } from './lib/supabase';
 
 // Shared with the legacy runtime (assets/i18n/site.js) so the shell and the
@@ -30,26 +42,25 @@ function readStoredLanguage() {
 }
 
 const copy = computed(() => language.value === 'zh'
-  ? { home: '首页', experiments: '实验', products: '产品', easysci: 'EasySci', brain: 'Smart Brain', about: '说明', account: '登录 / 注册', loading: '正在加载原有实验环境…', language: '语言切换' }
-  : { home: 'Home', experiments: 'Experiments', products: 'Products', easysci: 'EasySci', brain: 'Smart Brain', about: 'About', account: 'Log in / Sign up', loading: 'Loading the existing research environment…', language: 'Language' });
+  ? { home: '首页', experiments: '实验', products: '产品', easysci: 'EasySci', brain: 'Smart Brain', about: '说明', account: '登录 / 注册', loading: '正在加载原有实验环境…', language: '语言切换', menuTitle: '选择实验', menuSoon: '更多实验即将上线', productsTitle: '产品与工具', easysciDesc: '科研、分析与视觉工具目录', brainDesc: '大脑皮层互动学习与语音讲解' }
+  : { home: 'Home', experiments: 'Experiments', products: 'Products', easysci: 'EasySci', brain: 'Smart Brain', about: 'About', account: 'Log in / Sign up', loading: 'Loading the existing research environment…', language: 'Language', menuTitle: 'Choose an experiment', menuSoon: 'More experiments coming soon', productsTitle: 'Products & tools', easysciDesc: 'Research, analysis, and visual tools', brainDesc: 'Interactive cortex lessons with voice-over' });
 
-// The account UI lives inside the legacy runtime; the shell button forwards to
-// it so the embedded document stays the single source of authentication state.
+// The account UI lives inside the legacy runtime; the shell owns the Supabase
+// session and forwards it through the bridge, so there is exactly one owner.
 let pendingAccountOpen = false;
+let pendingAccountNotice = null;
 
 const account = computed(() => authState.user.value);
 const authConfigError = computed(() => authState.configError);
-// Local development without Supabase env vars keeps the debug adapter; a
-// production build without configuration must fail loudly instead of silently
-// falling back to the debug account.
+// An unconfigured production build must say so instead of silently falling back.
 const configWarning = computed(() => (import.meta.env.PROD ? authConfigError.value : null));
-const bridgeEnabled = isSupabaseConfigured || import.meta.env.PROD;
+// Bridge mode is enabled only when the shell really has a Supabase client. When
+// the build has no env vars the iframe keeps its standalone REST client instead.
+const bridgeEnabled = isSupabaseConfigured;
 const accountText = computed(() => (account.value
   ? `${account.value.label} · ${language.value === 'zh' ? '退出' : 'Sign out'}`
   : copy.value.account));
 
-// Same-origin bridge: the legacy runtime calls these instead of its local mock.
-// Assigned synchronously so it exists before the iframe requests the document.
 if (typeof window !== 'undefined' && bridgeEnabled) {
   window.__ALOOP_AUTH__ = {
     signIn,
@@ -57,10 +68,14 @@ if (typeof window !== 'undefined' && bridgeEnabled) {
     signOut,
     getUser: getCurrentUser,
     subscribe: subscribeAuth,
+    resendVerification,
+    requestPasswordReset,
+    updatePassword,
   };
 }
 
 let unsubscribeAuth = null;
+let unsubscribeAuthEvent = null;
 
 function pushSessionToFrame() {
   if (!bridgeEnabled) return;
@@ -71,6 +86,37 @@ function pushSessionToFrame() {
     // Cross-document access can fail while the frame is navigating; the next
     // load event pushes the session again.
   }
+}
+
+// Supabase consumes valid verification / recovery tokens from the URL itself.
+// Only error parameters need reporting: the SDK leaves them untouched.
+function consumeVerificationError() {
+  const raw = (window.location.hash || '').replace(/^#/, '');
+  if (!raw || raw.startsWith('/')) return;
+  const params = new URLSearchParams(raw);
+  if (!params.get('error') && !params.get('error_code')) return;
+  pendingAccountNotice = 'verify_failed';
+  window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#/`);
+}
+
+function openAccountWithNotice(doc) {
+  const notice = pendingAccountNotice;
+  pendingAccountNotice = null;
+  const modal = doc?.defaultView?.Aloop?.authModal;
+  if (modal) modal.open({ notice });
+  else doc?.getElementById?.('authOpen')?.click();
+}
+
+// Ask the legacy dialog to open with a notice (recovery link / failed link).
+function requestAccountNotice(notice) {
+  pendingAccountNotice = notice;
+  const doc = frameDocument();
+  if (doc?.defaultView?.Aloop?.authModal) {
+    openAccountWithNotice(doc);
+    return;
+  }
+  pendingAccountOpen = true;
+  if (route.value !== 'home') navigate('home');
 }
 
 function openAccount() {
@@ -125,7 +171,9 @@ function onFrameLoad() {
     }
     syncLegacyLanguage();
     pushSessionToFrame();
-    if (pendingAccountOpen) {
+    if (pendingAccountNotice) {
+      openAccountWithNotice(doc);
+    } else if (pendingAccountOpen) {
       pendingAccountOpen = false;
       doc.getElementById('authOpen')?.click();
     }
@@ -283,6 +331,7 @@ function setLanguage(value) {
 }
 
 onMounted(() => {
+  consumeVerificationError();
   frame.value?.addEventListener('load', onFrameLoad);
   window.addEventListener('hashchange', onShellHashChange);
   document.addEventListener('click', onMenuDocumentClick);
@@ -293,6 +342,9 @@ onMounted(() => {
   // Restore the Supabase session before the first iframe push, then keep the
   // embedded runtime in sync with every later sign-in / sign-out.
   unsubscribeAuth = bridgeEnabled ? subscribeAuth(() => pushSessionToFrame()) : null;
+  unsubscribeAuthEvent = bridgeEnabled
+    ? subscribeAuthEvent((event) => { if (event === 'PASSWORD_RECOVERY') requestAccountNotice('recovery'); })
+    : null;
   initAuth()
     .catch((error) => console.warn('Supabase initialisation failed:', error?.message || error))
     .finally(() => pushSessionToFrame());
@@ -304,6 +356,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', onMenuDocumentKeydown);
   legacyWindow?.removeEventListener('hashchange', onLegacyHashChange);
   unsubscribeAuth?.();
+  unsubscribeAuthEvent?.();
 });
 </script>
 
@@ -326,8 +379,14 @@ onBeforeUnmount(() => {
             aria-controls="shellExperimentsMenu"
             @click="toggleMenu('experiments')"
           >{{ copy.experiments }}<svg class="vue-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <div ref="experimentsPanel" id="shellExperimentsMenu" class="vue-menu" role="menu" aria-label="Experiments" :hidden="openMenu !== 'experiments'">
-            <button type="button" data-shell-experiment="believe" :aria-current="route === 'experiments' ? 'true' : undefined" role="menuitem" @click="choose('experiments')">beLieve</button>
+          <div ref="experimentsPanel" id="shellExperimentsMenu" class="vue-menu quick-menu" role="menu" aria-label="Experiments" :hidden="openMenu !== 'experiments'">
+            <p class="panel-kicker">{{ copy.menuTitle }}</p>
+            <button type="button" class="quick-menu-item" data-shell-experiment="believe" :aria-current="route === 'experiments' ? 'true' : undefined" role="menuitem" @click="choose('experiments')">
+              <span class="menu-thumb"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#F2CC4D" stroke-width="1.35" stroke-linecap="round"><path d="M3 17 C10 11 15 23 23 17 S36 11 45 16M3 23 C10 17 15 29 23 23 S36 17 45 22M3 29 C10 23 15 35 23 29 S36 23 45 28M3 35 C10 29 15 41 23 35 S36 29 45 34"/><path d="M12 11v25M20 14v23M28 12v25M36 15v21" stroke-opacity=".45"/></g><g fill="#fff"><circle cx="14" cy="20" r="1"/><circle cx="31" cy="26" r="1"/><circle cx="38" cy="33" r="1"/></g></svg></span>
+              <span class="menu-name">beLieve</span>
+              <span class="menu-arrow" aria-hidden="true">↗</span>
+            </button>
+            <div class="menu-soon" aria-disabled="true"><span class="soon-dot" aria-hidden="true"></span><span>{{ copy.menuSoon }}</span></div>
           </div>
         </div>
         <div class="vue-menu-wrap">
@@ -340,9 +399,18 @@ onBeforeUnmount(() => {
             aria-controls="shellProductsMenu"
             @click="toggleMenu('products')"
           >{{ copy.products }}<svg class="vue-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <div ref="productsPanel" id="shellProductsMenu" class="vue-menu" role="menu" aria-label="Products" :hidden="openMenu !== 'products'">
-            <button type="button" data-shell-route="easysci" :aria-current="route === 'easysci' ? 'true' : undefined" role="menuitem" @click="choose('easysci')">{{ copy.easysci }}</button>
-            <button type="button" data-shell-route="smart-brain" :aria-current="route === 'smart-brain' ? 'true' : undefined" role="menuitem" @click="choose('smart-brain')">{{ copy.brain }}</button>
+          <div ref="productsPanel" id="shellProductsMenu" class="vue-menu products-menu" role="menu" aria-label="Products" :hidden="openMenu !== 'products'">
+            <p class="panel-kicker">{{ copy.productsTitle }}</p>
+            <button type="button" class="products-menu-item" data-shell-route="easysci" :aria-current="route === 'easysci' ? 'true' : undefined" role="menuitem" @click="choose('easysci')">
+              <span class="products-menu-mark" aria-hidden="true">ES</span>
+              <span class="products-menu-copy"><span class="products-menu-name">{{ copy.easysci }}</span><span class="products-menu-description">{{ copy.easysciDesc }}</span></span>
+              <span class="menu-arrow" aria-hidden="true">↗</span>
+            </button>
+            <button type="button" class="products-menu-item" data-shell-route="smart-brain" :aria-current="route === 'smart-brain' ? 'true' : undefined" role="menuitem" @click="choose('smart-brain')">
+              <span class="products-menu-mark" aria-hidden="true">SB</span>
+              <span class="products-menu-copy"><span class="products-menu-name">{{ copy.brain }}</span><span class="products-menu-description">{{ copy.brainDesc }}</span></span>
+              <span class="menu-arrow" aria-hidden="true">↗</span>
+            </button>
           </div>
         </div>
         <button type="button" data-shell-route="about" :aria-current="route === 'about' ? 'page' : undefined" @click="navigate('about')">{{ copy.about }}</button>

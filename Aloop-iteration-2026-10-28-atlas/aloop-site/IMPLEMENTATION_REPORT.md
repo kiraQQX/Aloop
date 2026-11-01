@@ -1,3 +1,7 @@
+> **Document status:** Historical implementation report and catalogue evolution log. Its dated sections describe specific snapshots and must not be treated as a current verification report. For current architecture, see docs/TECHNICAL_REQUIREMENTS.md; for current documentation navigation, see docs/README.md; for commit-specific QA evidence, see docs/RELEASE_QA_REPORT.md and the relevant GitHub Actions run.
+
+---
+
 ## Current implementation status — 2026-10-22
 
 This section supersedes the historical inventory counts later in this report. The prior entries below document earlier releases and are retained as revision history.

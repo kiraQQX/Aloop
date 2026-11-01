@@ -15,9 +15,32 @@ button { font: inherit; }
 .vue-nav button[aria-current="page"] { color: #fff; font-weight: 650; background: rgba(255,255,255,.10); box-shadow: inset 0 -2px 0 #f2cc4d; }
 .vue-menu-wrap { position: relative; display: flex; align-items: center; }
 .vue-caret { width: 12px; height: 12px; margin-left: 5px; vertical-align: -1px; opacity: .8; }
-.vue-menu { position: absolute; top: calc(100% + 2px); left: 0; z-index: 40; min-width: 190px; padding: 8px; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; background: rgba(20,42,70,.97); box-shadow: 0 18px 44px rgba(9,23,40,.35); backdrop-filter: blur(10px); }
-.vue-menu button { width: 100%; text-align: left; color: #fff; }
-.vue-menu button[aria-current="page"] { background: rgba(242,204,77,.16); box-shadow: none; }
+/* Dropdown panels mirror standalone.html (glass-panel quick menu + products menu). */
+.app-shell { --text: #253449; --text-2: #5e6d82; --border: #dce4ed; --c-primary: #315e91; --c-deep: #23466d; --accent-yellow: #ffd84d; --c-tertiary: #5ab7bd; --ease-standard: cubic-bezier(.215,.61,.355,1); }
+@keyframes vue-soft-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.vue-menu { position: absolute; top: calc(100% + 10px); left: 0; z-index: 40; width: min(360px, calc(100vw - 32px)); padding: 22px; border: 1px solid var(--border); border-radius: 18px; color: var(--text); background: rgba(255,255,255,.96); box-shadow: 0 18px 50px rgba(35,70,109,.12); -webkit-backdrop-filter: blur(18px) saturate(1.08); backdrop-filter: blur(18px) saturate(1.08); animation: vue-soft-in 180ms var(--ease-standard) both; }
+.vue-menu[hidden] { display: none; }
+.vue-menu .panel-kicker { margin: 0 0 14px; color: var(--c-deep); font-size: 12px; font-weight: 600; letter-spacing: .12em; line-height: 1.35; text-transform: uppercase; }
+.vue-nav .vue-menu button { display: flex; align-items: center; width: 100%; min-height: 0; padding: 10px 8px; border: 0; border-radius: 14px; color: var(--text); background: transparent; text-align: left; }
+.vue-nav .vue-menu button:hover { color: var(--text); background: #eaf1f8; }
+.vue-nav .vue-menu .quick-menu-item { gap: 14px; min-height: 60px; font-size: 15px; }
+.vue-nav .vue-menu .quick-menu-item[aria-current="true"] { background: #eaf1f8; box-shadow: none; }
+.vue-nav .vue-menu .quick-menu-item[aria-current="true"] .menu-name { color: var(--c-deep); font-weight: 700; }
+.menu-thumb { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: #08070d; }
+.menu-thumb svg { width: 32px; height: 32px; }
+.menu-name { flex: 1; font-size: 15px; font-weight: 500; }
+.menu-arrow { color: var(--c-primary); font-size: 18px; }
+.menu-soon { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 10px 8px 0; margin-top: 8px; border-top: 1px solid var(--border); color: var(--text-2); font-size: 12px; }
+.soon-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--c-tertiary); }
+.vue-menu.products-menu { width: min(320px, calc(100vw - 32px)); padding: 20px; border-radius: 22px; }
+.vue-nav .vue-menu .products-menu-item { gap: 12px; min-height: 64px; padding: 10px; border: 1px solid transparent; }
+.vue-nav .vue-menu .products-menu-item:hover, .vue-nav .vue-menu .products-menu-item:focus-visible { border-color: rgba(255,216,77,.45); background: rgba(255,216,77,.12); outline-offset: 2px; }
+.vue-nav .vue-menu .products-menu-item[aria-current="true"] { border-color: rgba(255,216,77,.45); background: rgba(255,216,77,.12); box-shadow: none; }
+.products-menu-mark { display: grid; flex: 0 0 38px; place-items: center; width: 38px; height: 38px; border: 1px solid rgba(255,216,77,.55); border-radius: 11px; color: #1f2e40; background: var(--accent-yellow); font: 800 11px/1 Inter, ui-sans-serif, system-ui, sans-serif; letter-spacing: .04em; }
+.products-menu-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 3px; }
+.products-menu-name { font-size: 14px; font-weight: 700; letter-spacing: .01em; }
+.products-menu-description { color: var(--text-2); font-size: 11px; line-height: 1.45; }
+.vue-menu.products-menu .menu-arrow { color: #c99a00; }
 .vue-topbar-actions { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
 .vue-auth { border-color: rgba(255,255,255,.32); border-radius: 999px; padding: 0 16px; color: rgba(255,255,255,.9); }
 .vue-auth:hover { border-color: #f2cc4d; color: #f2cc4d; background: rgba(242,204,77,.08); }
@@ -36,5 +59,8 @@ button { font: inherit; }
   .vue-auth { padding: 0 12px; font-size: 13px; }
   .vue-nav { order: 3; width: 100%; overflow-x: auto; gap: 2px; }
   .vue-nav button { flex: 0 0 auto; padding: 0 9px; font-size: 13px; }
+  .vue-nav { overflow: visible; flex-wrap: wrap; }
+  .vue-menu-wrap { position: static; }
+  .vue-menu, .vue-menu.products-menu { left: 12px; right: 12px; top: auto; width: auto; max-height: min(calc(100vh - 140px), 520px); overflow-y: auto; margin-top: 8px; border-radius: 22px; }
   .legacy-runtime { height: calc(100vh - 112px); min-height: 520px; }
 }

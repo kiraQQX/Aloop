@@ -5,7 +5,18 @@ import { ensureProfile } from './data';
 const currentUser = ref(null);
 const sessionReady = ref(false);
 const listeners = new Set();
+const eventListeners = new Set();
 let initialized = false;
+
+// Supabase emits PASSWORD_RECOVERY when a recovery link is opened. The shell
+// listens for it so the account dialog can ask for a new password.
+function emitEvent(event) {
+  if (!event) return;
+  eventListeners.forEach((callback) => {
+    try { callback(event); } catch (error) { console.error('Aloop auth event listener failed', error); }
+  });
+  document.dispatchEvent(new CustomEvent('aloop:auth-event', { detail: { event } }));
+}
 
 export function toAppUser(authUser) {
   if (!authUser) return null;
@@ -25,6 +36,11 @@ function emit() {
 export function subscribeAuth(callback) {
   listeners.add(callback);
   return () => listeners.delete(callback);
+}
+
+export function subscribeAuthEvent(callback) {
+  eventListeners.add(callback);
+  return () => eventListeners.delete(callback);
 }
 
 export function getCurrentUser() {
@@ -62,6 +78,7 @@ export async function initAuth() {
       ensureProfile(currentUser.value).catch((error) => console.warn('Profile sync failed:', error?.message || error));
     }
     emit();
+    emitEvent(event);
   });
 
   if (currentUser.value) {
@@ -113,6 +130,43 @@ export async function signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) return { ok: false, reason: error.code || 'auth_error', message: error.message };
     currentUser.value = null;
+    emit();
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, reason: 'network_error', message: error?.message || 'network_error' };
+  }
+}
+
+export async function resendVerification(email) {
+  if (!supabase) return { ok: false, reason: 'not_configured', message: supabaseConfigError?.message };
+  try {
+    const { error } = await supabase.auth.resend({ type: 'signup', email: String(email || '').trim() });
+    if (error) return { ok: false, reason: error.code || 'auth_error', message: error.message };
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, reason: 'network_error', message: error?.message || 'network_error' };
+  }
+}
+
+export async function requestPasswordReset(email) {
+  if (!supabase) return { ok: false, reason: 'not_configured', message: supabaseConfigError?.message };
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(String(email || '').trim(), {
+      redirectTo: `${window.location.origin}/`,
+    });
+    if (error) return { ok: false, reason: error.code || 'auth_error', message: error.message };
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, reason: 'network_error', message: error?.message || 'network_error' };
+  }
+}
+
+export async function updatePassword(password) {
+  if (!supabase) return { ok: false, reason: 'not_configured', message: supabaseConfigError?.message };
+  try {
+    const { error } = await supabase.auth.updateUser({ password: String(password || '') });
+    if (error) return { ok: false, reason: error.code || 'auth_error', message: error.message };
+    currentUser.value = toAppUser((await supabase.auth.getUser()).data?.user);
     emit();
     return { ok: true };
   } catch (error) {

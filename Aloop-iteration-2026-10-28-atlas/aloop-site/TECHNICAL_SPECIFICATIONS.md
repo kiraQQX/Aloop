@@ -1,3 +1,7 @@
+> **Document status:** Historical product and interaction specification. The current application architecture, routes, build-output contract, tests, and deployment configuration are maintained in docs/TECHNICAL_REQUIREMENTS.md. Where this document conflicts with executable code or the current technical requirements, the code and current technical requirements take precedence. This file is retained for design history and traceability.
+
+---
+
 # Aloop — Technical Specification (Revision 3)
 
 **Revision date:** 2026-10-24
