@@ -9,10 +9,12 @@ const read = (path) => readFileSync(join(ROOT, path), 'utf8');
 describe('protected features stay in place', () => {
   it('keeps the shell dropdown panels (experiments + products)', () => {
     const app = read('src/App.vue');
-    for (const marker of ['class="vue-menu quick-menu"', 'class="vue-menu products-menu"', 'class="menu-soon"', 'products-menu-mark', 'data-shell-experiment="believe"']) {
+    for (const marker of ['class="quick-menu glass-panel"', 'class="products-menu glass-panel"', 'class="menu-soon"', 'products-menu-mark', 'data-shell-experiment="believe"']) {
       expect(app, marker).toContain(marker);
     }
-    expect(read('src/style.css')).toContain('.products-menu-item');
+    // The panels are styled by the shared stylesheet, not a shell-only copy.
+    expect(read('src/main.js')).toContain('../assets/css/topbar.css');
+    expect(read('assets/css/topbar.css')).toContain('.products-menu-item');
   });
 
   it('keeps the Smart Brain atlas wired into the legacy runtime and router', () => {

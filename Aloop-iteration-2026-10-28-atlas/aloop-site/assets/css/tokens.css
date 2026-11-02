@@ -12,7 +12,10 @@
   --c-secondary: #F2CC4D;
   --accent-yellow: #FFD84D;
   --c-tertiary: #5AB7BD;
-  --c-action-hover: #F2CC4D;\n  --c-action-pressed: #D9B333;\n  --c-focus-ring: #23466D;\n  --c-disabled: #AAB6C5;
+  --c-action-hover: #F2CC4D;
+  --c-action-pressed: #D9B333;
+  --c-focus-ring: #23466D;
+  --c-disabled: #AAB6C5;
   --text: #253449;
   --text-2: #5E6D82;
   --text-3: #5E6D82;

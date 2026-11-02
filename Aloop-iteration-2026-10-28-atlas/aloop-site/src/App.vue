@@ -362,68 +362,83 @@ onBeforeUnmount(() => {
 
 <template>
   <main class="app-shell">
-    <header class="vue-topbar">
-      <button class="vue-brand" type="button" data-shell-route="home" @click="navigate('home')" aria-label="Aloop home">
-        <span class="vue-brand-mark" aria-hidden="true">A</span>
-        <span>Aloop</span>
-      </button>
-      <nav class="vue-nav" aria-label="Primary navigation" data-testid="vue-shell-nav">
-        <button type="button" data-shell-route="home" :aria-current="route === 'home' ? 'page' : undefined" @click="navigate('home')">{{ copy.home }}</button>
-        <div class="vue-menu-wrap">
+    <!-- Same chrome as the single-file reference: shared .topbar /
+         .nav-trigger classes, glass panels, SVG brand mark and language switch. -->
+    <header class="topbar" id="topbar">
+      <div class="topbar-inner">
+        <button class="brand" type="button" data-shell-route="home" aria-label="Aloop home" @click="navigate('home')">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="16" cy="16" r="13.2" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".75" />
+            <path d="M16 5.8 8.5 25.5h3.9L16 15.7l3.6 9.8h3.9L16 5.8Z" fill="currentColor" />
+            <path d="M12.7 19.7h6.6" stroke="var(--c-primary)" stroke-width="1.7" />
+          </svg>
+          <span>Aloop</span>
+        </button>
+
+        <nav class="primary-nav vue-nav" aria-label="Primary navigation" data-testid="vue-shell-nav">
+          <button class="nav-trigger" type="button" data-shell-route="home" :aria-current="route === 'home' ? 'page' : undefined" @click="navigate('home')">{{ copy.home }}</button>
           <button
+            id="shellExperimentsToggle"
             ref="experimentsTrigger"
+            class="nav-trigger"
             type="button"
             data-shell-route="experiments"
             :aria-expanded="openMenu === 'experiments'"
             aria-haspopup="menu"
             aria-controls="shellExperimentsMenu"
             @click="toggleMenu('experiments')"
-          >{{ copy.experiments }}<svg class="vue-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <div ref="experimentsPanel" id="shellExperimentsMenu" class="vue-menu quick-menu" role="menu" aria-label="Experiments" :hidden="openMenu !== 'experiments'">
-            <p class="panel-kicker">{{ copy.menuTitle }}</p>
-            <button type="button" class="quick-menu-item" data-shell-experiment="believe" :aria-current="route === 'experiments' ? 'true' : undefined" role="menuitem" @click="choose('experiments')">
-              <span class="menu-thumb"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#F2CC4D" stroke-width="1.35" stroke-linecap="round"><path d="M3 17 C10 11 15 23 23 17 S36 11 45 16M3 23 C10 17 15 29 23 23 S36 17 45 22M3 29 C10 23 15 35 23 29 S36 23 45 28M3 35 C10 29 15 41 23 35 S36 29 45 34"/><path d="M12 11v25M20 14v23M28 12v25M36 15v21" stroke-opacity=".45"/></g><g fill="#fff"><circle cx="14" cy="20" r="1"/><circle cx="31" cy="26" r="1"/><circle cx="38" cy="33" r="1"/></g></svg></span>
-              <span class="menu-name">beLieve</span>
-              <span class="menu-arrow" aria-hidden="true">↗</span>
-            </button>
-            <div class="menu-soon" aria-disabled="true"><span class="soon-dot" aria-hidden="true"></span><span>{{ copy.menuSoon }}</span></div>
-          </div>
-        </div>
-        <div class="vue-menu-wrap">
+          >{{ copy.experiments }}<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
           <button
+            id="shellProductsToggle"
             ref="productsTrigger"
+            class="nav-trigger"
             type="button"
             data-shell-route="products"
             :aria-expanded="openMenu === 'products'"
             aria-haspopup="menu"
             aria-controls="shellProductsMenu"
             @click="toggleMenu('products')"
-          >{{ copy.products }}<svg class="vue-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <div ref="productsPanel" id="shellProductsMenu" class="vue-menu products-menu" role="menu" aria-label="Products" :hidden="openMenu !== 'products'">
-            <p class="panel-kicker">{{ copy.productsTitle }}</p>
-            <button type="button" class="products-menu-item" data-shell-route="easysci" :aria-current="route === 'easysci' ? 'true' : undefined" role="menuitem" @click="choose('easysci')">
-              <span class="products-menu-mark" aria-hidden="true">ES</span>
-              <span class="products-menu-copy"><span class="products-menu-name">{{ copy.easysci }}</span><span class="products-menu-description">{{ copy.easysciDesc }}</span></span>
-              <span class="menu-arrow" aria-hidden="true">↗</span>
-            </button>
-            <button type="button" class="products-menu-item" data-shell-route="smart-brain" :aria-current="route === 'smart-brain' ? 'true' : undefined" role="menuitem" @click="choose('smart-brain')">
-              <span class="products-menu-mark" aria-hidden="true">SB</span>
-              <span class="products-menu-copy"><span class="products-menu-name">{{ copy.brain }}</span><span class="products-menu-description">{{ copy.brainDesc }}</span></span>
-              <span class="menu-arrow" aria-hidden="true">↗</span>
-            </button>
+          >{{ copy.products }}<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
+          <button class="nav-trigger nav-direct-link" type="button" data-shell-route="about" :aria-current="route === 'about' ? 'page' : undefined" @click="navigate('about')">{{ copy.about }}</button>
+        </nav>
+
+        <div class="topbar-spacer" aria-hidden="true"></div>
+
+        <div class="topbar-actions">
+          <button class="auth-trigger" type="button" data-shell-account @click="openAccount">{{ accountText }}</button>
+          <span class="topbar-divider" aria-hidden="true"></span>
+          <div class="lang-switch" role="group" :aria-label="copy.language">
+            <button type="button" data-shell-language="zh" lang="zh-CN" :aria-pressed="language === 'zh'" @click="setLanguage('zh')">中</button>
+            <button type="button" data-shell-language="en" lang="en" :aria-pressed="language === 'en'" @click="setLanguage('en')">EN</button>
           </div>
         </div>
-        <button type="button" data-shell-route="about" :aria-current="route === 'about' ? 'page' : undefined" @click="navigate('about')">{{ copy.about }}</button>
-      </nav>
-      <div class="vue-topbar-actions">
-        <button class="vue-auth" type="button" data-shell-account @click="openAccount">{{ accountText }}</button>
-        <span class="vue-topbar-divider" aria-hidden="true"></span>
-        <div class="vue-language" role="group" :aria-label="copy.language">
-          <button type="button" data-shell-language="zh" lang="zh-CN" :aria-pressed="language === 'zh'" @click="setLanguage('zh')">中</button>
-          <button type="button" data-shell-language="en" lang="en" :aria-pressed="language === 'en'" @click="setLanguage('en')">EN</button>
-        </div>
+      </div>
+
+      <div ref="experimentsPanel" id="shellExperimentsMenu" class="quick-menu glass-panel" role="menu" aria-labelledby="shellExperimentsToggle" :hidden="openMenu !== 'experiments'">
+        <p class="panel-kicker">{{ copy.menuTitle }}</p>
+        <button type="button" class="quick-menu-item" data-shell-experiment="believe" :aria-current="route === 'experiments' ? 'true' : undefined" role="menuitem" @click="choose('experiments')">
+          <span class="menu-thumb"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#F2CC4D" stroke-width="1.35" stroke-linecap="round"><path d="M3 17 C10 11 15 23 23 17 S36 11 45 16M3 23 C10 17 15 29 23 23 S36 17 45 22M3 29 C10 23 15 35 23 29 S36 23 45 28M3 35 C10 29 15 41 23 35 S36 29 45 34"/><path d="M12 11v25M20 14v23M28 12v25M36 15v21" stroke-opacity=".45"/></g><g fill="#fff"><circle cx="14" cy="20" r="1"/><circle cx="31" cy="26" r="1"/><circle cx="38" cy="33" r="1"/></g></svg></span>
+          <span class="menu-name">beLieve</span>
+          <span class="menu-arrow" aria-hidden="true">↗</span>
+        </button>
+        <div class="menu-soon" aria-disabled="true"><span class="soon-dot" aria-hidden="true"></span><span>{{ copy.menuSoon }}</span></div>
+      </div>
+
+      <div ref="productsPanel" id="shellProductsMenu" class="products-menu glass-panel" role="menu" aria-labelledby="shellProductsToggle" :hidden="openMenu !== 'products'">
+        <p class="panel-kicker">{{ copy.productsTitle }}</p>
+        <button type="button" class="products-menu-item" data-shell-route="easysci" :aria-current="route === 'easysci' ? 'true' : undefined" role="menuitem" @click="choose('easysci')">
+          <span class="products-menu-mark" aria-hidden="true">ES</span>
+          <span class="products-menu-copy"><span class="products-menu-name">{{ copy.easysci }}</span><span class="products-menu-description">{{ copy.easysciDesc }}</span></span>
+          <span class="menu-arrow" aria-hidden="true">↗</span>
+        </button>
+        <button type="button" class="products-menu-item" data-shell-route="smart-brain" :aria-current="route === 'smart-brain' ? 'true' : undefined" role="menuitem" @click="choose('smart-brain')">
+          <span class="products-menu-mark" aria-hidden="true">SB</span>
+          <span class="products-menu-copy"><span class="products-menu-name">{{ copy.brain }}</span><span class="products-menu-description">{{ copy.brainDesc }}</span></span>
+          <span class="menu-arrow" aria-hidden="true">↗</span>
+        </button>
       </div>
     </header>
+
     <p v-if="configWarning" class="auth-config-warning" role="alert">{{ configWarning.message }}</p>
     <section class="legacy-frame-wrap" aria-label="Aloop research content">
       <iframe

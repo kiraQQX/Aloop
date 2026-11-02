@@ -63,7 +63,7 @@ const serveLegacyRuntime = {
   apply: 'serve',
   configureServer(server) {
     server.middlewares.use(async (request, response, next) => {
-      const [pathname] = (request.url || '').split('?');
+      const [pathname, query = ''] = (request.url || '').split('?');
       let decodedPath = pathname;
       try {
         decodedPath = decodeURIComponent(pathname);
@@ -75,6 +75,15 @@ const serveLegacyRuntime = {
       // HTML transform crawls module scripts and cannot resolve the legacy import map.
       const isLegacyDocument = legacyDocuments.includes(decodedPath) || referenceDocuments.includes(decodedPath);
       const isLegacyAsset = legacyStaticPrefixes.some((prefix) => decodedPath.startsWith(prefix));
+      // The Vue shell imports the shared stylesheets from /assets/css/*. In dev
+      // Vite serves those imports as JavaScript modules (Sec-Fetch-Dest: script);
+      // the legacy <link> requests stay raw CSS and keep the static branch.
+      const isCssModuleRequest = decodedPath.endsWith('.css')
+        && (request.headers['sec-fetch-dest'] === 'script' || /(^|&)(import|direct)(=|&|$)/.test(query));
+      if (isCssModuleRequest) {
+        next();
+        return;
+      }
       if (!isLegacyDocument && !isLegacyAsset) {
         next();
         return;
