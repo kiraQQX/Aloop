@@ -23,20 +23,77 @@ test('the About page route resolves in the Vite development server', async ({ pa
   ).toBeVisible();
 });
 
-test('the protected beLieve route shows login and permits the local debug flow', async ({ page }) => {
+const MOCK_AUTH = 'https://mock-auth.test';
+const CORS = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-headers': '*',
+  'access-control-allow-methods': '*',
+};
+
+// Serves a public config that points at a fake Supabase project and answers its
+// /auth/v1 endpoints, so the real dialog + auth client are exercised without a backend.
+async function mockSupabase(page) {
+  const seen = { signup: [], token: [] };
+  await page.route('**/assets/js/core/config.js', (route) => route.fulfill({
+    contentType: 'text/javascript',
+    body: `window.ALOOP_CONFIG = { supabaseUrl: '${MOCK_AUTH}', supabaseAnonKey: 'test-key', siteUrl: 'http://localhost', turnstileSiteKey: '' };`,
+  }));
+  await page.route(`${MOCK_AUTH}/auth/v1/**`, async (route) => {
+    const request = route.request();
+    if (request.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
+    const path = new URL(request.url()).pathname;
+    const body = request.postDataJSON?.() || {};
+    const json = (status, payload) => route.fulfill({ status, headers: CORS, contentType: 'application/json', body: JSON.stringify(payload) });
+    if (path.endsWith('/signup')) {
+      seen.signup.push(body);
+      return json(200, { id: 'user-1', email: body.email, identities: [{}] });
+    }
+    if (path.endsWith('/token')) {
+      seen.token.push(body);
+      if (body.password === 'Correct-Pass-1') {
+        return json(200, { access_token: 'access', refresh_token: 'refresh', expires_in: 3600, user: { id: 'user-1', email: body.email } });
+      }
+      return json(400, { error_code: 'invalid_credentials', msg: 'Invalid login credentials' });
+    }
+    return json(204, {});
+  });
+  return seen;
+}
+
+test('the protected beLieve route asks for login, shows no debug hints, and works with email sign-up', async ({ page }) => {
+  const seen = await mockSupabase(page);
   await page.goto('/#/e/believe/run', { waitUntil: 'domcontentloaded' });
 
   const legacy = page.frameLocator('iframe.legacy-runtime');
   await expect(legacy.locator('#authBackdrop')).toBeVisible({ timeout: 25_000 });
-  await expect(legacy.locator('#authModal')).toBeVisible();
+  const modal = legacy.locator('#authModal');
+  await expect(modal).toBeVisible();
+  await expect(modal).not.toContainText('调试');
+  await expect(modal).not.toContainText('debug');
+  await expect(legacy.locator('#authMessage')).toBeEmpty();
 
-  await legacy.locator('#authEmail').fill('wrong');
-  await legacy.locator('#authPassword').fill('wrong');
+  // Registration: validation first, then the verification-email notice.
+  await legacy.locator('#authSignupTab').click();
+  await legacy.locator('#authEmail').fill('not-an-email');
+  await legacy.locator('#authPassword').fill('Correct-Pass-1');
+  await legacy.locator('#authConfirm').fill('Correct-Pass-1');
   await legacy.locator('#authForm button[type="submit"]').click();
   await expect(legacy.locator('#authMessage')).not.toBeEmpty();
+  expect(seen.signup).toHaveLength(0);
 
-  await legacy.locator('#authEmail').fill('1');
-  await legacy.locator('#authPassword').fill('1');
+  await legacy.locator('#authEmail').fill('ada@example.com');
+  await legacy.locator('#authForm button[type="submit"]').click();
+  await expect(legacy.locator('#authMessage')).toContainText('ada@example.com');
+  await expect(legacy.locator('#authResend')).toBeVisible();
+  expect(seen.signup).toHaveLength(1);
+  expect(seen.signup[0].email).toBe('ada@example.com');
+  await expect(legacy.locator('#authBackdrop')).toBeVisible(); // still not logged in until verified
+
+  // Login: a wrong password is rejected, the right one enters the experiment.
+  await legacy.locator('#authPassword').fill('wrong-password');
+  await legacy.locator('#authForm button[type="submit"]').click();
+  await expect(legacy.locator('#authMessage')).toContainText('错误');
+  await legacy.locator('#authPassword').fill('Correct-Pass-1');
   await legacy.locator('#authForm button[type="submit"]').click();
 
   await expect(legacy.locator('#authBackdrop')).toBeHidden();
@@ -50,6 +107,30 @@ test('the protected beLieve route shows login and permits the local debug flow',
     });
     return frame?.url() || '';
   }).toContain('#/e/believe/run');
+});
+
+test('without Supabase configuration the dialog says so instead of offering a debug account', async ({ page }) => {
+  await page.goto('/#/e/believe/run', { waitUntil: 'domcontentloaded' });
+  const legacy = page.frameLocator('iframe.legacy-runtime');
+  await expect(legacy.locator('#authModal')).toBeVisible({ timeout: 25_000 });
+  await legacy.locator('#authSignupTab').click();
+  await expect(legacy.locator('#authMessage')).toContainText('尚未配置');
+  await expect(legacy.locator('#authModal')).not.toContainText('调试');
+});
+
+test('the Products and Experiments dropdowns use the glass panels from the original design', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.locator('[data-shell-route="experiments"]').click();
+  const experiments = page.locator('#shellExperimentsMenu');
+  await expect(experiments.locator('.panel-kicker')).toHaveText('选择实验');
+  await expect(experiments.locator('.menu-soon')).toContainText('更多实验即将上线');
+  await expect(experiments.locator('[data-shell-experiment="believe"] .menu-thumb svg')).toBeVisible();
+
+  await page.locator('[data-shell-route="products"]').click();
+  const products = page.locator('#shellProductsMenu');
+  await expect(products.locator('.panel-kicker')).toHaveText('产品与工具');
+  await expect(products.locator('.products-menu-item')).toHaveCount(2);
+  await expect(products.locator('.products-menu-description').first()).not.toBeEmpty();
 });
 
 test('direct deep links and browser back keep shell navigation synchronized', async ({ page }) => {

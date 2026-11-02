@@ -52,6 +52,11 @@
   function overview() {
     return `<p class="eb">${t("sb.kicker")}</p><h1>${t("sb.title")}</h1><p class="lede">${t("sb.intro")}</p>
       ${tabs("overview")}
+      <section class="sb-model-panel" aria-labelledby="sbModelTitle">
+        <div class="sb-model-heading"><div><p class="sb-model-eyebrow">ANATOMICAL ATLAS / 3D VIEWER</p><h2 id="sbModelTitle">${Aloop.i18n.lang === "en" ? "Interactive brain model" : "交互式脑解剖模型"}</h2><p>${Aloop.i18n.lang === "en" ? "Explore the anatomical surface in a dedicated 3D scene." : "在独立的三维场景中查看脑部解剖结构。"}</p></div><button class="sb-model-reset" type="button" data-model-reset>${Aloop.i18n.lang === "en" ? "Reset view" : "重置视角"}</button></div>
+        <div class="sb-model-stage" id="sbModelStage"><div class="sb-model-loading" data-model-status role="status" aria-live="polite">${Aloop.i18n.lang === "en" ? "Preparing viewer…" : "正在准备模型查看器…"}</div><div class="sb-model-overlay"><span data-model-selected>${Aloop.i18n.lang === "en" ? "Model loading" : "模型加载中"}</span><span>${Aloop.i18n.lang === "en" ? "Drag · Zoom · Select" : "拖动 · 缩放 · 选择"}</span></div></div>
+        <div class="sb-model-foot"><span>${Aloop.i18n.lang === "en" ? "Drag to rotate · Scroll to zoom · Click a structure to inspect its name" : "拖动旋转 · 滚轮缩放 · 点击结构查看名称"}</span><span>Z-Anatomy / BodyParts3D · CC BY-SA 4.0 · <a href="https://github.com/itayinbarr/brainproject" target="_blank" rel="noopener noreferrer">${Aloop.i18n.lang === "en" ? "Source & license" : "来源与许可"}</a></span></div>
+      </section>
       <section class="sb-model-panel sb-atlas-cta" aria-labelledby="sbAtlasTitle"><div class="sb-model-heading"><div><p class="sb-model-eyebrow">ANATOMICAL ATLAS / 3D</p><h2 id="sbAtlasTitle">${t("atlas.cta.title")}</h2><p>${t("atlas.cta.body")}</p></div><a class="primary-pill" href="#/smart-brain/atlas"><span>${t("atlas.cta.open")}</span></a></div></section>
       <div class="sb-grid">${[1, 2, 3].map(n => `<article class="sb-card"><h2>${t(`sb.card${n}.t`)}</h2><p>${t(`sb.card${n}.b`)}</p></article>`).join("")}</div>
       <p style="margin-top:28px"><a class="primary-pill" href="#/smart-brain/learn"><span>${t("sb.start")}</span></a></p>
@@ -84,6 +89,7 @@
   function render() {
     stop(true);
     Aloop.atlas?.view.destroy();
+    Aloop.smartbrainModel?.destroy();
     if (route.sub === "atlas") {
       root.innerHTML = `<div class="sb-wrap sb-wrap-atlas"><p class="eb">${t("sb.kicker")}</p><h1>${t("sb.tab.atlas")}</h1>${tabs("atlas")}<div id="atlasRoot"></div><p class="sb-note">${t("sb.disclaimer")}</p></div>`;
       Aloop.atlas.view.mount(root.querySelector("#atlasRoot"), route.id);
@@ -91,6 +97,7 @@
     }
     root.innerHTML = `<div class="sb-wrap">${route.sub === "learn" ? learn() : overview()}</div>`;
     if (route.sub === "learn") { loadVoices(); syncControls(); }
+    else Aloop.smartbrainModel?.mount();
   }
 
   root.addEventListener("click", e => {
@@ -132,6 +139,6 @@
       if (changed) { setStatus("tts.idle"); render(); } else if (r.sub === "atlas" && r.id) Aloop.atlas?.view.select(r.id);
       window.scrollTo({ top: 0, behavior: "auto" });
     },
-    hide() { if (!visible) return; stop(true); Aloop.atlas?.view.destroy(); visible = false; root.hidden = true; },
+    hide() { if (!visible) return; stop(true); Aloop.atlas?.view.destroy(); Aloop.smartbrainModel?.destroy(); visible = false; root.hidden = true; },
   };
 })();

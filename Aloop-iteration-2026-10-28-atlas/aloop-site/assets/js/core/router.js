@@ -240,7 +240,11 @@
       Aloop.navigate(`#/e/${activeExperimentId}`);
     }
   });
-  window.addEventListener("hashchange",renderRoute);
+  // Routes are rendered only after the auth adapter has restored its session,
+  // otherwise a refresh on #/e/<id>/run would bounce an already signed-in user
+  // back to the login gate.
+  function renderWhenReady() { Promise.resolve(Aloop.authReady).then(renderRoute, renderRoute); }
+  window.addEventListener("hashchange", renderWhenReady);
   document.addEventListener("aloop:language",() => {
     if (isGateVisible && lastRoute && lastRoute.type === "run") {
       const item = Aloop.registry.get(lastRoute.id);
@@ -252,5 +256,5 @@
     try { history.replaceState(null,"",`${window.location.pathname}${window.location.search}#/`); }
     catch (_) { window.location.hash = "#/"; }
   }
-  renderRoute();
+  renderWhenReady();
 })();

@@ -1,166 +1,184 @@
-# Aloop 技术规范（统一入口版）
+# Aloop Technical Requirements
 
-本文档取代此前分散在 `TECHNICAL_SPECIFICATIONS.md` 中的入口与构建说明；该文件仍保留历史设计与内容规范，两者冲突时以本文档与 `vite.config.js` 实际代码为准。
+**Document status:** Current architecture reference  
+**Last reconciled with repository:** 2026-11-02  
+**Scope:** Application entry, runtime composition, routing, localisation, build output, testing, and deployment configuration.
 
-## 1. 架构总览
+This document describes the implementation represented by the repository. If this document conflicts with executable configuration or source code, inspect the code and update this document in the same change. Historical product-design requirements are retained separately in the root-level `TECHNICAL_SPECIFICATIONS.md`.
+
+## 1. Architecture overview
+
+Aloop uses a Vue 3 + Vite application shell around a modular classic-JavaScript runtime.
 
 ```text
-浏览器
-  └─ index.html                      唯一生产入口（Vite 入口，仅挂载 #app）
-       └─ src/main.js                createApp(App)
-            └─ src/App.vue           Vue 外壳：顶栏 / 语言 / hash 路由 / iframe 容器
-                 └─ <iframe src="./legacy.html?embed=1#/<route>">
-                      └─ legacy.html   模块化 H5 运行环境（26 script + 11 CSS，import map 加载 Three.js）
-                           ├─ assets/js/core/*        路由、存储、认证、音频、性能
-                           ├─ assets/js/ui/*          顶栏、菜单、登录弹窗、区块
-                           ├─ assets/js/easysci/*     EasySci 目录（432 条）
-                           ├─ assets/js/smartbrain/*  概览、学习、语音、Atlas
-                           ├─ assets/js/gl/*          首页粒子脑、引擎
-                           └─ experiments/believe/*   beLieve 运行时
-                 └─ <iframe src="./说明.html?embed=1&lang=zh|en">  （#/about）
+Browser
+└── index.html                         Single production entry
+    └── src/main.js                    Creates the Vue application
+        └── src/App.vue                Shell, navigation, locale, hash routing
+            ├── legacy.html iframe     Existing H5 runtime
+            │   ├── assets/js/core/    Routing, storage, auth adapter, audio, performance
+            │   ├── assets/js/ui/      Menus, account modal, page sections
+            │   ├── assets/js/easysci/ EasySci catalogue and interface
+            │   ├── assets/js/smartbrain/ Smart Brain, Learn, narration, Atlas
+            │   ├── assets/js/gl/      Homepage particle cortex and graphics engine
+            │   └── experiments/believe/ beLieve runtime
+            └── 说明.html iframe       Bilingual About and licensing page
 ```
 
-设计约束：
+### Architectural constraints
 
-1. **只有一个生产入口。** `index.html` 是 Vite 的唯一 HTML 入口；`legacy.html`、`说明.html`、`standalone.html` 都不得包含 `/src/main.js`，也不得成为构建入口。
-2. **Vue 只负责外壳。** 导航、语言、顶层 hash 路由、iframe 生命周期由 Vue 管理；业务模块继续使用既有原生 JS，不强制改写为 Vue 组件。
-3. **旧运行时保持经典脚本语义。** `legacy.html` 依赖 import map 与 `defer` 脚本顺序，开发服务器必须原样直出，不能经过 Vite 的 HTML 转换。
-4. **standalone.html 只是参考。** 它不出现在 `dist`，不被路由引用，dev 下以 `X-Robots-Tag: noindex` 提供。
+1. `index.html` is the only production HTML entry.
+2. Vue owns the visible shell, top-level navigation, language state, hash routing, and iframe lifecycle.
+3. The legacy feature runtime remains primarily classic JavaScript. Do not assume that all feature modules have been migrated to Vue components.
+4. `legacy.html` must be served without Vite HTML transformation in development because it relies on its classic script ordering and import map.
+5. `standalone.html` is a development-only historical comparison artefact. It must not be linked by production routes or copied into `dist/`.
 
-## 2. 入口与路由契约
+## 2. Routes and iframe contract
 
-| 路由 | 外壳行为 | iframe 目标 |
+| Public hash route | Shell state | Embedded document |
 |---|---|---|
-| `#/` | 首页高亮 | `./legacy.html?embed=1#/` |
-| `#/e/<id>` | 「实验」高亮 | `./legacy.html?embed=1#/e/<id>` |
-| `#/e/<id>/run` | 「实验」高亮，保留完整 hash | `./legacy.html?embed=1#/e/<id>/run` |
-| `#/easysci`、`#/easysci/<slug>` | `EasySci` 高亮 | `./legacy.html?embed=1#/easysci...` |
-| `#/smart-brain`、`/learn`、`/atlas`、`/atlas/<id>` | `Smart Brain` 高亮 | `./legacy.html?embed=1#/smart-brain...` |
-| `#/about` | `说明` 高亮 | `./说明.html?embed=1&lang=<zh|en>` |
-| 其他 hash | 回退到首页状态 | `./legacy.html?embed=1#/` |
+| `#/` | Home | `legacy.html?embed=1#/` |
+| `#/e/<id>` and `#/e/<id>/run` | Experiments | `legacy.html?embed=1#/e/<id>...` |
+| `#/easysci` and `#/easysci/<slug>` | Products / EasySci | `legacy.html?embed=1#/easysci...` |
+| `#/smart-brain` and its Learn / Atlas routes | Products / Smart Brain | `legacy.html?embed=1#/smart-brain...` |
+| `#/about` | About | `说明.html?embed=1&lang=<zh|en>` |
 
-要求：
+Requirements:
 
-- 直接访问任一深层链接必须渲染对应状态，刷新后保持。
-- 浏览器前进/后退必须让外壳高亮与 iframe 目标同步。
-- iframe 内部 hash 变化通过 `hashchange` 监听回写外层 URL。
-- 若访问 `#/e/<id>/run` 且未登录，旧路由会把 hash 降级为 `#/e/<id>` 并弹出登录框；这是既有产品行为，不是缺陷。
+- Direct navigation to supported deep links must resolve to the corresponding shell and iframe state.
+- Refresh, browser back, and browser forward must preserve route synchronisation.
+- Hash changes inside the legacy iframe must be reflected by the outer shell.
+- An unauthenticated attempt to enter the beLieve run route is redirected to the experiment entry and opens the login modal. Authentication is Supabase-backed (see section 6).
 
-## 3. 语言契约
+## 3. Localisation
 
-- 共享存储键：`aloop_lang_v1`，取值只能是 `zh` 或 `en`。
-- 默认语言：`zh`（站点以 `lang="zh-CN"` 发布）。旧 i18n 在没有存储值时会跟随浏览器语言；外壳在 iframe 加载后按需点击旧语言控件，使两侧收敛到外壳状态。
-- 外壳不得在每次加载时无条件重置语言；只在文档语言与外壳状态不一致时同步。
-- About 页面通过 `?lang=` 接收语言，并用同一存储键记录切换。
+- Shared local-storage key: `aloop_lang_v1`.
+- Supported values: `zh` and `en`.
+- The shell defaults to Chinese unless a valid stored preference exists.
+- The shell and embedded runtime must converge on the same language without overwriting a saved preference on every iframe load.
+- The About page receives the selected locale through `?lang=zh|en` and uses the same storage key.
+- Any new user-visible feature must provide both Chinese and English strings and must not rely on colour alone to communicate state.
 
-## 4. 依赖与版本
+## 4. Runtime dependencies
 
-| 依赖 | 版本 / 位置 | 说明 |
+The current dependency declarations are in `package.json` and the lockfile.
+
+| Dependency | Repository declaration | Role |
 |---|---|---|
-| Vue | `^3.5.13`（`package.json`） | 外壳运行时 |
-| Vite | `^6.0.7`（实际解析 6.4.5） | 构建与 dev server |
-| `@vitejs/plugin-vue` | `^5.2.1` | SFC 支持 |
-| Vitest / jsdom | `^2.1.8` / `^25.0.1` | 单元测试（jsdom 环境） |
-| Playwright | `1.64.1` | Chromium 端到端验收 |
-| `wrangler` | `4.80.0`（精确版本，devDependency） | Cloudflare 构建/部署 CLI；要求 Node ≥ 20.3，保证构建环境与本地使用同一版本 |
-| `@supabase/supabase-js` | `^2.118.0` | 仅安装，`src/lib/supabase.js` 未接线 |
-| Three.js | `0.186.1`（import map，jsDelivr CDN） | 不写入 `package.json`；升级必须单独验证 GLTF/Draco 兼容性 |
-| Draco | 自托管 `assets/models/atlas/draco/` | `draco_decoder.js`、`.wasm`、`draco_wasm_wrapper.js` |
-| 脑模型 | `assets/models/atlas/brain.glb`、`manifest.json`、`ATTRIBUTION.md` | CC BY-SA 4.0，见 ATTRIBUTION |
+| Vue | `^3.5.13` | Application shell |
+| Vite | `^6.0.7` | Development server and production bundler |
+| `@vitejs/plugin-vue` | `^5.2.1` | Vue SFC support |
+| Vitest | `^2.1.8` | Unit and regression tests |
+| jsdom | `^25.0.1` | DOM test environment |
+| Playwright | `1.64.1` | Chromium end-to-end tests |
+| Wrangler | `4.80.0` (pinned) | Cloudflare deployment CLI |
+| `@supabase/supabase-js` | `^2.118.0` | Installed SDK; not currently wired into application entry points |
+| Three.js | `0.186.1` via import map | Legacy runtime graphics dependency |
+| Draco | Self-hosted under `assets/models/atlas/draco/` | GLB decoding |
 
-禁止事项：
+Wrangler 4.80.0 requires Node.js 20.3 or later. The repository CI currently uses Node.js 20.
 
-- 不得在 dev 让 Vite 预构建扫描旧文档（会尝试解析 `three` 并失败）。`optimizeDeps` 必须保留 `entries: ['index.html']`。
-- 不得引入第二个 Three.js 版本或第二个 `WebGLRenderer` 生命周期管理体系。
-- 不得把 `raw.githubusercontent.com` / `gstatic.com/draco` 重新写回模型与解码器路径。
+Do not add a second Three.js version or a competing WebGL renderer lifecycle without a separate architecture review. Do not restore remote GitHub or gstatic Draco asset URLs; the model and decoder assets are self-hosted.
 
-## 5. 构建与产物契约
+## 5. Development-server and build contract
 
-构建命令：`npm run build`（`vite build`），产物目录 `dist`。
+The Vite configuration contains three important behaviours:
 
-`copyLegacyRuntime` 复制：`legacy.html`、`assets/**`、`experiments/**`、`说明.html`。
-`verifyProductionOutput` 在 `closeBundle` 校验：
+- `serveLegacyRuntime` serves `legacy.html`, `说明.html`, `standalone.html`, `assets/**`, and `experiments/**` as static files in development, without transforming the legacy HTML.
+- `copyLegacyRuntime` copies `legacy.html`, `说明.html`, `assets/**`, and `experiments/**` into `dist/`.
+- `verifyProductionOutput` checks required production files and rejects `dist/standalone.html`.
 
-必需文件（缺一即构建失败）：
+The required output list is maintained in `vite.config.js`. When adding a required runtime asset or static directory, update the build contract and the relevant tests in the same change.
 
-```text
-index.html
-legacy.html
-说明.html
-assets/js/core/router.js
-assets/js/core/env.js
-assets/i18n/site.js
-assets/js/easysci/data.js
-assets/js/smartbrain/atlas/scene.js
-assets/models/atlas/brain.glb
-assets/models/atlas/manifest.json
-assets/models/atlas/draco/draco_decoder.wasm
-experiments/believe/runtime.js
-experiments/believe/believe.css
-```
+Build command: `npm run build`  
+Output directory: `dist/`
 
-禁止文件：
+Do not create a second production HTML entry. Do not bypass the output validation to make a broken build pass.
 
-```text
-standalone.html   # 第二个生产首页
-```
+## 6. Authentication and data status
 
-资源路径要求：
+Authentication uses Supabase Auth in two mutually exclusive modes:
 
-- 旧文档内一律使用相对路径（`assets/...`、`experiments/...`、`./说明.html`），不得使用以 `/` 开头的绝对路径。
-- 模型与 Draco 通过 `new URL(..., document.baseURI)` 解析，保持相对文档定位。
-- 新增静态目录时同步更新中间件白名单与产物契约。
+- **Shell mode** — `src/lib/supabase.js` creates one client from `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY`; `src/lib/auth.js` owns the session and exposes `window.__ALOOP_AUTH__` to the embedded runtime.
+- **Standalone mode** — when no bridge exists, `assets/js/core/auth.js` calls GoTrue REST with the public values from `assets/js/core/config.js`; the session lives in `aloop_session_v2`.
 
-## 6. 开发服务器行为
+Both modes cover sign-up, sign-in, sign-out, refresh, email verification, resend, and password reset. Shell mode never reads or writes the REST session, and standalone mode never touches the shell session.
 
-`serveLegacyRuntime`（`apply: 'serve'`）对以下路径直接读文件并返回，附正确 MIME、`Cache-Control: no-cache`：
+Still prototype-level:
 
-- `/legacy.html`、`/说明.html`
-- `/standalone.html`（附加 `X-Robots-Tag: noindex, nofollow`）
-- `/assets/**`、`/experiments/**`
+- The beLieve session and event data are stored in browser-local storage.
+- The `?qa=1&arm=A|B|C` selector is client-controlled and intended only for development QA.
+- Server-side participant-data upload, research randomisation, backup/retention controls, and real-project RLS verification require separate design and security review. The schema is provided in `supabase/migrations/` but applying it is a reviewed deployment step.
 
-其余请求交给 Vite。这样可保证旧 import map、`defer` 顺序与相对路径行为与生产一致。
+Never commit service-role keys, secret keys, database credentials, access tokens, or local environment files. Public client configuration is not a substitute for server-side access control.
 
-## 7. Supabase 现状（明确边界）
+## 7. Static assets and licensing
 
-- `src/lib/supabase.js` 读取 `VITE_SUPABASE_URL` 与 `VITE_SUPABASE_PUBLISHABLE_KEY`，缺失时在模块顶层抛错。
-- 该模块**当前未被任何入口 import**，因此构建与运行都不受影响；它只是未接线的客户端草稿。
-- 仓库中没有 `.env` 或 `.env.example`；Cloudflare Workers 是否配置了上述变量需要在控制台人工确认（本次未修改）。
-- 不得把 `service_role` / secret key 写入前端或仓库。
-- 真实认证、数据表、RLS、实验数据上传均为未实现项，需单独设计与评审。
+The homepage particle cortex and Smart Brain Atlas use assets under `assets/models/atlas/`. The anatomy asset and viewer source have separate licence terms. Preserve the notices in `assets/models/atlas/ATTRIBUTION.md` and the About page.
 
-## 8. 部署（Cloudflare Workers + 静态资源）
+The GLB and Draco decoder are self-hosted. Three.js is still loaded from the pinned CDN import-map entry, so the application is not a fully offline bundle. Any dependency-hosting change must account for package size, licensing, cache behaviour, and compatibility.
 
-线上不是 Pages 项目，而是 **Cloudflare Workers 静态资源**（Worker 名 `aloop`），由 **Workers Builds** 跟踪 GitHub 仓库。`wrangler.jsonc` 的 `assets.directory = ./dist`、`not_found_handling = single-page-application`。
+## 8. Tests and CI
 
-| 项 | 值 |
+Available scripts:
+
+| Script | Purpose |
 |---|---|
-| 服务类型 | Worker（静态资源模式） |
-| 生产分支 | `master`（GitHub 默认分支） |
-| Root directory | `Aloop-iteration-2026-10-28-atlas/aloop-site` |
+| `npm test` | Vitest unit and regression suite |
+| `npm run test:e2e` | Playwright Chromium end-to-end suite |
+| `npm run build` | Production build and output-contract validation |
+| `npm run preview` | Local production preview |
+
+The repository workflow is `.github/workflows/frontend-ci.yml`. It currently uses Node.js 20 and runs:
+
+1. `npm install`
+2. `npm test`
+3. `npm run build`
+4. `npx playwright install --with-deps chromium`
+5. `npm run test:e2e`
+
+The workflow uses `Aloop-iteration-2026-10-28-atlas/aloop-site` as its working directory. Do not move the project root without updating this workflow and the Cloudflare build configuration.
+
+Always use the Actions result for the exact commit under review. Historical test counts in older reports are evidence for those commits only, not a guarantee for current code.
+
+## 9. Deployment contract
+
+The repository describes the production target as Cloudflare Workers static assets, not Cloudflare Pages.
+
+| Setting | Current repository value |
+|---|---|
+| Worker name | `aloop` |
+| Static assets | `./dist` |
+| Wrangler config | `wrangler.jsonc` |
+| Production branch | `master` |
 | Build command | `npm run build` |
-| Deploy command | `npx wrangler deploy`（`wrangler` 固定为 `devDependencies` 的 `4.80.0`，要求 Node ≥ 20.3） |
-| 环境变量 | `VITE_SUPABASE_*`（仅在 import `src/lib/supabase.js` 后需要） |
+| Deploy command | `npx wrangler deploy` |
+| Wrangler | `4.80.0` |
 
-行为与已验证事实（2026-10-30）：
+The README and dated QA report record successful `master` deployments and failed non-production branch preview builds on 2026-10-30. This is a historical observation. Confirm the current status and inspect Cloudflare dashboard build logs before relying on branch previews.
 
-- `master` 推送 → Workers Builds 构建成功并生成 Version（`883c4d0`、`3786e50` 均有 Version ID），即 **生产分支的推送会自动上线**。
-- 非生产分支 / PR → 预览构建目前**失败**（`9d73349`、`a461050` 的 `Workers Builds: aloop` 结论为 failure，且无 Version ID）。失败原因需在 dashboard 构建日志确认；在修复前，分支无法提供 Cloudflare 预览地址，合并前验证以本地 `npm run build` + `npm run preview` 和 GitHub Actions 为准。
-- 生产构建失败时，线上继续运行上一个成功版本，不会白屏。
+The Wrangler configuration currently uses `not_found_handling: "single-page-application"`. This may return `index.html` for missing static-asset requests and obscure 404s. Changing it affects deployment routing and must be handled as a separate reviewed change.
 
-**风险**：SPA fallback 会把缺失的静态资源请求也返回 `index.html`（HTTP 200），从而掩盖资源 404。当前路由全部是 hash 路由，理论上不需要 SPA fallback；如需改为 `404-page`，必须先经部署负责人确认，因为这会改变所有未知路径的行为。
+Cloudflare dashboard settings and secrets cannot be fully verified from repository files. Do not claim they are configured unless checked in the dashboard.
 
-## 9. 分支与发布纪律
+## 10. Change and release rules
 
-1. 生产分支 `master` 只接受 PR。
-2. 功能分支命名 `feature/*`、`fix/*`、`integration/*`。
-3. 合并前必须通过：`npm test`、`npm run build`、`npm run test:e2e`。
-4. PR 必须列出人工验收项与回滚方式。
-5. 未经确认不得合并 PR、删除历史分支或修改生产部署配置。
+1. Create a short-lived task branch from the latest `master`.
+2. Keep each branch focused on one feature, fix, or documentation task.
+3. Review the diff before committing; exclude secrets, generated output, caches, and unrelated changes.
+4. Run the relevant tests and a production build locally.
+5. Open a pull request targeting `master`.
+6. Require CI checks and code review before merging.
+7. Use a preview deployment only after its current health has been confirmed.
+8. Delete the short-lived branch after merge.
+9. Prefer `git revert` to undo changes already merged into shared `master`; do not rewrite shared history with force-push.
+10. Treat database migrations and external data writes separately from source-code rollback.
 
-## 10. 验收环境
+## 11. Known risks requiring follow-up
 
-- Node.js 20.3+（`wrangler 4.80.0` 的最低要求；本次验收使用 Node 24.13.0，CI 使用 Node 20）。
-- Chromium（Playwright 1.64.1 自带构建）。
-- 桌面 1365×900、移动 390×844。
-- 真实 WebGL：headless Chromium（SwiftShader）可创建上下文；仍需在目标设备上人工确认 GPU 渲染与移动端布局。
+- Real-device GPU and mobile touch verification remains necessary beyond headless browser tests.
+- CDN failure behaviour for Three.js requires device/network testing.
+- Cloudflare branch-preview build health must be rechecked in the dashboard.
+- The SPA not-found fallback may mask missing static resources.
+- Real Supabase Auth flows (email delivery, verification links, password reset) and RLS permissions still require verification against an actual project.
+- EasySci records require item-level verification of URLs, pricing, licences, permissions, and current maintenance status.

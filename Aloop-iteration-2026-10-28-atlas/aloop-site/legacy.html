@@ -82,18 +82,22 @@
         <button class="auth-tab" id="authSignupTab" type="button" role="tab" aria-selected="false" aria-controls="authForm" data-mode="signup" data-i18n="auth.signup.tab">注册</button>
       </div>
       <form id="authForm" novalidate>
-        <label class="field-label" for="authEmail" data-i18n="auth.email">邮箱</label>
-        <input class="text-field" id="authEmail" name="email" type="text" inputmode="text" autocomplete="username" required>
-        <label class="field-label" for="authPassword" data-i18n="auth.password">密码</label>
+        <div id="authEmailWrap">
+          <label class="field-label" for="authEmail" data-i18n="auth.email">邮箱</label>
+          <input class="text-field" id="authEmail" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" required>
+        </div>
+        <label class="field-label" id="authPasswordLabel" for="authPassword" data-i18n="auth.password">密码</label>
         <input class="text-field" id="authPassword" name="password" type="password" autocomplete="current-password" required>
         <div id="authConfirmWrap" hidden>
           <label class="field-label" for="authConfirm" data-i18n="auth.confirm">确认密码</label>
           <input class="text-field" id="authConfirm" name="confirm" type="password" autocomplete="new-password">
         </div>
+        <div id="authCaptcha" class="auth-captcha" hidden></div>
         <button class="primary-pill auth-submit" type="submit"><span data-i18n="auth.submit.login">登录</span></button>
       </form>
-      <p class="auth-debug-hint" id="authDebugHint" data-i18n="auth.debugHint">本地调试账号：邮箱 1，密码 1。</p>
-      <p class="auth-message" id="authMessage" role="status" aria-live="polite" data-i18n="auth.pending">账号功能暂未开放。</p>
+      <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+      <button class="auth-resend" id="authResend" type="button" hidden data-i18n="auth.resend">重新发送验证邮件</button>
+      <button class="auth-resend" id="authForgot" type="button" hidden data-i18n="auth.forgot">忘记密码？</button>
     </section>
   </div>
 
@@ -137,6 +141,7 @@
   <script defer src="assets/js/core/store.js"></script>
   <script defer src="assets/i18n/site.js"></script>
   <script defer src="assets/js/core/audio.js"></script>
+  <script defer src="assets/js/core/config.js"></script>
   <script defer src="assets/js/core/auth.js"></script>
   <script defer src="assets/js/core/perf.js"></script>
   <script defer src="assets/js/gl/engine.js"></script>
@@ -150,6 +155,7 @@
   <script defer src="assets/js/easysci/easysci.js"></script>
   <script defer src="assets/js/smartbrain/lessons.js"></script>
   <script defer src="assets/js/smartbrain/narration.js"></script>
+  <script defer src="assets/js/smartbrain/model-viewer.js"></script>
   <script defer src="assets/js/smartbrain/learn.js"></script>
   <script defer src="assets/js/smartbrain/atlas/store.js"></script>
   <script defer src="assets/js/smartbrain/atlas/cards.js"></script>

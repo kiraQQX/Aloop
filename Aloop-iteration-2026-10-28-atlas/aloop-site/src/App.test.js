@@ -250,6 +250,44 @@ describe('Vue shell language and About route', () => {
 });
 
 
+describe('dropdown panels match the original design', () => {
+  let app;
+  let host;
+
+  afterEach(() => {
+    app?.unmount();
+    host?.remove();
+    window.localStorage.clear();
+    window.location.hash = '';
+    app = undefined;
+    host = undefined;
+  });
+
+  async function mount() {
+    host = document.createElement('div');
+    document.body.appendChild(host);
+    app = createApp(App);
+    app.mount(host);
+    await nextTick();
+    return host;
+  }
+
+  it('renders the glass-panel experiments and products menus with their titles and descriptions', async () => {
+    const root = await mount();
+    const experiments = root.querySelector('#shellExperimentsMenu');
+    expect(experiments.classList.contains('quick-menu')).toBe(true);
+    expect(experiments.querySelector('.panel-kicker').textContent).toBe('选择实验');
+    expect(experiments.querySelector('.menu-thumb svg')).not.toBeNull();
+    expect(experiments.querySelector('.menu-soon').textContent).toContain('更多实验即将上线');
+    const products = root.querySelector('#shellProductsMenu');
+    expect(products.classList.contains('products-menu')).toBe(true);
+    expect(products.querySelector('.panel-kicker').textContent).toBe('产品与工具');
+    expect(Array.from(products.querySelectorAll('.products-menu-mark')).map((node) => node.textContent)).toEqual(['ES', 'SB']);
+    expect(products.querySelectorAll('.products-menu-description').length).toBe(2);
+  });
+});
+
+
 describe('P0 legacy compatibility regressions', () => {
   it('does not globally hide the legacy authentication backdrop in embedded mode', async () => {
     const { readFileSync } = await import('node:fs');

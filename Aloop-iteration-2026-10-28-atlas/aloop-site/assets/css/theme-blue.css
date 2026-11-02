@@ -42,7 +42,11 @@ body { background: var(--bg); color: var(--text); }
 .text-field { border-color: var(--border-strong); color: var(--text); background: #fff; }
 .text-field::placeholder { color: #64748B; opacity: 1; }
 .text-field:focus { border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(49,94,145,.16); }
-.auth-debug-hint { color: var(--c-deep); }
+.auth-captcha { display: flex; justify-content: center; margin-top: 18px; min-height: 0; }
+.auth-captcha[hidden] { display: none; }
+.auth-resend { display: block; margin: 6px 0 0; padding: 6px 0; border: 0; background: transparent; color: var(--c-primary); font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; }
+.auth-resend[hidden] { display: none; }
+.auth-resend:disabled { opacity: .55; cursor: default; }
 .auth-message { color: var(--text-2); }
 
 /* Hero: deep research blue, organic topographic linework, and the interactive brain as the visual anchor. */
