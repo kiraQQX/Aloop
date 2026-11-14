@@ -1,0 +1,55 @@
+:root { color-scheme: light; }
+
+#app { min-height: 100%; }
+
+/* The shell chrome now reuses the shared Aloop stylesheets (tokens, topbar,
+ * theme-blue) so it matches standalone.html instead of approximating it. */
+.app-shell { position: relative; min-height: 100vh; color: var(--text); background: transparent; }
+
+.legacy-frame-wrap {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - var(--bar-height));
+  padding-top: var(--bar-height);
+}
+
+.legacy-runtime {
+  display: block;
+  width: 100%;
+  height: calc(100vh - var(--bar-height));
+  min-height: 580px;
+  border: 0;
+  background: transparent;
+}
+
+.loading-status {
+  position: fixed;
+  inset: auto 1rem 1rem auto;
+  z-index: 30;
+  margin: 0;
+  padding: .5rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  background: var(--surface);
+  color: var(--c-deep);
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 6px 22px rgba(35,70,109,.08);
+}
+
+.auth-config-warning {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 60;
+  margin: 0;
+  padding: 10px 16px;
+  background: #7a2d1f;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .legacy-runtime { height: calc(100vh - var(--bar-height)); min-height: 520px; }
+}
