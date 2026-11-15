@@ -128,7 +128,7 @@ test('the Products and Experiments dropdowns use the glass panels from the origi
   await page.locator('[data-shell-route="products"]').click();
   const products = page.locator('#shellProductsMenu');
   await expect(products.locator('.panel-kicker')).toHaveText('产品与工具');
-  await expect(products.locator('.products-menu-item')).toHaveCount(2);
+  await expect(products.locator('.products-menu-item')).toHaveCount(3);
   await expect(products.locator('.products-menu-description').first()).not.toBeEmpty();
 });
 

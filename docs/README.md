@@ -17,6 +17,7 @@ This directory is the documentation entry point for the Aloop website project.
 |---|---|---|
 | [Technical Requirements](TECHNICAL_REQUIREMENTS.md) | Current application architecture, routes, localisation, build contract, tests, and deployment configuration | Current architecture reference; reconcile with code |
 | [Supabase Integration](SUPABASE_INTEGRATION.md) | Authentication modes, environment variables, database schema, and remaining console setup | Current integration reference |
+| [Spark Architecture](SPARK_ARCHITECTURE.md) | Spark route, simulated BCI contract, generation adapters, privacy boundaries, and tests | Current module reference |
 | [Email Auth Setup](EMAIL_AUTH_SETUP.md) | Supabase Auth + Resend configuration, verification and password-reset flows | Operational setup guide |
 | [Release QA Report](RELEASE_QA_REPORT.md) | Dated test results, browser checks, deployment observations, and known risks | Historical QA evidence; check Actions and Cloudflare for current status |
 | [Engineering Progress](ENGINEERING_PROGRESS.md) | Chronological record of migration, fixes, tests, commits, and open work | Historical engineering log; append new entries, do not rewrite old evidence |

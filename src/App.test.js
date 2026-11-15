@@ -282,8 +282,8 @@ describe('dropdown panels match the original design', () => {
     const products = root.querySelector('#shellProductsMenu');
     expect(products.classList.contains('products-menu')).toBe(true);
     expect(products.querySelector('.panel-kicker').textContent).toBe('产品与工具');
-    expect(Array.from(products.querySelectorAll('.products-menu-mark')).map((node) => node.textContent)).toEqual(['ES', 'SB']);
-    expect(products.querySelectorAll('.products-menu-description').length).toBe(2);
+    expect(Array.from(products.querySelectorAll('.products-menu-mark')).map((node) => node.textContent)).toEqual(['ES', 'SB', 'SP']);
+    expect(products.querySelectorAll('.products-menu-description').length).toBe(3);
   });
 });
 
