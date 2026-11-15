@@ -7,8 +7,9 @@ Aloop is a bilingual online research and experimentation platform. It brings tog
 ## Products
 
 - **Experiments** — browser-based research experiences, including beLieve.
-- **EasySci** — a bilingual directory of research, data-analysis, experiment, design, asset, creative, and coding resources. The current catalogue contains 432 records. Catalogue inclusion is not an endorsement or a guarantee of current pricing, availability, licensing, security, or scientific suitability; records require item-level verification.
+- **EasySci** — a bilingual directory of research, data-analysis, experiment, design, asset, creative, coding, and AI resources. The current catalogue contains 453 records, including an AI resources board with the Sci Figure Gallery. Catalogue inclusion is not an endorsement or a guarantee of current pricing, availability, licensing, security, or scientific suitability; records require item-level verification.
 - **Smart Brain** — an educational product with a Learn module and an interactive anatomical atlas.
+- **Spark (瞬间)** — a brain-computer-interface-inspired creative capture instrument at `#/spark`. It is a native Vue module (not an iframe page) that turns a user's imagery cues into an editable visual and a saved Idea Capsule. **The brain-computer interface is simulated**: no EEG hardware or decoding model exists in this repository, the signal is always labelled `SIMULATED NEURAL SIGNAL`, and without a configured server-side image service the visual is a labelled demo render, not AI output. See `docs/SPARK_ARCHITECTURE.md`.
 - **About** — product, source, and licence information.
 
 ## Application architecture
@@ -36,6 +37,7 @@ The website project is located at the repository root.
 | `supabase/migrations/` | Database schema for profiles, experiment sessions, and row-level security |
 | `assets/models/atlas/` | Self-hosted anatomical model, manifest, Draco decoder, and attribution |
 | `experiments/believe/` | beLieve experiment runtime and styles |
+| `src/features/spark/`, `src/lib/spark/` | Spark product module (views, store, neural-field canvas) and its BCI / capture / generation adapters |
 | `tests/`, `src/App.test.js` | Unit, contract, asset, regression, and end-to-end tests |
 | `docs/` | Architecture, migration, QA, progress, and catalogue documentation |
 | `vite.config.js` | Development compatibility layer and production-output contract |

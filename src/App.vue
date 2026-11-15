@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onBeforeUnmount, nextTick, ref } from 'vue';
+import { computed, defineAsyncComponent, h, onMounted, onBeforeUnmount, nextTick, ref, watch } from 'vue';
 import {
   authState,
   getCurrentUser,
@@ -15,6 +15,16 @@ import {
 } from './lib/auth';
 import { isSupabaseConfigured } from './lib/supabase';
 
+// Spark (瞬间) is a native Vue module. It is loaded on demand so the shell's
+// first paint and the legacy iframe are unaffected for everyone else.
+const SparkView = defineAsyncComponent({
+  loader: () => import('./features/spark/SparkView.vue'),
+  delay: 150,
+  timeout: 20000,
+  loadingComponent: { render: () => h('p', { class: 'spark-loading', role: 'status' }, language.value === 'zh' ? '正在加载 Spark…' : 'Loading Spark…') },
+  errorComponent: { render: () => h('p', { class: 'spark-loading', role: 'alert' }, language.value === 'zh' ? 'Spark 模块加载失败，请刷新页面重试。' : 'The Spark module failed to load. Reload the page and try again.') },
+});
+
 // Shared with the legacy runtime (assets/i18n/site.js) so the shell and the
 // embedded documents always agree on the active language.
 const LANGUAGE_KEY = 'aloop_lang_v1';
@@ -23,6 +33,7 @@ const frameSrc = ref('');
 const status = ref('正在加载原有实验环境…');
 const language = ref(readStoredLanguage());
 const route = ref('home');
+const sparkSub = ref('capture');
 const openMenu = ref(null);
 const experimentsTrigger = ref(null);
 const experimentsPanel = ref(null);
@@ -42,8 +53,8 @@ function readStoredLanguage() {
 }
 
 const copy = computed(() => language.value === 'zh'
-  ? { experiments: '实验', products: '产品', easysci: 'EasySci', brain: 'Smart Brain', about: '说明', account: '登录 / 注册', loading: '正在加载原有实验环境…', language: '语言切换', menuTitle: '选择实验', menuSoon: '更多实验即将上线', productsTitle: '产品与工具', easysciDesc: '科研、分析与视觉工具目录', brainDesc: '大脑皮层互动学习与语音讲解' }
-  : { experiments: 'Experiments', products: 'Products', easysci: 'EasySci', brain: 'Smart Brain', about: 'About', account: 'Log in / Sign up', loading: 'Loading the existing research environment…', language: 'Language', menuTitle: 'Choose an experiment', menuSoon: 'More experiments coming soon', productsTitle: 'Products & tools', easysciDesc: 'Research, analysis, and visual tools', brainDesc: 'Interactive cortex lessons with voice-over' });
+  ? { experiments: '实验', products: '产品', easysci: 'EasySci', brain: 'Smart Brain', about: '说明', account: '登录 / 注册', loading: '正在加载原有实验环境…', language: '语言切换', menuTitle: '选择实验', menuSoon: '更多实验即将上线', productsTitle: '产品与工具', easysciDesc: '科研、分析与视觉工具目录', brainDesc: '大脑皮层互动学习与语音讲解', spark: '瞬间 / Spark', sparkDesc: '想象捕获与视觉重构' }
+  : { experiments: 'Experiments', products: 'Products', easysci: 'EasySci', brain: 'Smart Brain', about: 'About', account: 'Log in / Sign up', loading: 'Loading the existing research environment…', language: 'Language', menuTitle: 'Choose an experiment', menuSoon: 'More experiments coming soon', productsTitle: 'Products & tools', easysciDesc: 'Research, analysis, and visual tools', brainDesc: 'Interactive cortex lessons with voice-over', spark: 'Spark', sparkDesc: 'Imagination Capture & Visual Reconstruction' });
 
 // The account UI lives inside the legacy runtime; the shell owns the Supabase
 // session and forwards it through the bridge, so there is exactly one owner.
@@ -185,6 +196,7 @@ const shellHashes = {
   experiments: '#/e/believe',
   easysci: '#/easysci',
   'smart-brain': '#/smart-brain',
+  spark: '#/spark',
   about: '#/about',
 };
 const legacyHashes = {
@@ -199,8 +211,19 @@ function targetFromHash(hash) {
   if (parts[0] === 'e') return 'experiments';
   if (parts[0] === 'smart-brain') return 'smart-brain';
   if (parts[0] === 'easysci') return 'easysci';
+  if (parts[0] === 'spark') return 'spark';
   const key = parts[0] || 'home';
   return Object.hasOwn(shellHashes, key) ? key : 'home';
+}
+
+function sparkSubFromHash(hash) {
+  const parts = (hash || '').replace(/^#\/?/, '').split('/').filter(Boolean);
+  return parts[0] === 'spark' && (parts[1] === 'library' || parts[1] === 'calibrate') ? parts[1] : 'capture';
+}
+
+function onSparkNavigate(target) {
+  const next = target === 'library' || target === 'calibrate' ? `#/spark/${target}` : '#/spark';
+  if (window.location.hash !== next) window.location.hash = next;
 }
 
 function toggleMenu(name) {
@@ -266,6 +289,8 @@ function onMenuDocumentKeydown(event) {
 }
 
 function updateFrame(target, hash = window.location.hash) {
+  // Spark renders natively; the legacy iframe keeps its document and state.
+  if (target === 'spark') return;
   if (target === 'about') {
     if (frameSrc.value !== aboutSrc.value) frameSrc.value = aboutSrc.value;
     return;
@@ -285,9 +310,11 @@ function updateFrame(target, hash = window.location.hash) {
 function navigate(target) {
   if (!Object.hasOwn(shellHashes, target)) return;
   route.value = target;
-  const nextHash = target === 'experiments' && window.location.hash.startsWith('#/e/')
+  const nextHash = (target === 'experiments' && window.location.hash.startsWith('#/e/'))
+    || (target === 'spark' && window.location.hash.startsWith('#/spark'))
     ? window.location.hash
     : shellHashes[target];
+  sparkSub.value = sparkSubFromHash(nextHash);
   updateFrame(target, nextHash);
   if (window.location.hash !== nextHash) window.location.hash = nextHash;
 }
@@ -296,10 +323,12 @@ function onShellHashChange() {
   openMenu.value = null;
   const target = targetFromHash(window.location.hash);
   route.value = target;
+  sparkSub.value = sparkSubFromHash(window.location.hash);
   updateFrame(target, window.location.hash);
 }
 
 function onLegacyHashChange() {
+  if (route.value === 'spark') return;
   try {
     if (!frame.value?.contentWindow?.location.pathname.endsWith('/legacy.html')) return;
     const target = targetFromHash(frame.value.contentWindow.location.hash);
@@ -332,6 +361,17 @@ function setLanguage(value) {
   syncLegacyLanguage();
 }
 
+// While Spark is on screen the hidden legacy runtime should not keep rendering WebGL.
+watch(route, (value, previous) => {
+  try {
+    const gl = frame.value?.contentWindow?.AloopGL;
+    if (value === 'spark') gl?.pauseAll?.(true);
+    else if (previous === 'spark') gl?.pauseAll?.(false);
+  } catch {
+    // Cross-document access can fail while the frame is navigating.
+  }
+});
+
 onMounted(() => {
   consumeVerificationError();
   frame.value?.addEventListener('load', onFrameLoad);
@@ -340,6 +380,7 @@ onMounted(() => {
   document.addEventListener('keydown', onMenuDocumentKeydown);
   const initialRoute = targetFromHash(window.location.hash);
   route.value = initialRoute;
+  sparkSub.value = sparkSubFromHash(window.location.hash);
   updateFrame(initialRoute);
   // Restore the Supabase session before the first iframe push, then keep the
   // embedded runtime in sync with every later sign-in / sign-out.
@@ -437,11 +478,24 @@ onBeforeUnmount(() => {
           <span class="products-menu-copy"><span class="products-menu-name">{{ copy.brain }}</span><span class="products-menu-description">{{ copy.brainDesc }}</span></span>
           <span class="menu-arrow" aria-hidden="true">↗</span>
         </button>
+        <button type="button" class="products-menu-item" data-shell-route="spark" :aria-current="route === 'spark' ? 'true' : undefined" role="menuitem" @click="choose('spark')">
+          <span class="products-menu-mark" aria-hidden="true">SP</span>
+          <span class="products-menu-copy"><span class="products-menu-name">{{ copy.spark }}</span><span class="products-menu-description">{{ copy.sparkDesc }}</span></span>
+          <span class="menu-arrow" aria-hidden="true">↗</span>
+        </button>
       </div>
     </header>
 
     <p v-if="configWarning" class="auth-config-warning" role="alert">{{ configWarning.message }}</p>
-    <section class="legacy-frame-wrap" aria-label="Aloop research content">
+    <SparkView
+      v-if="route === 'spark'"
+      :language="language"
+      :sub="sparkSub"
+      :user="account"
+      :cloud-configured="bridgeEnabled"
+      @navigate="onSparkNavigate"
+    />
+    <section v-show="route !== 'spark'" class="legacy-frame-wrap" aria-label="Aloop research content">
       <iframe
         ref="frame"
         class="legacy-runtime"
