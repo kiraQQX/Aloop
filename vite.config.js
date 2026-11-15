@@ -173,5 +173,12 @@ export default defineConfig({
   // Vite try to resolve their bare `three` import-map specifiers without a
   // package.json dependency, which fails the dependency scan in dev.
   optimizeDeps: { entries: ['index.html'] },
-  test: { environment: 'jsdom', restoreMocks: true, clearMocks: true },
+  // Only the app's own test directories are collected. Local staging folders and
+  // archives (for example spark-feature/) must not break `npm test`.
+  test: {
+    environment: 'jsdom',
+    restoreMocks: true,
+    clearMocks: true,
+    include: ['tests/**/*.test.js', 'src/**/*.test.js'],
+  },
 });
